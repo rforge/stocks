@@ -1,0 +1,4 @@
+useDynLib(stocks)
+exportPattern("^[[:alpha:]]+")
+import(quantmod)
+importFrom(Rcpp,evalCpp)
