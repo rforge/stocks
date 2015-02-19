@@ -13,7 +13,7 @@ Provides functions for analyzing historical performance of stocks or other inves
 Package: \tab stocks\cr
 Type: \tab Package\cr
 Version: \tab 1.1.1\cr
-Date: \tab 2015-02-18\cr
+Date: \tab 2015-02-19\cr
 License: \tab GPL-2\cr
 }
 The following functions are included:

@@ -1,2 +1,3 @@
+useDynLib(stocks)
 exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp,evalCpp)
