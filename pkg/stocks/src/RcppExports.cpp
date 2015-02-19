@@ -3,7 +3,7 @@
 using namespace Rcpp;
 
 // diffs_c
-NumericVector diffs_c(NumericVector x, int lag) {
+NumericVector diffs_c(NumericVector x, int lag);
 RcppExport SEXP stocks_diffs_c(SEXP xSEXP, SEXP lagSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
@@ -17,5 +17,4 @@ BEGIN_RCPP
     UNPROTECT(1);
     return __sexp_result;
 END_RCPP
-}
 }
