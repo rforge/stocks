@@ -19,6 +19,8 @@ License: \tab GPL-2\cr
 The following functions are included:
 
 \code{\link{convert.rate}}
+\code{\link{diffs}}
+\code{\link{pdiffs}}
 }
 \author{
 Dane R. Van Domelen
@@ -33,6 +35,15 @@ Acknowledgment: This material is based upon work supported by the National Scien
 NA
 }
 \examples{
-# Your portfolio has tripled in a 13-year period. Calculate your average annual gain.
+# Your portfolio has tripled in a 13-year period - calculate your average annual gain
 convert.rate(rate = 2, days.in = 13*251, days.out = 251)
+
+# Randomly generate 10 values from a standard normal distribution
+x <- rnorm(10)
+
+# Calculate vector of differences between subsequent values
+y <- diffs(x)
+
+# Calculate vector of proportion differences between subsequent values
+z <- pdiffs(x)
 }
