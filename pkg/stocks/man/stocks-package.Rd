@@ -21,6 +21,7 @@ The following functions are included:
 \code{\link{convert.rate}}
 \code{\link{diffs}}
 \code{\link{pdiffs}}
+\code{\link{pchanges}}
 }
 \author{
 Dane R. Van Domelen
@@ -42,8 +43,11 @@ convert.rate(rate = 2, days.in = 13*251, days.out = 251)
 x <- rnorm(10)
 
 # Calculate vector of differences between subsequent values
-y <- diffs(x)
+y1 <- diffs(x)
 
 # Calculate vector of proportion differences between subsequent values
-z <- pdiffs(x)
+y2 <- pdiffs(x)
+
+# Calculate vector of proportion changes between subsequent values
+y3 <- pchanges(x)
 }

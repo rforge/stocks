@@ -21,7 +21,7 @@ TRUE for percent differences, FALSE for proportion differences. Percent differen
 }
 }
 \details{
-Each proportion/percent difference is based on two numbers, say x1 and x2. The proportion difference is defined as (x1 - x2) / mean(x1, x2), and the percent difference is the same quantity multiplied by 100. Notice that this is NOT proportion/percent change, which divides by the initial value x1 rather than the average of x1 and x2. See pchanges for the proportion/percent change operation.
+Each proportion/percent difference is based on two numbers, say x1 and x2. The proportion difference is defined as (x1 - x2) / mean(x1, x2), and the percent difference is the same quantity multiplied by 100. Notice that this is NOT proportion/percent change, which divides by the initial value x1 rather than the average of x1 and x2. See \code{\link{pchanges}} for the proportion/percent change operation.
 }
 \value{
 Numeric vector.
