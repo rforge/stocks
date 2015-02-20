@@ -13,7 +13,7 @@ Provides functions for analyzing historical performance of stocks or other inves
 Package: \tab stocks\cr
 Type: \tab Package\cr
 Version: \tab 1.1.1\cr
-Date: \tab 2015-02-19\cr
+Date: \tab 2015-02-20\cr
 License: \tab GPL-2\cr
 }
 The following functions are included:
@@ -22,6 +22,9 @@ The following functions are included:
 \code{\link{diffs}}
 \code{\link{pdiffs}}
 \code{\link{pchanges}}
+\code{\link{ratios}}
+\code{\link{balances}}
+\code{\link{mdd}}
 }
 \author{
 Dane R. Van Domelen
