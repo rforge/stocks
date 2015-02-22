@@ -1,7 +1,7 @@
 \name{convert.rate}
 \alias{convert.rate}
 \title{
-Convert Gain(s) from One Time Interval to Another
+Convert Gain from One Time Interval to Another
 }
 \description{
 This is a simple function to convert a proportion gain over one time interval to a proportion gain over a different time interval. For example, you can use this function to figure out that a stock gain of 0.08 (8\%) over 70 trading days corresponds to a 251-day or annual gain of 0.19 (19\%). 
@@ -11,10 +11,10 @@ convert.rate(rate, days.in = 1, days.out = 1)
 }
 \arguments{
   \item{rate}{
-Numeric value (or vector) representing the growth rate of a security over a period of days.in days.
+Numeric value (or vector) representing the growth rate of a security or investment over a period of days.in days.
 }
   \item{days.in}{
-Number of trading days over which the stock(s) of interest had a growth rate of rate.
+Number of trading days over which the security of interest had a growth rate of rate.
 }
   \item{days.out}{
 Number of trading days you would like to calculate a growth rate for.

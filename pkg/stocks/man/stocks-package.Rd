@@ -13,7 +13,7 @@ Provides functions for analyzing historical performance of stocks or other inves
 Package: \tab stocks\cr
 Type: \tab Package\cr
 Version: \tab 1.1.1\cr
-Date: \tab 2015-02-20\cr
+Date: \tab 2015-02-22\cr
 License: \tab GPL-2\cr
 }
 The following functions are included:
@@ -24,7 +24,17 @@ The following functions are included:
 \code{\link{pchanges}}
 \code{\link{ratios}}
 \code{\link{balances}}
+\code{\link{final.balance}}
+\code{\link{balances.rate}}
+\code{\link{gains.rate}}
+\code{\link{positives}}
+\code{\link{negatives}}
+\code{\link{nonpositives}}
+\code{\link{nonnegatives}}
 \code{\link{mdd}}
+\code{\link{sharpe}}
+\code{\link{sortino}}
+\code{\link{rrr}}
 }
 \author{
 Dane R. Van Domelen
@@ -39,18 +49,30 @@ Acknowledgment: This material is based upon work supported by the National Scien
 NA
 }
 \examples{
-# Your portfolio has tripled in a 13-year period - calculate your average annual gain
-convert.rate(rate = 2, days.in = 13*251, days.out = 251)
+# Load 10 years of daily closing prices for hypothetical stock ZZZ
+data(zzz)
 
-# Randomly generate 10 values from a standard normal distribution
-x <- rnorm(10)
+# Overall growth rate is about 0.846, or 84.6\%
+prices.rate(zzz)
 
-# Calculate vector of differences between subsequent values
-y1 <- diffs(x)
+# Average annual growth is about 6.3\%
+prices.rate(zzz, xday.rate = 251)
 
-# Calculate vector of proportion differences between subsequent values
-y2 <- pdiffs(x)
+# Calculate ratio of closing prices for each day relative to the previous day
+daily.ratios <- ratios(zzz)
 
-# Calculate vector of proportion changes between subsequent values
-y3 <- pchanges(x)
+# Figure out final balance if we had invested $10,000 on day 1
+final.balance(ratios)
+
+# Calculate Sharpe ratio
+sharpe(prices = zzz)
+
+# Calculate Sortino ratio
+sortino(prices = zzz)
+
+# Calculate maximum drawdown
+mdd(prices = zzz)
+
+# Calculate risk-return ratio
+rrr(prices = zzz)
 }
