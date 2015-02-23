@@ -1,20 +1,20 @@
-\name{negatives}
-\alias{negatives}
+\name{pos}
+\alias{pos}
 \title{
-Return Negative Elements of a Numeric Vector
+Return Positive Elements of a Numeric Vector
 }
 \description{
-Simply returns the negative (or non-positive) elements of some input vector x. Defined as x[which(x < 0)] or x[which(x <= 0)] depending on include.zero input.
+Simply returns the positive (or non-negative) elements of some input vector x. Defined as x[which(x > 0)] or x[which(x >= 0)] depending on include.zero input.
 }
 \usage{
-negatives(x, include.zero = FALSE)
+pos(x, include.zero = FALSE)
 }
 \arguments{
   \item{x}{
 Numeric vector.
 }
   \item{include.zero}{
-If TRUE, elements <= 0 are returned; if FALSE, elements < 0 are returned.
+If TRUE, elements >= 0 are returned; if FALSE, elements > 0 are returned.
 }
 }
 \details{
@@ -33,12 +33,12 @@ Dane R. Van Domelen
 NA
 }
 \seealso{
-\code{\link{positives}}, \code{\link{nonpositives}}, \code{\link{nonnegatives}}
+\code{\link{neg}}, \code{\link{nonpos}}, \code{\link{nonneg}}
 }
 \examples{
 # Generate 10 values from standard normal distribution
 x <- rnorm(10)
 
-# Find negative values
-negatives(x)
+# Find positive values
+pos(x)
 }

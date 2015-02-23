@@ -1,17 +1,20 @@
-\name{nonnegatives}
-\alias{nonnegatives}
+\name{neg}
+\alias{neg}
 \title{
-Return Non-Negative Elements of a Numeric Vector
+Return Negative Elements of a Numeric Vector
 }
 \description{
-Simply returns the non-negative elements of some input vector x. Defined as x[which(x >= 0)].
+Simply returns the negative (or non-positive) elements of some input vector x. Defined as x[which(x < 0)] or x[which(x <= 0)] depending on include.zero input.
 }
 \usage{
-nonnegatives(x)
+neg(x, include.zero = FALSE)
 }
 \arguments{
   \item{x}{
 Numeric vector.
+}
+  \item{include.zero}{
+If TRUE, elements <= 0 are returned; if FALSE, elements < 0 are returned.
 }
 }
 \details{
@@ -30,12 +33,12 @@ Dane R. Van Domelen
 NA
 }
 \seealso{
-\code{\link{positives}}, \code{\link{negatives}}, \code{\link{nonpositives}}
+\code{\link{pos}}, \code{\link{nonpos}}, \code{\link{nonneg}}
 }
 \examples{
 # Generate 10 values from standard normal distribution
 x <- rnorm(10)
 
-# Find non-negative values
-nonnegatives(x)
+# Find negative values
+neg(x)
 }

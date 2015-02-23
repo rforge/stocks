@@ -90,7 +90,7 @@ gains.rate <- function(gains, xday.rate = NULL) {
   
 }
 
-positives <- function(x, include.zero = FALSE) {
+pos <- function(x, include.zero = FALSE) {
   
   # Check that include.zero is a logical
   if (!is.logical(include.zero)) {
@@ -106,7 +106,7 @@ positives <- function(x, include.zero = FALSE) {
   
 }
 
-negatives <- function(x, include.zero = FALSE) {
+neg <- function(x, include.zero = FALSE) {
   
   # Check that include.zero is a logical
   if (!is.logical(include.zero)) {
@@ -122,11 +122,11 @@ negatives <- function(x, include.zero = FALSE) {
   
 }
 
-nonpositives <- function(x) {
+nonpos <- function(x) {
   x[which(x <= 0)]
 }
 
-nonnegatives <- function(x) {
+nonneg <- function(x) {
   x[which(x >= 0)]
 }
 
@@ -200,7 +200,7 @@ sortino <- function(gains = NULL, prices = NULL, rf = 0) {
   }
   
   # Calculate Sortino ratio
-  (mean(gains) - rf) / sd(negatives(gains))
+  (mean(gains) - rf) / sd(neg(gains))
   
 }
 

@@ -1,5 +1,5 @@
-\name{nonpositives}
-\alias{nonpositives}
+\name{nonpos}
+\alias{nonpos}
 \title{
 Return Non-Positive Elements of a Numeric Vector
 }
@@ -7,7 +7,7 @@ Return Non-Positive Elements of a Numeric Vector
 Simply returns the non-positive elements of some input vector x. Defined as x[which(x <= 0)].
 }
 \usage{
-nonpositives(x)
+nonpos(x)
 }
 \arguments{
   \item{x}{
@@ -30,12 +30,12 @@ Dane R. Van Domelen
 NA
 }
 \seealso{
-\code{\link{positives}}, \code{\link{negatives}}, \code{\link{nonnegatives}}
+\code{\link{pos}}, \code{\link{neg}}, \code{\link{nonneg}}
 }
 \examples{
 # Generate 10 values from standard normal distribution
 x <- rnorm(10)
 
 # Find non-positive values
-nonpositives(x)
+nonpos(x)
 }
