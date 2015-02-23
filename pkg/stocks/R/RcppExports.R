@@ -172,9 +172,14 @@ mdd <- function(prices = NULL, gains = NULL, highs = NULL, lows = NULL, indices 
 
 sharpe <- function(gains = NULL, prices = NULL, rf = 0) {
   
+  # Check that either gains or prices is specified
+  if (is.null(gains) & is.null(prices)) {
+    stop("Please enter a gains vector or a prices vector")
+  }
+  
   # Convert from prices to gains if necessary
   if (!is.null(prices)) {
-    gains <- pchanges_c(prices, 1, 1)
+    gains <- pchanges(prices)
   }
   
   # Calculate Sharpe ratio
@@ -183,6 +188,11 @@ sharpe <- function(gains = NULL, prices = NULL, rf = 0) {
 }
 
 sortino <- function(gains = NULL, prices = NULL, rf = 0) {
+  
+  # Check that either gains or prices is specified
+  if (is.null(gains) & is.null(prices)) {
+    stop("Please enter a gains vector or a prices vector")
+  }
   
   # Convert from prices to gains if necessary
   if (!is.null(prices)) {

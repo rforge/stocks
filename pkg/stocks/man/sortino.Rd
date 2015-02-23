@@ -7,15 +7,15 @@ Sortino Ratio
 Calculate Sortino ratio based on a vector of gains (or prices). The formula is: (mean(gains) - rf) / sd(negatives(gains)). Here rf is some risk-free rate of return, gains is a vector of gains (usually daily, but could be weekly, monthly, or some other time interval), and negatives(gains) gets the subset of gains that are negative. User can specify prices or gains.
 }
 \usage{
-sortino(prices = NULL, gains = NULL, rf = 0)
+sortino(gains = NULL, prices = NULL, rf = 0)
 }
 \arguments{
+  \item{gains}{
+Numeric vector of gains.
+}
   \item{prices}{
 Numeric vector of stock prices (typically daily closing prices). 
 }
-  \item{gains}{
-Numeric vector of gains.
-  }
   \item{rf}{
 Risk-free rate of return hypothetically available to the investor.
 }
