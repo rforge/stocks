@@ -17,9 +17,6 @@ Numeric value (or vector) representing the proportion gain of a security or inve
 Number of years.
 }
 }
-\details{
-NA
-}
 \value{
 Numeric value indicating average daily gain.
 }
@@ -29,11 +26,8 @@ Acknowledgment: This material is based upon work supported by the National Scien
 \author{
 Dane R. Van Domelen
 }
-\note{
-NA
-}
 \seealso{
-NA
+\code{\link{daily.yearly}}, \code{\link{convert.rate}}
 }
 \examples{
 # Calculate average daily gain corresponding to a 15\% gain over a 3-year period 

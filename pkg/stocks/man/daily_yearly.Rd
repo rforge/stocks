@@ -17,9 +17,6 @@ Numeric value (or vector) representing the daily proportion gain of a security o
 Number of years over which you would like to calculate the corresponding total gain. For example, set to 3 if you wish to calculate the 3-year gain for a security that has a daily gain of daily.gain.
 }
 }
-\details{
-NA
-}
 \value{
 Numeric value indicating total gain.
 }
@@ -29,11 +26,8 @@ Acknowledgment: This material is based upon work supported by the National Scien
 \author{
 Dane R. Van Domelen
 }
-\note{
-NA
-}
 \seealso{
-NA
+\code{\link{yearly.daily}}, \code{\link{convert.rate}}
 }
 \examples{
 # Calculate annual gain for an investment that gains 0.1\% per day

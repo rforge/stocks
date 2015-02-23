@@ -49,10 +49,11 @@ Acknowledgment: This material is based upon work supported by the National Scien
 NA
 }
 \examples{
-# Load 10 years of daily closing prices for hypothetical stock ZZZ
+# Load and plot 10 years of daily closing prices for hypothetical stock ZZZ
 data(zzz)
+plot(zzz)
 
-# Overall growth rate is about 0.846, or 84.6\%
+# Overall 10-year growth is about 0.846, or 84.6\%
 prices.rate(zzz)
 
 # Average annual growth is about 6.3\%

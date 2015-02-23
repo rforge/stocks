@@ -17,9 +17,6 @@ Numeric vector of stock prices or investment balances. Has to be daily prices if
 Number of days for growth rate calculation. If unspecified, function returns overall growth. If set to 251, function would return annual growth rate.
 }
 }
-\details{
-NA
-}
 \value{
 Numeric value indicating the growth rate.
 }
@@ -29,11 +26,8 @@ Acknowledgment: This material is based upon work supported by the National Scien
 \author{
 Dane R. Van Domelen
 }
-\note{
-NA
-}
 \seealso{
-NA
+\code{\link{gains.rate}}
 }
 \examples{
 # Create vector of daily closing prices for a hypothetical stock

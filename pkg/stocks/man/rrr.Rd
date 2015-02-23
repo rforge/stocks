@@ -17,9 +17,6 @@ Numeric vector of stock prices (typically daily closing prices).
 Numeric vector of gains.
   }
 }
-\details{
-NA
-}
 \value{
 Numeric value indicating the risk-return ratio.
 }
@@ -28,9 +25,6 @@ Acknowledgment: This material is based upon work supported by the National Scien
 }
 \author{
 Dane R. Van Domelen
-}
-\note{
-NA
 }
 \seealso{
 \code{\link{sharpe}}, \code{\link{sortino}}, \code{\link{mdd}}

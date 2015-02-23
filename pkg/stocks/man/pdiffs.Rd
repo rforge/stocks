@@ -33,10 +33,10 @@ Acknowledgment: This material is based upon work supported by the National Scien
 Dane R. Van Domelen
 }
 \note{
-NA
+This function uses C++ code to achieve a 3-4 times speed increase compared to the base R code: len <- length(x); p1 <- x[2: len]; p2 <- x[1: (len - 1)]; (p1 - p2) / (0.5 * (p1 + p2)). 
 }
 \seealso{
-NA
+\code{\link{diffs}}, \code{\link{pchanges}}, \code{\link{ratios}}
 }
 \examples{
 # Randomly generate 10 values from a standard normal distribution

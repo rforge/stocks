@@ -20,9 +20,6 @@ Numeric vector of stock prices (typically daily closing prices).
 Risk-free rate of return hypothetically available to the investor.
 }
 }
-\details{
-NA
-}
 \value{
 Numeric value indicating the Sharpe ratio.
 }

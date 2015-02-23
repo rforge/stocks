@@ -14,9 +14,6 @@ nonpos(x)
 Numeric vector.
 }
 }
-\details{
-NA
-}
 \value{
 Numeric vector.
 }
@@ -25,9 +22,6 @@ Acknowledgment: This material is based upon work supported by the National Scien
 }
 \author{
 Dane R. Van Domelen
-}
-\note{
-NA
 }
 \seealso{
 \code{\link{pos}}, \code{\link{neg}}, \code{\link{nonneg}}

@@ -14,9 +14,6 @@ ratios(x)
 Numeric vector.
 }
 }
-\details{
-NA
-}
 \value{
 Numeric vector.
 }
@@ -27,10 +24,10 @@ Acknowledgment: This material is based upon work supported by the National Scien
 Dane R. Van Domelen
 }
 \note{
-NA
+This function uses C++ code to achieve a 1.5-2 times speed increase compared to the base R code: len <- length(prices); prices[2: len] / prices[1: (len - 1)].
 }
 \seealso{
-NA
+\code{\link{diffs}}, \code{\link{pdiffs}}, \code{\link{pchanges}}
 }
 \examples{
 # Randomly generate 10 values from a standard normal distribution

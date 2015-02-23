@@ -20,9 +20,6 @@ Number of trading days over which the security of interest had a growth rate of 
 Number of trading days you would like to calculate a growth rate for.
 }
 }
-\details{
-NA
-}
 \value{
 Numeric value (or vector) indicating the proportion gain over days.out days.
 }
@@ -32,11 +29,8 @@ Acknowledgment: This material is based upon work supported by the National Scien
 \author{
 Dane R. Van Domelen
 }
-\note{
-NA
-}
 \seealso{
-NA
+\code{\link{daily.yearly}}, \code{\link{yearly.daily}}
 }
 \examples{
 # Calculate the annual growth rate of a stock that gains 1\% per week.

@@ -17,9 +17,6 @@ Numeric vector of ratios between subsequent stock prices (i.e. proportion gains 
 Initial balance.
 }
 }
-\details{
-NA
-}
 \value{
 Numeric vector indicating balance at each time point.
 }
@@ -29,11 +26,8 @@ Acknowledgment: This material is based upon work supported by the National Scien
 \author{
 Dane R. Van Domelen
 }
-\note{
-NA
-}
 \seealso{
-NA
+\code{\link{final.balance}}
 }
 \examples{
 # Randomly generate daily stock gains over a 5-year period

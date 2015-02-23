@@ -43,7 +43,7 @@ Acknowledgment: This material is based upon work supported by the National Scien
 Dane R. Van Domelen
 }
 \note{
-NA
+This function uses C++ code to achieve a 2-3 times speed increase compared to the base R code: 1 - min(prices / cummax(prices)).
 }
 \seealso{
 \code{\link{sharpe}}, \code{\link{sortino}}, \code{\link{rrr}}
