@@ -2,7 +2,6 @@
 \alias{rrr}
 \title{
 Risk-Return Ratio
-rrr <- function(prices = NULL, gains = NULL) {
 }
 \description{
 Calculate ratio if investment return to investment risk based on a vector of prices or gains. The formula is: growth rate / mdd. Here growth rate is the growth of a stock or investment of some time period, and mdd is the maximum drawdown over that time period. User can specify prices or gains.

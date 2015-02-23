@@ -36,7 +36,7 @@ Dane R. Van Domelen
 Several definitions of Sortino ratio are commonly used; this simple version may or may not be the one you prefer.
 }
 \seealso{
-\code{\link{sharpe}, \code{\link{rrr}}, \code{\link{mdd}}
+\code{\link{sharpe}}, \code{\link{rrr}}, \code{\link{mdd}}
 }
 \examples{
 # Randomly generate daily stock gains over a 5-year period

@@ -186,7 +186,7 @@ sortino <- function(gains = NULL, prices = NULL, rf = 0) {
   
   # Convert from prices to gains if necessary
   if (!is.null(prices)) {
-    gains <- pchanges_c(prices, 1, 1)
+    gains <- pchanges(prices)
   }
   
   # Calculate Sortino ratio

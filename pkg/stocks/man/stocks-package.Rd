@@ -25,7 +25,7 @@ The following functions are included:
 \code{\link{ratios}}
 \code{\link{balances}}
 \code{\link{final.balance}}
-\code{\link{balances.rate}}
+\code{\link{prices.rate}}
 \code{\link{gains.rate}}
 \code{\link{positives}}
 \code{\link{negatives}}
@@ -62,7 +62,7 @@ prices.rate(zzz, xday.rate = 251)
 daily.ratios <- ratios(zzz)
 
 # Figure out final balance if we had invested $10,000 on day 1
-final.balance(ratios)
+final.balance(daily.ratios)
 
 # Calculate Sharpe ratio
 sharpe(prices = zzz)
