@@ -6,14 +6,14 @@
 Fast Functions for Stock Market Analysis
 }
 \description{
-Provides functions for analyzing historical performance of stocks or other investments. Functions are written in C++ to quickly calculate maximum draw-down, Sharpe ratio, risk return ratio, and other commonly used metrics of stock performance.
+Functions for analyzing historical performance of stocks or other investments. Calculate maximum draw-down, Sharpe ratio, Sortino ratio, risk return ratio, alpha and beta from the capital assets pricing model (CAPM), and other commonly used metrics of stock performance. C++ used where possible to improve processing speed.
 }
 \details{
 \tabular{ll}{
 Package: \tab stocks\cr
 Type: \tab Package\cr
 Version: \tab 1.1.1\cr
-Date: \tab 2015-02-23\cr
+Date: \tab 2015-03-12\cr
 License: \tab GPL-2\cr
 }
 The following functions are included:
@@ -35,6 +35,7 @@ The following functions are included:
 \code{\link{sharpe}}
 \code{\link{sortino}}
 \code{\link{rrr}}
+\code{\link{capm.ticker}}
 }
 \author{
 Dane R. Van Domelen
