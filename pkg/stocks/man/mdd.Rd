@@ -7,7 +7,7 @@ Maximum Drawdown
 Calculates maximum drawdown for a numeric vector (see Details).
 }
 \usage{
-mdd(prices = NULL, gains = NULL, highs = NULL, lows = NULL, indices = FALSE)
+mdd(prices = NULL, gains = NULL, highs = NULL, lows = NULL, indices = FALSE, nas = FALSE)
 }
 \arguments{
   \item{prices}{
@@ -24,6 +24,9 @@ Numeric vector of daily lows.
 }
   \item{indices}{
 If TRUE, function returns maximum drawdown and the indices corresponding to the start and end of the drawdown period; if FALSE, function only returns the maximum drawdown.
+}
+  \item{nas}
+If TRUE, function finds and removes any missing values (NA's) in prices vector. The default is FALSE to maximize speed for the usual case where there are no missing values.
 }
 }
 \details{
@@ -46,7 +49,7 @@ Dane R. Van Domelen
 This function uses C++ code to achieve a 2-3 times speed increase compared to the base R code: 1 - min(prices / cummax(prices)).
 }
 \seealso{
-\code{\link{sharpe}}, \code{\link{sortino}}, \code{\link{rrr}}
+\code{\link{sharpe.ratio}}, \code{\link{sortino.ratio}}, \code{\link{rrr}}
 }
 \examples{
 # Randomly generate minute-to-minute stock gains over a 2-year period

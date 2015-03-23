@@ -7,7 +7,7 @@ Calculate Growth Rate From a Vector of Stock Prices or Investment Balances
 The formula is simply: overall.rate = prices[length(prices)] / prices[1] - 1. If xday is specified, then it converts to x-day growth rate. For example, if prices is a vector of stock prices over a five-day period, say c(100.4, 98.7, 101.3, 101.0, 100.9), then the overall growth rate is approximately 0.0050 over four full trading days. If xday.rate is set to 1, this rate is converted to an average daily rate of approximately 
 }
 \usage{
-prices.rate(prices, xday.rate = NULL)
+prices.rate(prices, xday.rate = NULL, nas = FALSE)
 }
 \arguments{
   \item{prices}{
@@ -15,6 +15,9 @@ Numeric vector of stock prices or investment balances. Has to be daily prices if
 }
   \item{xday.rate}{
 Number of days for growth rate calculation. If unspecified, function returns overall growth. If set to 251, function would return annual growth rate.
+}
+  \item{nas}
+If TRUE, function finds and removes any missing values (NA's) in prices vector. The default is FALSE to maximize speed for the usual case where there are no missing values.
 }
 }
 \value{

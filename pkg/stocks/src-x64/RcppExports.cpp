@@ -129,3 +129,21 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// balances_weighted_c
+NumericMatrix balances_weighted_c(NumericMatrix ratios, double initial, NumericVector weights, int rebalance_interval);
+RcppExport SEXP stocks_balances_weighted_c(SEXP ratiosSEXP, SEXP initialSEXP, SEXP weightsSEXP, SEXP rebalance_intervalSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        NumericMatrix ratios = Rcpp::as<NumericMatrix >(ratiosSEXP);
+        double initial = Rcpp::as<double >(initialSEXP);
+        NumericVector weights = Rcpp::as<NumericVector >(weightsSEXP);
+        int rebalance_interval = Rcpp::as<int >(rebalance_intervalSEXP);
+        NumericMatrix __result = balances_weighted_c(ratios, initial, weights, rebalance_interval);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}

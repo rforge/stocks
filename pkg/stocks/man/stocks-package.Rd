@@ -12,8 +12,8 @@ Functions for analyzing historical performance of stocks or other investments. C
 \tabular{ll}{
 Package: \tab stocks\cr
 Type: \tab Package\cr
-Version: \tab 1.1.1\cr
-Date: \tab 2015-03-12\cr
+Version: \tab 1.1.2\cr
+Date: \tab 2015-03-23\cr
 License: \tab GPL-2\cr
 }
 The following functions are included:
@@ -25,6 +25,7 @@ The following functions are included:
 \code{\link{ratios}}
 \code{\link{balances}}
 \code{\link{final.balance}}
+\code{\link{balances.weighted}}
 \code{\link{prices.rate}}
 \code{\link{gains.rate}}
 \code{\link{pos}}
@@ -32,10 +33,12 @@ The following functions are included:
 \code{\link{nonpos}}
 \code{\link{nonneg}}
 \code{\link{mdd}}
-\code{\link{sharpe}}
-\code{\link{sortino}}
+\code{\link{sharpe.ratio}}
+\code{\link{sortino.ratio}}
 \code{\link{rrr}}
-\code{\link{capm.ticker}}
+\code{\link{ticker.dates}}
+\code{\link{monthly.gains}}
+\code{\link{yearly.gains}}
 }
 \author{
 Dane R. Van Domelen
@@ -43,6 +46,8 @@ Dane R. Van Domelen
 Maintainer: Dane R. Van Domelen <vandomed@gmail.com>
 }
 \references{
+1. Jeffrey A. Ryan (2014). quantmod: Quantitative Financial Modelling Framework. R package version 0.4-2/r613. http://R-Forge.R-project.org/projects/quantmod/.
+
 Acknowledgment: This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE-0940903.
 }
 \keyword{ package }
@@ -67,10 +72,10 @@ daily.ratios <- ratios(zzz)
 final.balance(daily.ratios)
 
 # Calculate Sharpe ratio
-sharpe(prices = zzz)
+sharpe.ratio(prices = zzz)
 
 # Calculate Sortino ratio
-sortino(prices = zzz)
+sortino.ratio(prices = zzz)
 
 # Calculate maximum drawdown
 mdd(prices = zzz)
