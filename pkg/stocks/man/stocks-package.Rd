@@ -82,8 +82,4 @@ mdd(prices = zzz)
 
 # Calculate risk-return ratio
 rrr(prices = zzz)
-
-# View list of Vanguard ETFs
-data(vanguard.etfs)
-vanguard.etfs
 }
