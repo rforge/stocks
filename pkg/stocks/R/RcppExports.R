@@ -454,8 +454,8 @@ monthly.gains <- function(tickers = NULL, quantmod.list = NULL, from = NULL,
   
   # Get dates for each fund
   dates <- lapply(quantmod.list, function(x) as.Date(rownames(x)))
-  start.dates <- as.Date(unlist(lapply(dates, function(x) x[1])))
-  end.dates <- as.Date(unlist(lapply(dates, function(x) rev(x)[1])))
+  start.dates <- as.Date(unlist(lapply(dates, function(x) as.character(x[1]))))
+  end.dates <- as.Date(unlist(lapply(dates, function(x) as.character(rev(x)[1]))))
   
   # If start/end dates are different, get subset of data with mutual lifetimes
   if (length(unique(start.dates)) > 1 | length(unique(end.dates)) > 1) {
@@ -469,6 +469,7 @@ monthly.gains <- function(tickers = NULL, quantmod.list = NULL, from = NULL,
     
     # Get updated dates
     dates <- lapply(quantmod.list, function(x) as.Date(rownames(x)))
+    
     start.dates <- as.Date(unlist(lapply(dates, function(x) x[1])))
     end.dates <- as.Date(unlist(lapply(dates, function(x) rev(x)[1])))
     
@@ -567,8 +568,8 @@ yearly.gains <- function(tickers = NULL, quantmod.list = NULL, from = NULL, to =
   
   # Get dates for each fund
   dates <- lapply(quantmod.list, function(x) as.Date(rownames(x)))
-  start.dates <- as.Date(unlist(lapply(dates, function(x) x[1])))
-  end.dates <- as.Date(unlist(lapply(dates, function(x) rev(x)[1])))
+  start.dates <- as.Date(unlist(lapply(dates, function(x) as.character(x[1]))))
+  end.dates <- as.Date(unlist(lapply(dates, function(x) as.character(rev(x)[1]))))
   
   # If start/end dates are different, get subset of data with mutual lifetimes
   if (length(unique(start.dates)) > 1 | length(unique(end.dates)) > 1) {
