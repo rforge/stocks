@@ -19,7 +19,7 @@ Numeric vector of stock prices (typically daily closing prices).
   \item{rf}{
 Risk-free rate of return hypothetically available to the investor.
 }
-  \item{nas}
+  \item{nas}{
 If TRUE, function finds and removes any missing values (NA's) in prices vector. The default is FALSE to maximize speed for the usual case where there are no missing values.
 }
 }

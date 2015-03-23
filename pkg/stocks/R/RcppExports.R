@@ -524,9 +524,8 @@ monthly.gains <- function(tickers = NULL, quantmod.list = NULL, from = NULL,
 
 
 
-yearly.gains <- function(tickers = NULL, quantmod.list = NULL, index = "^GSPC", 
-                         from = NULL, to = NULL, decimals = getOption("digits"),
-                         partialyear.min = 125) {
+yearly.gains <- function(tickers = NULL, quantmod.list = NULL, from = NULL, to = NULL, 
+                         decimals = getOption("digits"), partialyear.min = 125) {
   
   # Check that either tickers or quantmod.list is specified, but not both
   if (!is.null(tickers) & !is.null(quantmod.list)) {

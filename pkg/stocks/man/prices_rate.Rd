@@ -16,7 +16,7 @@ Numeric vector of stock prices or investment balances. Has to be daily prices if
   \item{xday.rate}{
 Number of days for growth rate calculation. If unspecified, function returns overall growth. If set to 251, function would return annual growth rate.
 }
-  \item{nas}
+  \item{nas}{
 If TRUE, function finds and removes any missing values (NA's) in prices vector. The default is FALSE to maximize speed for the usual case where there are no missing values.
 }
 }

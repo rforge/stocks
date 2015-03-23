@@ -4,6 +4,9 @@
 \title{
 List of Vanguard ETFs and their inception dates, current as of March 20, 2015.
 }
+\description{
+Just a character vector of ticker symbols for Vanguard ETFs.
+}
 \usage{data("vanguard.etfs")}
 \format{
   The format is:

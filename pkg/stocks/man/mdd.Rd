@@ -25,7 +25,7 @@ Numeric vector of daily lows.
   \item{indices}{
 If TRUE, function returns maximum drawdown and the indices corresponding to the start and end of the drawdown period; if FALSE, function only returns the maximum drawdown.
 }
-  \item{nas}
+  \item{nas}{
 If TRUE, function finds and removes any missing values (NA's) in prices vector. The default is FALSE to maximize speed for the usual case where there are no missing values.
 }
 }

@@ -27,6 +27,12 @@ Numeric vector of weights for each fund. Weights have to add to 1.
   \item{rebalance.interval}{
 Whole number indicating how often you want to rebalance the portfolio to get back to the desired weights. For example, a value of 21 means that portfolio rebalancing is done every 21 days (about 1 month of trading).
 }
+  \item{final.bal}{
+If TRUE, function returns final balance of portfolio rather than matrix of balances for each fund and overall portfolio at each time point.
+}
+  \item{nas}{
+If TRUE, function finds and removes any missing values (NA's) in ratios/prices matrices. The default is FALSE to maximize speed for the usual case where there are no missing values.
+}
   \item{plot}{
 Controls what (if anything) is plotted. Possible values are as follows: 'all' to plot balances for each fund and the total portfolio (on same scale regardless of weights for purposes of visual comparisons); 'portfolio' to plot portfolio balances; and 'none' to not plot anything.
 }

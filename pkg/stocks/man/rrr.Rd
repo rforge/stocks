@@ -16,7 +16,7 @@ Numeric vector of stock prices (typically daily closing prices).
   \item{gains}{
 Numeric vector of gains.
 }
-  \item{nas}
+  \item{nas}{
 If TRUE, function finds and removes any missing values (NA's) in prices vector. The default is FALSE to maximize speed for the usual case where there are no missing values.
 }  
 }
