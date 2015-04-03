@@ -470,8 +470,8 @@ monthly.gains <- function(tickers = NULL, quantmod.list = NULL, from = NULL,
     # Get updated dates
     dates <- lapply(quantmod.list, function(x) as.Date(rownames(x)))
     
-    start.dates <- as.Date(unlist(lapply(dates, function(x) x[1])))
-    end.dates <- as.Date(unlist(lapply(dates, function(x) rev(x)[1])))
+    start.dates <- as.Date(unlist(lapply(dates, function(x) as.character(x[1]))))
+    end.dates <- as.Date(unlist(lapply(dates, function(x) as.character(rev(x)[1]))))
     
   }
   
@@ -583,8 +583,8 @@ yearly.gains <- function(tickers = NULL, quantmod.list = NULL, from = NULL, to =
     
     # Get updated dates
     dates <- lapply(quantmod.list, function(x) as.Date(rownames(x)))
-    start.dates <- as.Date(unlist(lapply(dates, function(x) x[1])))
-    end.dates <- as.Date(unlist(lapply(dates, function(x) rev(x)[1])))
+    start.dates <- as.Date(unlist(lapply(dates, function(x) as.character(x[1]))))
+    end.dates <- as.Date(unlist(lapply(dates, function(x) as.character(rev(x)[1]))))
     
   }
   
@@ -697,8 +697,8 @@ capm.daily <- function(tickers, index = "^GSPC", from = NULL, to = NULL,
   
   # Get dates for each fund
   dates <- lapply(prices.list, function(x) as.Date(rownames(x)))
-  start.dates <- as.Date(unlist(lapply(dates, function(x) x[1])))
-  end.dates <- as.Date(unlist(lapply(dates, function(x) rev(x)[1])))
+  start.dates <- as.Date(unlist(lapply(dates, function(x) as.character(x[1]))))
+  end.dates <- as.Date(unlist(lapply(dates, function(x) as.character(rev(x)[1]))))
   lengths <- unlist(lapply(prices.list, nrow))
   
   if (align.all) {
@@ -715,8 +715,8 @@ capm.daily <- function(tickers, index = "^GSPC", from = NULL, to = NULL,
       
       # Get updated dates
       dates <- lapply(prices.list, function(x) as.Date(rownames(x)))
-      start.dates <- as.Date(unlist(lapply(dates, function(x) x[1])))
-      end.dates <- as.Date(unlist(lapply(dates, function(x) rev(x)[1])))
+      start.dates <- as.Date(unlist(lapply(dates, function(x) as.character(x[1]))))
+      end.dates <- as.Date(unlist(lapply(dates, function(x) as.character(rev(x)[1]))))
       lengths <- unlist(lapply(prices.list, nrow))
       
     }
