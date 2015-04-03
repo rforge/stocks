@@ -363,7 +363,7 @@ sortino.ratio <- function(gains = NULL, prices = NULL, rf = 0, nas = FALSE) {
 
 
 
-rrr <- function(prices = NULL, gains = NULL, nas = FALSE) {
+rrr <- function(prices = NULL, gains = NULL, highs = NULL, lows = NULL, nas = FALSE) {
   
   # Check that either prices or gains is specified
   if (is.null(prices) & is.null(gains)) {
@@ -630,5 +630,350 @@ yearly.gains <- function(tickers = NULL, quantmod.list = NULL, from = NULL, to =
   # Convert to data frame and return
   gains <- as.data.frame(gains)
   return(gains)
+  
+}
+
+
+capm.daily <- function(tickers, index = "^GSPC", from = NULL, to = NULL,
+                       weights = NULL, weights.popmoments = TRUE, 
+                       align.all = TRUE, cov.method = "capm",
+                       decimals = getOption("digits"), plot = "characteristic") {
+  
+  # Check that inputs are valid
+  if (! all(is.character("tickers"))) {
+    stop("For tickers input, please enter a character string like 'AAPL' for Apple")
+  }
+  if (! is.character(index)) {
+    stop("For index input, please enter a character string like '^GSPC' for the S&P 500")
+  }
+  if (!is.null(from) && ! class(from) %in% c("character", "Date")) {
+    stop("For from input, please enter a date or a character string that looks like a date (e.g. '2010-01-04' for January 4, 2010)")
+  }
+  if (!is.null(to) && ! class(to) %in% c("character", "Date")) {
+    stop("For to input, please enter a date or a character string that looks like a date (e.g. '2015-03-09' for March 9, 2015)")
+  }
+  if (!is.null(weights) && ! (length(weights) == (length(tickers) + 1) | all(weights >= 0 & weights <= 1))) {
+    stop("For weights input, please enter vector of weights for index and tickers that add to 1")
+  }
+  if (! all(is.logical(align.all))) {
+    stop("For align.all input, please enter TRUE or FALSE")
+  }
+  if (! cov.method %in% c("capm", "cov.sample", "all.sample")) {
+    stop("For cov.method input, please enter 'capm', 'cov.sample', or 'all.sample'")
+  }
+  if (decimals < 0 | ! floor(decimals) == decimals) {
+    stop("For decimals input, please enter a whole number greater than or equal to 0")
+  }
+  if (!plot %in% c("characteristic", "expectation.sd", "none")) {
+    stop("For plot input, please enter 'characteristic', 'expectation.sd', or 'none'")
+  }
+  
+  # If weights not specified, set to equal weights for each fund
+  if (is.null(weights)) {
+    weights <- rep(1 / (length(tickers) + 1), (length(tickers) + 1))
+  }
+  
+  # Combine index and tickers into single character string
+  index.tickers <- c(index, tickers)
+  
+  # If to not specified, set to current date
+  if (is.null(to)) {
+    today <- Sys.Date()
+    to <- today
+  }
+  
+  # If from not specified, set to 1 year ago
+  if (is.null(from)) {
+    from <- as.Date(paste(year(today)-1, month(today), day(today), sep = "-")) - 1
+  }
+  
+  # Download stock prices for tickers from Yahoo! Finance, using the quantmod package
+  prices.list <- list()
+  for (ii in 1:length(index.tickers)) {
+    temp.prices <- getSymbols(Symbols = index.tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE)
+    prices.list[[ii]] <- as.matrix(adjustOHLC(x = temp.prices, symbol.name = index.tickers[ii]))
+  }
+  names(prices.list) <- index.tickers
+  
+  # Get dates for each fund
+  dates <- lapply(prices.list, function(x) as.Date(rownames(x)))
+  start.dates <- as.Date(unlist(lapply(dates, function(x) x[1])))
+  end.dates <- as.Date(unlist(lapply(dates, function(x) rev(x)[1])))
+  lengths <- unlist(lapply(prices.list, nrow))
+  
+  if (align.all) {
+    
+    # If start/end dates are different, get subset of data with mutual lifetimes
+    if (length(unique(start.dates)) > 1 | length(unique(end.dates)) > 1) {
+      
+      # Update from and to dates
+      from <- max(start.dates)
+      to <- min(end.dates)
+      
+      # Change matrices within prices.list to all cover the same time frame
+      prices.list <- lapply(prices.list, function(x) x[as.Date(rownames(x)) >= from & as.Date(rownames(x)) <= to, ])
+      
+      # Get updated dates
+      dates <- lapply(prices.list, function(x) as.Date(rownames(x)))
+      start.dates <- as.Date(unlist(lapply(dates, function(x) x[1])))
+      end.dates <- as.Date(unlist(lapply(dates, function(x) rev(x)[1])))
+      lengths <- unlist(lapply(prices.list, nrow))
+      
+    }
+    
+  } else {
+    
+    # Add rows of NA's to top of funds that have less data than the longest one
+    for (ii in 1:length(prices.list)) {
+      
+      length.diff <- max(lengths) - lengths[ii]
+      if (length.diff > 0) {
+        
+        prices.list[[ii]] <- rbind(prices.list[[which.max(lengths)]][1:length.diff, ], prices.list[[ii]])
+        prices.list[[ii]][1:length.diff, ] <- NA
+        
+      }
+      
+    }
+    
+  }
+  
+  # Verify that dates match up for all tickers
+  dates1 <- rownames(prices.list[[1]])
+  for (ii in 2:length(index.tickers)) {
+    dates2 <- rownames(prices.list[[ii]])
+    if (! all(dates1 == dates2)) {
+      stop("Unfortunately the dates for various tickers don't perfectly match, so cannot calculate correlations")
+    }
+  }
+  
+  # Create prices and highs/lows matrices
+  prices <- matrix(unlist(lapply(prices.list, function(x) x[, 6])), ncol = length(prices.list), byrow = FALSE)
+  highs <- matrix(unlist(lapply(prices.list, function(x) x[, 2])), ncol = length(prices.list), byrow = FALSE)
+  lows <- matrix(unlist(lapply(prices.list, function(x) x[, 3])), ncol = length(prices.list), byrow = FALSE)
+  colnames(prices) <- index.tickers
+  colnames(highs) <- index.tickers
+  colnames(lows) <- index.tickers
+  
+  # Calculate daily gains
+  gains <- apply(prices, 2, pchanges)
+  colnames(gains) <- index.tickers
+  
+  # Get data on index throughout its history to get its mean and variance
+  if (index == "^GSPC") {
+    index.moments <- c(0.0003406497, 0.000093749092)
+  } else {
+    index.prices <- as.matrix(getSymbols(Symbols = index, from = "1950-01-01", to = to, auto.assign = FALSE, warnings = FALSE))
+    gains2 <- pchanges(index.prices[, 6])
+    index.moments <- c(mean(gains2), var(gains2))
+  }
+  
+  # Loop through and calculate metrics for each fund
+  fit <- list()
+  resid <- matrix(NA, nrow = nrow(gains), ncol = length(index.tickers))
+  colnames(resid) <- index.tickers
+  #resid <- matrix(NA, nrow = nrow(gains), ncol = length(tickers) + 3)
+  #resid <- data.frame(matrix(NA, nrow = nrow(gains), ncol = length(tickers) + 3))
+  metrics <- data.frame(matrix(NA, nrow = length(prices.list), ncol = 22))
+  names(metrics) <- c("ticker", "from", "to", "growth", "cagr", "cdgr", "xbar", "s2", "sharpe", "sortino", "mdd", "rrr", 
+                      "alpha", "alpha.p", "beta", "beta.p", "alpha2", "alpha2.p", "r.squared", "expectation", "variance", "esd")
+  
+  for (ii in 1:length(prices.list)) {
+    
+    metrics[ii, 1] <- index.tickers[ii]
+    metrics[ii, 2] <- as.character(start.dates[ii])
+    metrics[ii, 3] <- as.character(end.dates[ii])
+    metrics[ii, 4:12] <- round(c(gains.rate(gains = gains[, ii], nas = TRUE), 
+                                 gains.rate(gains = gains[, ii], 251, nas = TRUE),
+                                 gains.rate(gains = gains[, ii], 1, nas = TRUE),
+                                 mean(gains[, ii], na.rm = T),
+                                 var(gains[, ii], na.rm = T),
+                                 sharpe.ratio(gains = gains[, ii], nas = TRUE), 
+                                 sortino.ratio(gains = gains[, ii], nas = TRUE),
+                                 mdd(highs = highs[, ii], lows = lows[, ii], nas = TRUE),
+                                 rrr(gains = gains[, ii], highs = highs[, ii], lows = lows[, ii], nas = TRUE)), decimals)
+    
+    # CAPM metrics
+    current.fit <- lm(gains[, ii] ~ gains[, 1])
+    fit[[ii]] <- current.fit
+    summary.fit <- summary(current.fit)
+    cov.fit <- vcov(current.fit)
+    resid[, ii] <- c(rep(NA, max(lengths)-lengths[ii]), summary.fit$residuals)
+    
+    r2 <- summary.fit$r.squared
+    alpha <- summary.fit$coef[1, 1]
+    alpha.p <- pnorm(-abs(alpha / summary.fit$coef[1, 2])) * 2
+    beta <- summary.fit$coef[2, 1]
+    beta.p <- pnorm(-abs(beta / summary.fit$coef[2, 2])) * 2
+    
+    alpha2 <- alpha + beta * index.moments[1] - index.moments[1]
+    var.alpha2 <- cov.fit[1, 1] + index.moments[1]^2 * cov.fit[2, 2] + 2 * index.moments[1] * cov.fit[1, 2]
+    alpha2.p <- pnorm(-abs(alpha2 / sqrt(var.alpha2))) * 2
+    
+    expectation <- alpha2 + index.moments[1]
+    variance <- anova(current.fit)[2, 3] + beta^2 * index.moments[2]
+    
+    esd <- (alpha2 + index.moments[1]) / sqrt(variance)
+    
+    metrics[ii, 13:22] <- round(c(alpha, alpha.p, beta, beta.p, alpha2, alpha2.p, r2, expectation, variance, esd), decimals)
+    
+  }
+  
+  # Replace certain index metrics with NA's
+  metrics[1, c(14, 16, 18)] <- NA
+  
+  # Create covariance matrices
+  cov.samplemoments <- cov(gains, use = "pairwise.complete.obs")
+  cov.popmoments <- matrix(NA, nrow = length(prices.list), ncol = length(prices.list))
+  diag(cov.popmoments) <- metrics$variance
+  for (ii in 1:(length(prices.list)-1)) {
+    for (jj in (ii+1): length(prices.list)) {
+      cov.popmoments[ii, jj] <- cov.popmoments[jj, ii] <- metrics$beta[ii]*metrics$beta[jj]*index.moments[2] + cov(resid[, ii], resid[, jj], use = "complete.obs")
+    }
+  }
+  colnames(cov.popmoments) <- rownames(cov.popmoments) <- index.tickers
+  
+  # Assign cov.samplemoments of cov.popmoments to cov.matrix depending on cov.weights input
+  if (weights.popmoments) {
+    cov.matrix <- cov.samplemoments
+  } else {
+    cov.matrix <- cov.popmoments
+  }
+  
+  # Figure out optimal weights
+  f <- function(c) {
+    
+    esd <- (t(c) %*% metrics$expectation) / sqrt(t(c) %*% cov.matrix %*% c)
+    return(-esd)
+    
+  }
+  weights.pre <- nlminb(start = rep(1/length(prices.list), length(prices.list)), objective = f, lower = 0, upper = 1)
+  weights.final <- matrix(weights.pre$par / sum(weights.pre$par), ncol = 1)
+  
+  # Calculate growth of $100 in each fund including weighted funds
+  growth100 <- apply(gains[complete.cases(gains), ], 2, function(x) balances(ratios = x + 1, initial = 100))
+  growth100 <- cbind(growth100, growth100 %*% weights, growth100 %*% weights.final)
+  colnames(growth100) <- c(index.tickers, "entered.weights", "optimal.weights")
+  
+  # Calculate gains for weighted funds
+  weighted.gains <- apply(growth100, 2, pchanges)[, -(2:length(index.tickers))]
+  colnames(weighted.gains) <- c(index, "input.weights", "optimal.weights")
+  
+  new.rows <- as.data.frame(matrix(NA, nrow = 2, ncol = 22))
+  names(new.rows) <- names(metrics)
+  metrics <- rbind(metrics, new.rows)
+  new.tickers <- c(index, "input.weights", "optimal.weights")
+  new.dates <- rep(dates[which.min(lengths)], 3) 
+  
+  for (ii in 2:3) {
+    
+    ind <- ii + length(index.tickers) - 1
+    
+    metrics[ind, 1] <- new.tickers[ii]
+    metrics[ind, 2] <- as.character(max(start.dates))
+    metrics[ind, 3] <- as.character(min(end.dates))
+    metrics[ind, 4:12] <- round(c(gains.rate(gains = weighted.gains[, ii], nas = TRUE),
+                                  gains.rate(gains = weighted.gains[, ii], 251, nas = TRUE),
+                                  gains.rate(gains = weighted.gains[, ii], 1, nas = TRUE),
+                                  mean(weighted.gains[, ii], na.rm = T),
+                                  var(weighted.gains[, ii], na.rm = T),
+                                  sharpe.ratio(gains = weighted.gains[, ii], nas = TRUE), 
+                                  sortino.ratio(gains = weighted.gains[, ii], nas = TRUE),
+                                  mdd(gains = weighted.gains[, ii], nas = TRUE),
+                                  rrr(gains = weighted.gains[, ii], nas = TRUE)), decimals)
+    
+    # CAPM metrics
+    current.fit <- lm(weighted.gains[, ii] ~ weighted.gains[, 1])
+    fit[[ind]] <- current.fit
+    summary.fit <- summary(current.fit)
+    cov.fit <- vcov(current.fit)
+    
+    r2 <- summary.fit$r.squared
+    alpha <- summary.fit$coef[1, 1]
+    alpha.p <- pnorm(-abs(alpha / summary.fit$coef[1, 2])) * 2
+    beta <- summary.fit$coef[2, 1]
+    beta.p <- pnorm(-abs(beta / summary.fit$coef[2, 2])) * 2
+    
+    alpha2 <- alpha + beta * index.moments[1] - index.moments[1]
+    var.alpha2 <- cov.fit[1, 1] + index.moments[1]^2 * cov.fit[2, 2] + 2 * index.moments[1] * cov.fit[1, 2]
+    alpha2.p <- pnorm(-abs(alpha2 / sqrt(var.alpha2))) * 2
+    
+    expectation <- alpha2 + index.moments[1]
+    variance <- anova(current.fit)[2, 3] + beta^2 * index.moments[2]
+    
+    esd <- (alpha2 + index.moments[1]) / sqrt(variance)
+    
+    metrics[ind, 13:22] <- round(c(alpha, alpha.p, beta, beta.p, alpha2, alpha2.p, r2, expectation, variance, esd), decimals)
+    
+  }
+  
+  weights.final <- as.vector(weights.final)
+  names(weights.final) <- index.tickers
+  ret <- list(dates = dates,
+              growth100 = growth100,
+              metrics = metrics,
+              fit = fit,
+              cov.matrix = cov.matrix,
+              weights.final = weights.final)
+  
+  # Plot results if requested
+  if (plot == "characteristic") {
+    
+    if (length(tickers) == 1) {
+      
+      # Create titles
+      plot.title <- paste("Characteristic Line for ", tickers, sep = "")
+      y.title <- paste("Daily gain (%)", sep = "")
+      x.title <- paste(index, " gain (%)", sep = "")
+      
+      # Get min and max for index and ticker
+      xrange <- range(gains[, 1]) * 100
+      yrange <- range(gains[, 2]) * 100
+      
+      plot(NULL, NULL, main = plot.title, ylab = y.title, xlab = x.title,
+           xlim = xrange, ylim = yrange)
+      points(gains[, 1] * 100, gains[, 2] * 100, pch = 16)
+      points(gains[, 1] * 100, predict(lm(gains[, 2] ~ gains[, 1])) * 100, type = "l", col = "red")
+      abline(h = 0, lty = 3, col = "black")
+      abline(v = 0, lty = 3, col = "black")
+      if (fit[[2]]$coef[2] >= 0) {
+        legend("topleft", legend = paste("Y = ", sprintf("%.3f", fit[[2]]$coef[1] * 100), 
+                                         " + ", sprintf("%.3f", fit[[2]]$coef[2]),"X", sep = ""),
+               lty = 1, col = "red", bg = "white")
+      } else {
+        legend("topleft", legend = paste("Y = ", sprintf("%.3f", fit[[2]]$coef[1] * 100), 
+                                         " - ", sprintf("%.3f", abs(fit[[2]]$coef[2])),"X", sep = ""),
+               lty = 1, col = "red", bg = "white")
+      }
+      
+    } else {
+      
+      # Create titles
+      plot.title <- paste("Characteristic Lines")
+      y.title <- paste("Daily gain (%)", sep = "")
+      x.title <- paste(index, " gain (%)", sep = "")
+      
+      plot(NULL, NULL, main = "Characteristic Lines", ylab = y.title, xlab = x.title,
+           xlim = c(-0.05, 0.05), ylim = c(-0.05, 0.05))
+      x <- c(-0.05, 0.05)
+      points(x, x, type = "l", col = "red")
+      for (ii in 2:(length(tickers) + 1)) {
+        
+        y <- metrics$alpha[ii] + metrics$beta[ii] * x
+        points(x, y, col = "purple", type = "l")
+        
+      }
+      y <- rev(metrics$alpha)[1] + rev(metrics$beta)[1] * x
+      points(x, y, col = "darkblue", type = "l", lwd = 2.5)
+      lines(x = c(-0.05, 0.05), y = c(0, 0), lty = 3, col = "black")
+      lines(x = c(0, 0), y = c(-0.05, 0.05), lty = 3, col = "black")
+      legend("topleft", legend = c("Individual funds", "Optimally weighted"), lty = 1, lwd = c(1, 2.5), col = "purple", bg = "white")
+      
+    }
+    
+  }
+  
+  # Return object
+  return(ret)
   
 }
