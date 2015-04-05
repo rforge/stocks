@@ -60,5 +60,5 @@ NA
 }
 \examples{
 # Get CAPM metrics for Apple over its lifetime, using S&P 500 as benchmark
-capm.daily("AAPL")
+# capm.daily("AAPL")
 }
