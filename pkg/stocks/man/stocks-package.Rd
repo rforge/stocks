@@ -13,7 +13,7 @@ Functions for analyzing historical performance of stocks or other investments. C
 Package: \tab stocks\cr
 Type: \tab Package\cr
 Version: \tab 1.1.2\cr
-Date: \tab 2015-03-23\cr
+Date: \tab 2015-04-05\cr
 License: \tab GPL-2\cr
 }
 The following functions are included:

@@ -507,9 +507,9 @@ monthly.gains <- function(tickers = NULL, quantmod.list = NULL, from = NULL,
         gains[index1, 1] <- yr
         gains[index1, 2] <- mnth
         gains[index1, 3] <- length(locs) - 1
-        gains[index1, 4:(3 + ncol(prices))] <- apply(prices[locs, ], 2, function(x) prices.rate(x))
-        gains[index1, (ncol(prices) + 4): (2*ncol(prices) + 3)] <- apply(prices[locs, ], 2, function(x) prices.rate(x, xday.rate = 251))
-        gains[index1, (2*ncol(prices) + 4): (3*ncol(prices) + 3)] <- apply(prices[locs, ], 2, function(x) prices.rate(x, xday.rate = 1))
+        gains[index1, 4:(3 + ncol(prices))] <- apply(prices[locs, , drop = F], 2, function(x) prices.rate(x))
+        gains[index1, (ncol(prices) + 4): (2*ncol(prices) + 3)] <- apply(prices[locs, , drop = F], 2, function(x) prices.rate(x, xday.rate = 251))
+        gains[index1, (2*ncol(prices) + 4): (3*ncol(prices) + 3)] <- apply(prices[locs, , drop = F], 2, function(x) prices.rate(x, xday.rate = 1))
       }
     }
   }
