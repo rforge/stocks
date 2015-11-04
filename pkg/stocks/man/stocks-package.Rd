@@ -13,7 +13,7 @@ Functions for analyzing historical performance of stocks or other investments. C
 Package: \tab stocks\cr
 Type: \tab Package\cr
 Version: \tab 1.1.2\cr
-Date: \tab 2015-04-05\cr
+Date: \tab 2015-11-04\cr
 License: \tab GPL-2\cr
 }
 The following functions are included:
@@ -39,6 +39,7 @@ The following functions are included:
 \code{\link{ticker.dates}}
 \code{\link{monthly.gains}}
 \code{\link{yearly.gains}}
+\code{\link{beta.trailing50}}
 }
 \author{
 Dane R. Van Domelen

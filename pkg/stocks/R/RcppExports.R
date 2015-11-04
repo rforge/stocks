@@ -977,3 +977,26 @@ capm.daily <- function(tickers, index = "^GSPC", from = NULL, to = NULL,
   return(ret)
   
 }
+
+
+beta.trailing50 <- function(ticker) {
+  
+  # Download stock prices from Yahoo! Finance, using the quantmod package
+  ticker.prices <- as.matrix(getSymbols(Symbols = ticker, from = Sys.Date()-90, auto.assign = FALSE, warnings = FALSE))
+  spy.prices <- as.matrix(getSymbols(Symbols = "SPY", from = as.Date(rownames(ticker.prices)[1]), 
+                                     to = as.Date(rownames(ticker.prices)[nrow(ticker.prices)]), 
+                                     auto.assign = FALSE, warnings = FALSE))
+  
+  # Verify that all dates match
+  if (!all (rownames(ticker.prices) == rownames(spy.prices))) {
+    stop(paste("SPY closing prices don't match dates of ", ticker, " closing prices", sep = ""))
+  }
+  
+  # Calculate and return ticker's beta
+  locs.last51 <- (nrow(ticker.prices) - 50): nrow(ticker.prices)
+  ticker.gains <- pchanges(ticker.prices[locs.last51, 6])
+  spy.gains <- pchanges(spy.prices[locs.last51, 6])
+  ticker.beta <- as.numeric(lm(ticker.gains ~ spy.gains)$coef[2])
+  return(ticker.beta)
+  
+}

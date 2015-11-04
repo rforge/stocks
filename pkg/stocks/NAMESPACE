@@ -1,6 +1,7 @@
 useDynLib(stocks)
 exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp,evalCpp)
+importFrom("stats", "sd")
 import(rbenchmark)
 import(quantmod)
 import(lubridate)
