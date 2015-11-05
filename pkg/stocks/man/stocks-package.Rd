@@ -13,7 +13,7 @@ Functions for analyzing historical performance of stocks or other investments. C
 Package: \tab stocks\cr
 Type: \tab Package\cr
 Version: \tab 1.1.2\cr
-Date: \tab 2015-11-04\cr
+Date: \tab 2015-11-05\cr
 License: \tab GPL-2\cr
 }
 The following functions are included:
@@ -52,9 +52,6 @@ Maintainer: Dane R. Van Domelen <vandomed@gmail.com>
 Acknowledgment: This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE-0940903.
 }
 \keyword{ package }
-\seealso{
-NA
-}
 \examples{
 # Load and plot 10 years of daily closing prices for hypothetical stock ZZZ
 data(zzz)
