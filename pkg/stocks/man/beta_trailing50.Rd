@@ -1,5 +1,5 @@
-\name{beta_trailing50}
-\alias{beta_trailing50}
+\name{beta.trailing50}
+\alias{beta.trailing50}
 \title{
 Beta for Last 50 Daily Gains
 }
