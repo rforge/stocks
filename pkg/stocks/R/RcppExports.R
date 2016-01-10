@@ -77,7 +77,7 @@ final.balance <- function(ratios, initial = 10000) {
 
 
 balances.weighted <- function(ratios = NULL, prices = NULL, initial = 10000, weights = rep(1/ncol(ratios), ncol(ratios)),
-                              rebalance.interval = 21, final.bal = FALSE, nas = FALSE, plot = "all") {
+                              rebalance.interval = 21, final.bal = FALSE, nas = FALSE, plot.type = "all") {
   
   # Return error if neither ratios nor prices are specified
   if (is.null(ratios) & is.null(prices)) {
@@ -125,7 +125,7 @@ balances.weighted <- function(ratios = NULL, prices = NULL, initial = 10000, wei
   }
   
   # Create plot if requested
-  if (plot == "all") {
+  if (plot.type == "all") {
     
     fund.balances.scaled <- cbind(fund.balances[, 1:(ncol(fund.balances)-1)] %*% diag(1/weights), fund.balances[, ncol(fund.balances)])
     max.y <- max(fund.balances.scaled)
@@ -138,7 +138,7 @@ balances.weighted <- function(ratios = NULL, prices = NULL, initial = 10000, wei
     grid()
     legend("topleft", legend = colnames(fund.balances), lty = 1, col = my.cols, bg = "white")
     
-  } else if (plot == "portfolio") {
+  } else if (plot.type == "portfolio") {
     
     plot(1:nrow(fund.balances), fund.balances[, ncol(fund.balances)], type = "l", 
          main = "Portfolio Balance", xlab = "Time", ylab = "Balance ($)")
@@ -634,17 +634,17 @@ yearly.gains <- function(tickers = NULL, quantmod.list = NULL, from = NULL, to =
 }
 
 
-capm.daily <- function(tickers, index = "^GSPC", from = NULL, to = NULL,
+capm.daily <- function(tickers, index = "SPY", from = NULL, to = NULL,
                        weights = NULL, weights.popmoments = TRUE, 
-                       align.all = TRUE, cov.method = "capm",
-                       decimals = getOption("digits"), plot = "characteristic") {
+                       align.all = TRUE, decimals = getOption("digits"), 
+                       plot.characteristic = TRUE) {
   
   # Check that inputs are valid
   if (! all(is.character("tickers"))) {
     stop("For tickers input, please enter a character string like 'AAPL' for Apple")
   }
   if (! is.character(index)) {
-    stop("For index input, please enter a character string like '^GSPC' for the S&P 500")
+    stop("For index input, please enter a character string like 'SPY' for SPDR S&P 500 Trust ETF")
   }
   if (!is.null(from) && ! class(from) %in% c("character", "Date")) {
     stop("For from input, please enter a date or a character string that looks like a date (e.g. '2010-01-04' for January 4, 2010)")
@@ -658,14 +658,11 @@ capm.daily <- function(tickers, index = "^GSPC", from = NULL, to = NULL,
   if (! all(is.logical(align.all))) {
     stop("For align.all input, please enter TRUE or FALSE")
   }
-  if (! cov.method %in% c("capm", "cov.sample", "all.sample")) {
-    stop("For cov.method input, please enter 'capm', 'cov.sample', or 'all.sample'")
-  }
   if (decimals < 0 | ! floor(decimals) == decimals) {
     stop("For decimals input, please enter a whole number greater than or equal to 0")
   }
-  if (!plot %in% c("characteristic", "expectation.sd", "none")) {
-    stop("For plot input, please enter 'characteristic', 'expectation.sd', or 'none'")
+  if (! is.logical(plot.characteristic)) {
+    stop("For plot.characteristic input, please enter TRUE or FALSE")
   }
   
   # If weights not specified, set to equal weights for each fund
@@ -917,7 +914,7 @@ capm.daily <- function(tickers, index = "^GSPC", from = NULL, to = NULL,
               weights.final = weights.final)
   
   # Plot results if requested
-  if (plot == "characteristic") {
+  if (plot.characteristic) {
     
     if (length(tickers) == 1) {
       
@@ -998,5 +995,111 @@ beta.trailing50 <- function(ticker) {
   spy.gains <- pchanges(spy.prices[locs.last51, 6])
   ticker.beta <- as.numeric(lm(ticker.gains ~ spy.gains)$coef[2])
   return(ticker.beta)
+  
+}
+
+
+hist.perf <- function(tickers, from = NULL, to = NULL, weights = NULL, reference.tickers = "SPY", 
+                      plot.growth = TRUE) {
+  
+  # Use default values for from and to if unspecified
+  if (is.null(from)) {
+    from <- as.Date(paste(year(Sys.Date()) - 1, month(Sys.Date()), day(Sys.Date()), sep = "-")) - 1
+  }
+  if (is.null(to)) {
+    to <- Sys.Date()
+  }
+  
+  # If weights do not add to 1, make them add to 1
+  if (!is.null(weights)) {
+    if (sum(weights) != 1) {
+      weights <- weights / sum(weights)
+    }
+  }
+  
+  # Load in historical data for each ticker as a list
+  ticker.list <- list()
+  for (ii in 1:length(tickers)) {
+    ticker.list[[ii]] <- as.matrix(getSymbols(tickers[ii], from = from, to = to, auto.assign = FALSE))
+  }
+  
+  # If not all tickers have data of the same length, output error
+  if (length(unique(unlist(lapply(ticker.list, nrow)))) > 1) {
+    stop("The dates don't match up for the various tickers")
+  }
+  
+  # Using equal weights if unspecified
+  if (is.null(weights)) {
+    weights <- rep(1 / length(tickers), length(tickers))
+  }
+  
+  # Calculate daily gains for each fund
+  gains <- matrix(unlist(lapply(ticker.list, function(x) pchanges(x[, 6]))), ncol = length(tickers), byrow = FALSE)
+  colnames(gains) <- tickers
+  
+  # Calculate portfolio gains, if more than 1 ticker entered
+  if (length(tickers) > 1) {
+    portfolio.gains <- gains %*% weights
+  }
+  
+  # Add gains data for reference tickers, if any
+  if (length(reference.tickers) > 0) {
+    ref.ticker.list <- list()
+    if (length(reference.tickers) > 0) {
+      for (ii in 1:length(reference.tickers)) {
+        ref.ticker.list[[ii]] <- as.matrix(getSymbols(reference.tickers[ii], from = from, to = to, auto.assign = FALSE))
+      }
+    }
+    ref.ticker.gains <- matrix(unlist(lapply(ref.ticker.list, function(x) pchanges(x[, 6]))), ncol = length(reference.tickers), byrow = FALSE)
+    gains <- cbind(ref.ticker.gains, gains)
+    colnames(gains)[1:length(reference.tickers)] <- reference.tickers
+  }
+  
+  # Add gains data for portfolio, if more than 1 ticker entered
+  if (length(tickers) > 1) {
+    gains <- cbind(portfolio.gains, gains)
+    colnames(gains)[1] <- "Portfolio"
+  }
+  
+  # Calculate growth of 10k
+  growth10k <- apply(gains, 2, function(x) balances(ratios = x + 1))
+  
+  # Create matrix of summary statistics for each ticker
+  performance <- data.frame(fund = colnames(gains),
+                            growth = apply(gains, 2, gains.rate),
+                            cagr = apply(gains, 2, function(x) gains.rate(x, xday.rate = 251)),
+                            mdd = apply(gains, 2, function(x) mdd(gains = x)),
+                            sharpe = apply(gains, 2, function(x) sharpe.ratio(gains = x)),
+                            sortino = apply(gains, 2, function(x) sortino.ratio(gains = x)),
+                            row.names = NULL)
+  
+  # Create plot showing growth of $10k, if requested
+  if (plot.growth) {
+    
+    max.y <- max(growth10k)
+    my.cols <- brewer.pal(n = ncol(growth10k), name = "RdYlBu")
+    plot(1:nrow(growth10k), growth10k[, 1], type = "n", ylim = c(0, max.y * 1.05),
+         main = "Growth of $10k", xlab = "Trading day", ylab = "Balance ($)")
+    for (ii in 1: ncol(growth10k)) {
+      points(1:nrow(growth10k), growth10k[, ii], type = "l", col = my.cols[ii])
+    }
+    grid()
+    legend("bottomleft", legend = colnames(growth10k), lty = 1, col = my.cols, bg = "white")
+    growth10k.plot <- recordPlot()
+    
+  }
+  
+  # Return list with relevant information
+  if (plot.growth) {
+    ret.list <- list(performance = performance,
+                     gains = gains,
+                     growth10k = growth10k,
+                     growth10k.plot = growth10k.plot)
+  } else {
+    ret.list <- list(performance = performance,
+                     gains = gains,
+                     growth10k = growth10k)
+  }
+  return(ret.list)
   
 }

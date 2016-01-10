@@ -9,7 +9,7 @@ Given a matrix of prices or ratios from one time point to the next for several f
 \usage{
 balances.weighted(ratios = NULL, prices = NULL, initial = 10000, 
                   weights = rep(1/ncol(ratios), ncol(ratios)), rebalance.interval = 21, 
-                  final.bal = FALSE, nas = FALSE, plot = "all")
+                  final.bal = FALSE, nas = FALSE, plot.type = "all")
 }
 \arguments{
   \item{ratios}{
@@ -33,7 +33,7 @@ If TRUE, function returns final balance of portfolio rather than matrix of balan
   \item{nas}{
 If TRUE, function finds and removes any missing values (NA's) in ratios/prices matrices. The default is FALSE to maximize speed for the usual case where there are no missing values.
 }
-  \item{plot}{
+  \item{plot.type}{
 Controls what (if anything) is plotted. Possible values are as follows: 'all' to plot balances for each fund and the total portfolio (on same scale regardless of weights for purposes of visual comparisons); 'portfolio' to plot portfolio balances; and 'none' to not plot anything.
 }
 }
