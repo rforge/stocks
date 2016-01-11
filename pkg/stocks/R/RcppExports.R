@@ -634,7 +634,7 @@ yearly.gains <- function(tickers = NULL, quantmod.list = NULL, from = NULL, to =
 }
 
 
-capm.daily <- function(tickers, index = "SPY", from = NULL, to = NULL,
+capm.daily <- function(tickers, index.ticker = "SPY", from = NULL, to = NULL,
                        weights = NULL, weights.popmoments = TRUE, 
                        align.all = TRUE, decimals = getOption("digits"), 
                        plot.characteristic = TRUE) {
@@ -643,8 +643,8 @@ capm.daily <- function(tickers, index = "SPY", from = NULL, to = NULL,
   if (! all(is.character("tickers"))) {
     stop("For tickers input, please enter a character string like 'AAPL' for Apple")
   }
-  if (! is.character(index)) {
-    stop("For index input, please enter a character string like 'SPY' for SPDR S&P 500 Trust ETF")
+  if (! is.character(index.ticker)) {
+    stop("For index.ticker input, please enter a character string like 'SPY' for SPDR S&P 500 Trust ETF")
   }
   if (!is.null(from) && ! class(from) %in% c("character", "Date")) {
     stop("For from input, please enter a date or a character string that looks like a date (e.g. '2010-01-04' for January 4, 2010)")
@@ -653,7 +653,7 @@ capm.daily <- function(tickers, index = "SPY", from = NULL, to = NULL,
     stop("For to input, please enter a date or a character string that looks like a date (e.g. '2015-03-09' for March 9, 2015)")
   }
   if (!is.null(weights) && ! (length(weights) == (length(tickers) + 1) | all(weights >= 0 & weights <= 1))) {
-    stop("For weights input, please enter vector of weights for index and tickers that add to 1")
+    stop("For weights input, please enter vector of weights for index.ticker and tickers that add to 1")
   }
   if (! all(is.logical(align.all))) {
     stop("For align.all input, please enter TRUE or FALSE")
@@ -670,8 +670,8 @@ capm.daily <- function(tickers, index = "SPY", from = NULL, to = NULL,
     weights <- rep(1 / (length(tickers) + 1), (length(tickers) + 1))
   }
   
-  # Combine index and tickers into single character string
-  index.tickers <- c(index, tickers)
+  # Combine index.ticker and tickers into single character string
+  index.tickers <- c(index.ticker, tickers)
   
   # If to not specified, set to current date
   if (is.null(to)) {
@@ -756,11 +756,11 @@ capm.daily <- function(tickers, index = "SPY", from = NULL, to = NULL,
   gains <- apply(prices, 2, pchanges)
   colnames(gains) <- index.tickers
   
-  # Get data on index throughout its history to get its mean and variance
-  if (index == "^GSPC") {
+  # Get data on index.ticker throughout its history to get its mean and variance
+  if (index.ticker == "^GSPC") {
     index.moments <- c(0.0003406497, 0.000093749092)
   } else {
-    index.prices <- as.matrix(getSymbols(Symbols = index, from = "1950-01-01", to = to, auto.assign = FALSE, warnings = FALSE))
+    index.prices <- as.matrix(getSymbols(Symbols = index.ticker, from = "1950-01-01", to = to, auto.assign = FALSE, warnings = FALSE))
     gains2 <- pchanges(index.prices[, 6])
     index.moments <- c(mean(gains2), var(gains2))
   }
@@ -854,12 +854,12 @@ capm.daily <- function(tickers, index = "SPY", from = NULL, to = NULL,
   
   # Calculate gains for weighted funds
   weighted.gains <- apply(growth100, 2, pchanges)[, -(2:length(index.tickers))]
-  colnames(weighted.gains) <- c(index, "input.weights", "optimal.weights")
+  colnames(weighted.gains) <- c(index.ticker, "input.weights", "optimal.weights")
   
   new.rows <- as.data.frame(matrix(NA, nrow = 2, ncol = 22))
   names(new.rows) <- names(metrics)
   metrics <- rbind(metrics, new.rows)
-  new.tickers <- c(index, "input.weights", "optimal.weights")
+  new.tickers <- c(index.ticker, "input.weights", "optimal.weights")
   new.dates <- rep(dates[which.min(lengths)], 3) 
   
   for (ii in 2:3) {
@@ -921,9 +921,9 @@ capm.daily <- function(tickers, index = "SPY", from = NULL, to = NULL,
       # Create titles
       plot.title <- paste("Characteristic Line for ", tickers, sep = "")
       y.title <- paste("Daily gain (%)", sep = "")
-      x.title <- paste(index, " gain (%)", sep = "")
+      x.title <- paste(index.ticker, " gain (%)", sep = "")
       
-      # Get min and max for index and ticker
+      # Get min and max for index.ticker and ticker
       xrange <- range(gains[, 1]) * 100
       yrange <- range(gains[, 2]) * 100
       
@@ -948,7 +948,7 @@ capm.daily <- function(tickers, index = "SPY", from = NULL, to = NULL,
       # Create titles
       plot.title <- paste("Characteristic Lines")
       y.title <- paste("Daily gain (%)", sep = "")
-      x.title <- paste(index, " gain (%)", sep = "")
+      x.title <- paste(index.ticker, " gain (%)", sep = "")
       
       plot(NULL, NULL, main = "Characteristic Lines", ylab = y.title, xlab = x.title,
            xlim = c(-0.05, 0.05), ylim = c(-0.05, 0.05))
@@ -999,8 +999,8 @@ beta.trailing50 <- function(ticker) {
 }
 
 
-hist.perf <- function(tickers, from = NULL, to = NULL, weights = NULL, reference.tickers = "SPY", 
-                      plot.growth = TRUE) {
+historical.performance <- function(tickers, from = NULL, to = NULL, weights = NULL, 
+                                   reference.tickers = "SPY", plot.growth = TRUE) {
   
   # Use default values for from and to if unspecified
   if (is.null(from)) {
@@ -1045,10 +1045,8 @@ hist.perf <- function(tickers, from = NULL, to = NULL, weights = NULL, reference
   # Add gains data for reference tickers, if any
   if (length(reference.tickers) > 0) {
     ref.ticker.list <- list()
-    if (length(reference.tickers) > 0) {
-      for (ii in 1:length(reference.tickers)) {
-        ref.ticker.list[[ii]] <- as.matrix(getSymbols(reference.tickers[ii], from = from, to = to, auto.assign = FALSE))
-      }
+    for (ii in 1:length(reference.tickers)) {
+      ref.ticker.list[[ii]] <- as.matrix(getSymbols(reference.tickers[ii], from = from, to = to, auto.assign = FALSE))
     }
     ref.ticker.gains <- matrix(unlist(lapply(ref.ticker.list, function(x) pchanges(x[, 6]))), ncol = length(reference.tickers), byrow = FALSE)
     gains <- cbind(ref.ticker.gains, gains)
@@ -1101,5 +1099,184 @@ hist.perf <- function(tickers, from = NULL, to = NULL, weights = NULL, reference
                      growth10k = growth10k)
   }
   return(ret.list)
+  
+}
+
+
+twofund.portfolio <- function(tickers, index.ticker = "SPY", from = NULL, to = NULL,
+                              reference.tickers = "SPY", plots = TRUE) {
+  
+  # Use default values for from and to if unspecified
+  if (is.null(from)) {
+    from <- as.Date(paste(year(Sys.Date()) - 1, month(Sys.Date()), day(Sys.Date()), sep = "-")) - 1
+  }
+  if (is.null(to)) {
+    to <- Sys.Date()
+  }
+  
+  # Load in historical data for each ticker as a list and verify that they have the same length
+  ticker.list <- list()
+  for (ii in 1:length(tickers)) {
+    ticker.list[[ii]] <- as.matrix(getSymbols(tickers[ii], from = from, to = to, auto.assign = FALSE))
+  }
+  ticker.lengths <- unique(unlist(lapply(ticker.list, nrow)))
+  if (length(ticker.lengths) > 1) {
+    stop("The dates don't match up for the two tickers")
+  }
+  
+  # Load in historical data for index and check that it has the correct length
+  index.prices <- as.matrix(getSymbols(index.ticker, from = from, to = to, auto.assign = FALSE))
+  if (nrow(index.prices) != ticker.lengths) {
+    stop("The dates for index.ticker do not match the dates for the two tickers")
+  }
+  
+  # Load in historical data for reference tickers and check that they have the correct length
+  if (length(reference.tickers) > 0) {
+    ref.ticker.list <- list()
+    for (ii in 1:length(reference.tickers)) {
+      ref.ticker.list[[ii]] <- as.matrix(getSymbols(reference.tickers[ii], from = from, to = to, auto.assign = FALSE))
+    }
+    ref.ticker.lengths <- unique(unlist(lapply(ref.ticker.list, nrow)))
+    if (length(ref.ticker.lengths) > 1 | ref.ticker.lengths[1] != ticker.lengths) {
+      stop("The dates for reference.tickers do not match the dates for the two tickers")
+    }
+  }
+  
+  # Calculate daily gains for the tickers, index, and reference tickers
+  ticker.gains <- matrix(unlist(lapply(ticker.list, function(x) pchanges(x[, 6]))), ncol = length(tickers), byrow = FALSE)
+  colnames(ticker.gains) <- tickers
+  index.gains <- pchanges(index.prices[, 6])
+  if (length(reference.tickers) > 0) {
+    ref.ticker.gains <- matrix(unlist(lapply(ref.ticker.list, function(x) pchanges(x[, 6]))), ncol = length(reference.tickers), byrow = FALSE)
+    colnames(ref.ticker.gains) <- reference.tickers
+  }
+  
+  # Calculate properties of two-fund portfolio with various weights
+  alls <- seq(0, 1, 0.001)
+  portfolio.stats <- matrix(NA, nrow = length(alls), ncol = 13)
+  for (ii in 1:length(alls)) {
+    
+    portfolio.gains <- ticker.gains %*% c(alls[ii], 1 - alls[ii])
+    characteristic.fit <- lm(portfolio.gains ~ index.gains)
+    
+    portfolio.stats[ii, ] <- c(alls[ii],
+                               1 - alls[ii],
+                               gains.rate(gains = portfolio.gains),
+                               gains.rate(gains = portfolio.gains, xday.rate = 251),
+                               mdd(gains = portfolio.gains),
+                               mean(portfolio.gains),
+                               sd(portfolio.gains),
+                               sharpe.ratio(gains = portfolio.gains),
+                               sortino.ratio(gains = portfolio.gains),
+                               characteristic.fit$coef[1],
+                               summary(characteristic.fit)$coef[1, 4],
+                               characteristic.fit$coef[2],
+                               summary(characteristic.fit)$coef[2, 4])
+    
+  }
+  portfolio.stats <- as.data.frame(portfolio.stats)
+  names(portfolio.stats) <- c(paste(tickers, "alloc", sep = "."), "growth",
+                              "cagr", "mdd", "mean", "sd", "sharpe", "sortino",
+                              "alpha", "alpha.p", "beta", "beta.p")
+  
+  # Calculate properties of reference tickers
+  if (length(reference.tickers) > 0) {
+    reference.stats <- matrix(NA, nrow = length(reference.tickers), ncol = 11)
+    for (ii in 1:length(reference.tickers)) {
+      
+      characteristic.fit <- lm(ref.ticker.gains[, ii] ~ index.gains)
+      reference.stats[ii, ] <- c(gains.rate(gains = ref.ticker.gains[, ii]),
+                                 gains.rate(gains = ref.ticker.gains[, ii], xday.rate = 251),
+                                 mdd(gains = ref.ticker.gains[, ii]),
+                                 mean(ref.ticker.gains[, ii]),
+                                 sd(ref.ticker.gains[, ii]),
+                                 sharpe.ratio(gains = ref.ticker.gains[, ii]),
+                                 sortino.ratio(gains = ref.ticker.gains[, ii]),
+                                 characteristic.fit$coef[1],
+                                 summary(characteristic.fit)$coef[1, 4],
+                                 characteristic.fit$coef[2],
+                                 summary(characteristic.fit)$coef[2, 4])
+      
+    }
+    reference.stats <- data.frame(ticker = reference.tickers,
+                                  reference.stats, stringsAsFactors = FALSE)
+    names(reference.stats) <- c("ticker", "growth", "cagr", "mdd", "mean", "sd", "sharpe", "sortino",
+                                "alpha", "alpha.p", "beta", "beta.p")
+  }
+  
+  # Create plots if requested
+  if (plot) {
+  
+    # CAGR vs. MDD
+    plot(portfolio.stats[, "mdd"] * 100, portfolio.stats[, "cagr"] * 100, type = "l",
+         main = "CAGR vs. MDD", xlab = "MDD (%)", ylab = "CAGR (%)")
+    loc.10s <- seq(1, 1001, 100)
+    points(portfolio.stats[loc.10s, "mdd"] * 100, portfolio.stats[loc.10s, "cagr"] * 100, type = "p", pch = 16, col = c("blue", rep("black", 9), "red"))
+    if (length(reference.stats) > 0) {
+      my.cols <- brewer.pal(n = max(3, nrow(reference.stats)), name = "Spectral")
+      for (ii in 1:nrow(reference.stats)) {
+        points(reference.stats[ii, "mdd"] * 100, reference.stats[ii, "cagr"] * 100, type = "p", pch = 16, col = my.cols[ii])
+      }
+      legend("topleft", legend = c(paste("100%", rev(tickers), sep = " "), reference.stats[, 1]), col = c("blue", "red", my.cols), pch = 16, bg = "white")
+    } else {
+      legend("topleft", legend = paste("100%", rev(tickers), sep = " "), col = c("blue", "red"), pch = 16, bg = "white")
+    }
+    plot.cagr.mdd <- recordPlot()
+    
+    # Mean vs. SD
+    plot(portfolio.stats[, "sd"] * 100, portfolio.stats[, "mean"] * 100, type = "l",
+         main = "Daily Gains, Mean vs. SD", xlab = "SD (%)", ylab = "Mean (%)")
+    points(portfolio.stats[loc.10s, "sd"] * 100, portfolio.stats[loc.10s, "mean"] * 100, type = "p", pch = 16, col = c("blue", rep("black", 9), "red"))
+    if (length(reference.stats) > 0) {
+      for (ii in 1:nrow(reference.stats)) {
+        points(reference.stats[ii, "sd"] * 100, reference.stats[ii, "mean"] * 100, type = "p", pch = 16, col = my.cols[ii])
+      }
+      legend("topleft", legend = c(paste("100%", rev(tickers), sep = " "), reference.stats[, 1]), col = c("blue", "red", my.cols), pch = 16, bg = "white")
+    } else {
+      legend("topleft", legend = paste("100%", rev(tickers), sep = " "), col = c("blue", "red"), pch = 16, bg = "white")
+    }
+    plot.mean.sd <- recordPlot()
+
+    # Sharpe vs. SD
+    plot(portfolio.stats[, "sd"] * 100, portfolio.stats[, "sharpe"], type = "l",
+         main = "Sharpe Ratio vs. SD of Daily Gains", xlab = "SD (%)", ylab = "Sharpe ratio") 
+    points(portfolio.stats[loc.10s, "sd"] * 100, portfolio.stats[loc.10s, "sharpe"], type = "p", pch = 16, col = c("blue", rep("black", 9), "red"))
+    if (length(reference.stats) > 0) {
+      for (ii in 1:nrow(reference.stats)) {
+        points(reference.stats[ii, "sd"] * 100, reference.stats[ii, "sharpe"], type = "p", pch = 16, col = my.cols[ii])
+      }
+      legend("topright", legend = c(paste("100%", rev(tickers), sep = " "), reference.stats[, 1]), col = c("blue", "red", my.cols), pch = 16, bg = "white")
+    } else {
+      legend("topright", legend = paste("100%", rev(tickers), sep = " "), col = c("blue", "red"), pch = 16, bg = "white")
+      
+    }
+    plot.sharpe.sd <- recordPlot()
+    
+  }
+  
+  # Return list with relevant information
+  if (! plots) {
+    if (length(reference.tickers) == 0) {
+      ret <- portfolio.stats
+    } else {
+      ret <- list(portfolio.stats = portfolio.stats,
+                  reference.stats = reference.stats)
+    }
+  } else {
+    if (length(reference.tickers) == 0) {
+      ret <- list(portfolio.stats = portfolio.stats,
+                  plot.cagr.mdd = plot.cagr.mdd,
+                  plot.mean.sd = plot.mean.sd,
+                  plot.sharpe.sd = plot.sharpe.sd)
+      
+    } else {
+      ret <- list(portfolio.stats = portfolio.stats,
+                  reference.stats = reference.stats,
+                  plot.cagr.mdd = plot.cagr.mdd,
+                  plot.mean.sd = plot.mean.sd,
+                  plot.sharpe.sd = plot.sharpe.sd)
+    }
+  }
+  return(ret)
   
 }

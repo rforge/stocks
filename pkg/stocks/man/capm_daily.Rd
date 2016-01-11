@@ -7,7 +7,7 @@ Calculate Capital Assets Pricing Model (CAPM) Metrics Based on Daily Gains
 Calculate CAPM metrics for a stock relative to an index.
 }
 \usage{
-capm.daily(tickers, index = "SPY", from = NULL, to = NULL, weights = NULL,
+capm.daily(tickers, index.ticker = "SPY", from = NULL, to = NULL, weights = NULL,
            weights.popmoments = TRUE, align.all = TRUE, decimals = getOption("digits"), 
            plot.characteristic = TRUE)
 }
@@ -15,7 +15,7 @@ capm.daily(tickers, index = "SPY", from = NULL, to = NULL, weights = NULL,
   \item{tickers}{
 Character string or vector of ticker symbols.
 }
-  \item{index}{
+  \item{index.ticker}{
 Character string indicating ticker symbol for the index that the stock is being compared to.
 }
   \item{from}{

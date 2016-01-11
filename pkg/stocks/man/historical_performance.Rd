@@ -1,5 +1,5 @@
-\name{hist.perf}
-\alias{hist.perf}
+\name{historical.performance}
+\alias{historical.performance}
 \title{
 Analyze Historical Performance of Individual Funds or a Portfolio of Funds
 }
@@ -7,8 +7,8 @@ Analyze Historical Performance of Individual Funds or a Portfolio of Funds
 Calculate various measures of historical performance (total growth, compound annual growth rate, maximum drawdown, Sharpe ratio, Sortino ratio) for requested funds and portfolio of requested funds with specified weights.
 }
 \usage{
-hist.perf(tickers, from = NULL, to = NULL, weights = NULL, reference.tickers = "SPY", 
-          plot.growth = TRUE)
+historical.performance(tickers, from = NULL, to = NULL, weights = NULL, 
+                       reference.tickers = "SPY", plot.growth = TRUE)
 }
 \arguments{
   \item{tickers}{
