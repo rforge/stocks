@@ -26,7 +26,7 @@ Date or character string in form of date (e.g. '2016-01-01' for Jan. 1, 2016), i
   \item{reference.tickers}{
 Character string or vector indicating ticker symbols of reference funds to compare results against.
 }
-  \item{plots}
+  \item{plots}{
 If TRUE, function returns three plots in addition to other results (compound annual growth rate vs. maximum drawdown; mean vs. standard deviation of daily gains; and Sharpe ratio vs. standard deviation of daily gains).
 }
 }
