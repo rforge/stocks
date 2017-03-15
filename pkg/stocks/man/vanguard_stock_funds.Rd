@@ -19,7 +19,7 @@ Acknowledgment: This material is based upon work supported by the National Scien
 }
 \examples{
 # Load and print list of mutual funds
-data(vanguard.stock.funds)
-vanguard.stock.funds
+#data(vanguard.stock.funds)
+#vanguard.stock.funds
 }
 \keyword{datasets}

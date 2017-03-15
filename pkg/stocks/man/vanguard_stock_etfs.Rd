@@ -19,7 +19,7 @@ Acknowledgment: This material is based upon work supported by the National Scien
 }
 \examples{
 # Load and print list of ETFs
-data(vanguard.stock.etfs)
-vanguard.stock.etfs
+#data(vanguard.stock.etfs)
+#vanguard.stock.etfs
 }
 \keyword{datasets}
