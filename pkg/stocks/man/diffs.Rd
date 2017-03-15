@@ -43,11 +43,11 @@ y <- diffs(x)
 z <- diff(x)
 all(y == z)
 
-# But diffs is much faster
+# But diffs is faster
 benchmark(y = diffs(x))
 benchmark(z = diff(x))
 
-# diffs also much faster than diff for 2-lag difference
+# diffs also faster than diff for 2-lag difference
 x <- rnorm(100000)
 y <- diffs(x, 2)
 z <- diff(x, 2)

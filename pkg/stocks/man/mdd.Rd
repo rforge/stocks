@@ -4,20 +4,20 @@
 Maximum Drawdown
 }
 \description{
-Calculates maximum drawdown for a numeric vector (see Details).
+Calculates maximum drawdown for a numeric vector.
 }
 \usage{
 mdd(prices = NULL, gains = NULL, highs = NULL, lows = NULL, indices = FALSE, nas = FALSE)
 }
 \arguments{
   \item{prices}{
-Numeric vector of stock prices. Can be closing prices, but minute-to-minute stock prices are preferred since maximum drawdown is really calculated from overall highs and lows, not daily closing prices.
+Numeric vector of investment prices. Can be closing prices, but minute-to-minute stock prices are preferred since maximum drawdown is really calculated from overall highs and lows, not daily closing prices.
 }
   \item{gains}{
 Numeric vector of gains (daily or otherwise).
   }
   \item{highs}{
-Numeric vector of daily highs. 
+Numeric vector of daily highs.
 }
   \item{lows}{
 Numeric vector of daily lows.
@@ -49,11 +49,12 @@ Dane R. Van Domelen
 This function uses C++ code to achieve a 2-3 times speed increase compared to the base R code: 1 - min(prices / cummax(prices)).
 }
 \seealso{
-\code{\link{sharpe.ratio}}, \code{\link{sortino.ratio}}, \code{\link{rrr}}
+\code{\link{gains.rate}}, \code{\link{prices.rate}}, \code{\link{sharpe.ratio}}, \code{\link{sortino.ratio}}, \code{\link{rrr}}
 }
 \examples{
 # Randomly generate minute-to-minute stock gains over a 2-year period
-stock.gains <- rnorm(6.5*60*251*2, 0.000005, 0.001)
+set.seed(123)
+stock.gains <- rnorm(6.5 * 60 * 252 * 2, 0.000005, 0.001)
 
 # Convert to stock prices assuming an initial price of $9.50 per share
 stock.prices <- balances(ratios = stock.gains + 1, initial = 9.50)

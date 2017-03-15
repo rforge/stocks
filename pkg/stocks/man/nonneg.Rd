@@ -28,6 +28,7 @@ Dane R. Van Domelen
 }
 \examples{
 # Generate 10 values from standard normal distribution
+set.seed(123)
 x <- rnorm(10)
 
 # Find non-negative values

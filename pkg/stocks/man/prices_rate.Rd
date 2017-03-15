@@ -4,17 +4,17 @@
 Calculate Growth Rate From a Vector of Stock Prices or Investment Balances
 }
 \description{
-The formula is simply: overall.rate = prices[length(prices)] / prices[1] - 1. If xday is specified, then it converts to x-day growth rate. For example, if prices is a vector of stock prices over a five-day period, say c(100.4, 98.7, 101.3, 101.0, 100.9), then the overall growth rate is approximately 0.0050 over four full trading days. If xday.rate is set to 1, this rate is converted to an average daily rate of approximately 
+The formula is simply: overall.rate = prices[length(prices)] / prices[1] - 1. If units.rate is specified, then it converts to x-unit growth rate.
 }
 \usage{
-prices.rate(prices, xday.rate = NULL, nas = FALSE)
+prices.rate(prices, units.rate = NULL, nas = FALSE)
 }
 \arguments{
   \item{prices}{
-Numeric vector of stock prices or investment balances. Has to be daily prices if you want to calculate x-day rather than overall growth.
+Numeric vector of stock prices or investment balances.
 }
-  \item{xday.rate}{
-Number of days for growth rate calculation. If unspecified, function returns overall growth. If set to 251, function would return annual growth rate.
+  \item{units.rate}{
+Number of units for growth rate calculation. If unspecified, function returns total growth. To get annualized growth rate, set to 252 if prices vector contains daily prices, 12 if prices vector contains monthly prices, etc.
 }
   \item{nas}{
 If TRUE, function finds and removes any missing values (NA's) in prices vector. The default is FALSE to maximize speed for the usual case where there are no missing values.
@@ -42,6 +42,6 @@ prices.rate(prices)
 # Average daily growth is 0.12\%
 prices.rate(prices, 1)
 
-# Corresponds to 36.6\% annual growth
-prices.rate(prices, 251)
+# Corresponds to 36.6\% annualized growth
+prices.rate(prices, 252)
 }

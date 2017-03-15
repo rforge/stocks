@@ -4,7 +4,7 @@
 Sortino Ratio
 }
 \description{
-Calculate Sortino ratio based on a vector of gains (or prices). The formula is: (mean(gains) - rf) / sd(negatives(gains)). Here rf is some risk-free rate of return, gains is a vector of gains (usually daily, but could be weekly, monthly, or some other time interval), and negatives(gains) gets the subset of gains that are negative. User can specify prices or gains.
+Calculate Sortino ratio based on a vector of gains or prices. The formula is: (mean(gains) - rf) / sd(negatives(gains)). Here rf is some risk-free rate of return, gains is a vector of gains (usually daily, but could be any time interval), and negatives(gains) gets the subset of gains that are negative.
 }
 \usage{
 sortino.ratio(gains = NULL, prices = NULL, rf = 0, nas = FALSE)
@@ -14,7 +14,7 @@ sortino.ratio(gains = NULL, prices = NULL, rf = 0, nas = FALSE)
 Numeric vector of gains.
 }
   \item{prices}{
-Numeric vector of stock prices (typically daily closing prices). 
+Numeric vector of investment prices (typically daily closing prices). 
 }
   \item{rf}{
 Risk-free rate of return hypothetically available to the investor.
@@ -36,11 +36,12 @@ Dane R. Van Domelen
 Several definitions of Sortino ratio are commonly used; this simple version may or may not be the one you prefer.
 }
 \seealso{
-\code{\link{sharpe.ratio}}, \code{\link{rrr}}, \code{\link{mdd}}
+\code{\link{gains.rate}}, \code{\link{prices.rate}}, \code{\link{mdd}}, \code{\link{sharpe.ratio}}, \code{\link{rrr}}
 }
 \examples{
 # Randomly generate daily stock gains over a 5-year period
-stock.gains <- rnorm(251*5, 0.0005, 0.01)
+set.seed(123)
+stock.gains <- rnorm(252 * 5, 0.0005, 0.01)
 
 # Calculate Sortino ratio using risk-free return of 0
 sortino.ratio(stock.gains)

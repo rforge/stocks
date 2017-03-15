@@ -6,42 +6,44 @@
 Fast Functions for Stock Market Analysis
 }
 \description{
-Functions for analyzing historical performance of stocks or other investments. Calculate maximum draw-down, Sharpe ratio, Sortino ratio, risk return ratio, alpha and beta from the capital assets pricing model (CAPM), and other commonly used metrics of stock performance. C++ used where possible to improve processing speed.
+Functions for analyzing stocks or other investments. Main features are loading and aligning historical data for ticker symbols, calculating performance metrics for individual funds or portfolios (e.g. compound annualized growth rate, maximum drawdown, Sharpe/Sortino ratio), and creating graphs. C++ code is used where possible to improve processing speed.
 }
 \details{
 \tabular{ll}{
 Package: \tab stocks\cr
 Type: \tab Package\cr
 Version: \tab 1.1.2\cr
-Date: \tab 2016-01-11\cr
+Date: \tab 2016-03-15\cr
 License: \tab GPL-2\cr
 }
 The following functions are included:
 
-\code{\link{convert.rate}}
 \code{\link{diffs}}
 \code{\link{pdiffs}}
 \code{\link{pchanges}}
 \code{\link{ratios}}
-\code{\link{balances}}
-\code{\link{final.balance}}
-\code{\link{balances.weighted}}
-\code{\link{prices.rate}}
-\code{\link{gains.rate}}
 \code{\link{pos}}
 \code{\link{neg}}
 \code{\link{nonpos}}
 \code{\link{nonneg}}
+\code{\link{convert.rate}}
+\code{\link{daily.yearly}}
+\code{\link{yearly.daily}}
+\code{\link{balances}}
+\code{\link{final.balance}}
+\code{\link{ticker.dates}}
+\code{\link{load.gains}}
+\code{\link{load.prices}}
+\code{\link{prices.rate}}
+\code{\link{gains.rate}}
 \code{\link{mdd}}
 \code{\link{sharpe.ratio}}
 \code{\link{sortino.ratio}}
 \code{\link{rrr}}
-\code{\link{ticker.dates}}
-\code{\link{monthly.gains}}
-\code{\link{yearly.gains}}
-\code{\link{beta.trailing50}}
-\code{\link{historical.performance}}
-\code{\link{twofund.portfolio}}
+\code{\link{metrics}}
+\code{\link{twofunds.graph}}
+\code{\link{threefunds.graph}}
+\code{\link{growth.graph}}
 }
 \author{
 Dane R. Van Domelen
@@ -49,37 +51,28 @@ Dane R. Van Domelen
 Maintainer: Dane R. Van Domelen <vandomed@gmail.com>
 }
 \references{
-1. Jeffrey A. Ryan (2014). quantmod: Quantitative Financial Modelling Framework. R package version 0.4-2/r613. http://R-Forge.R-project.org/projects/quantmod/.
+1. Jeffrey A. Ryan (2016). quantmod: Quantitative Financial Modelling Framework. R package version 0.4-6, \url{https://cran.r-project.org/package=quantmod}.
 
 Acknowledgment: This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE-0940903.
 }
 \keyword{ package }
 \examples{
-# Load and plot 10 years of daily closing prices for hypothetical stock ZZZ
-data(zzz)
-plot(zzz)
+# Load historical prices for VFINX and VBLTX
+vfinx.vbltx <- load.prices(tickers = c("VFINX", "VBLTX"))
 
-# Overall 10-year growth is about 0.846, or 84.6\%
-prices.rate(zzz)
+# Calculate total growth for VFINX and VBLTX
+apply(vfinx.vbltx, 2, prices.rate)
 
-# Average annual growth is about 6.3\%
-prices.rate(zzz, xday.rate = 251)
+# Calculate performance metrics for VFINX and VBLTX
+metrics(prices = vfinx.vbltx)
 
-# Calculate ratio of closing prices for each day relative to the previous day
-daily.ratios <- ratios(zzz)
+# Plot mean vs. SD of daily gains for VFINX/VBLTX portfolios
+graph1 <- twofunds.graph(tickers = c("VFINX", "VBLTX"))
 
-# Figure out final balance if we had invested $10,000 on day 1
-final.balance(daily.ratios)
-
-# Calculate Sharpe ratio
-sharpe.ratio(prices = zzz)
-
-# Calculate Sortino ratio
-sortino.ratio(prices = zzz)
-
-# Calculate maximum drawdown
-mdd(prices = zzz)
-
-# Calculate risk-return ratio
-rrr(prices = zzz)
+# Plot CAGR vs. MDD for VFINX/VBLTX and VFINX/VWEHX portfolios
+graph2 <- twofunds.graph(tickers = matrix(c("VFINX", "VBLTX", "VFINX", "VWEHX"), 2),
+                         x.axis = "mdd", y.axis = "cagr")
+                         
+# Plot mean vs. SD of monthly gains for VWEHX/VFINX/VBLTX portfolio
+graph3 <- threefunds.graph(tickers = c("VWEHX", "VFINX", "VBLTX"))
 }

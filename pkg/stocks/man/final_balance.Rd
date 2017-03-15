@@ -4,7 +4,7 @@
 Calculate Final Balance Based on Initial Balance and Vector of Ratios
 }
 \description{
-Calculated as: initial * prod(ratios)
+Calculated as: initial * prod(ratios).
 }
 \usage{
 final.balance(ratios, initial = 10000)
@@ -31,7 +31,8 @@ Dane R. Van Domelen
 }
 \examples{
 # Randomly generate daily stock gains over a 5-year period
-stockgains <- rnorm(251*5, 1.001, 0.02)
+set.seed(123)
+stockgains <- rnorm(252 * 5, 1.0003, 0.02)
 
 # Calculate final balance if initial balance was $10,000
 final.balance(stockgains)

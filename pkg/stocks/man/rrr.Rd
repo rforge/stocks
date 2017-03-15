@@ -4,14 +4,14 @@
 Risk-Return Ratio
 }
 \description{
-Calculate ratio if investment return to investment risk based on a vector of prices or gains. The formula is: growth rate / mdd. Here growth rate is the growth of a stock or investment of some time period, and mdd is the maximum drawdown over that time period. User can specify prices or gains.
+Calculate ratio of investment return to investment risk based on a vector of prices or gains. The formula is: growth rate / mdd. Here growth rate is the growth of an investment over some time period, and mdd is the maximum drawdown over that time period.
 }
 \usage{
 rrr(prices = NULL, gains = NULL, highs = NULL, lows = NULL, nas = FALSE)
 }
 \arguments{
   \item{prices}{
-Numeric vector of stock prices (typically daily closing prices). 
+Numeric vector of investment prices (typically daily closing prices). 
 }
   \item{gains}{
 Numeric vector of gains.
@@ -36,12 +36,12 @@ Acknowledgment: This material is based upon work supported by the National Scien
 Dane R. Van Domelen
 }
 \seealso{
-\code{\link{sharpe.ratio}}, \code{\link{sortino.ratio}}, \code{\link{mdd}}
+\code{\link{gains.rate}}, \code{\link{prices.rate}}, \code{\link{mdd}}, \code{\link{sharpe.ratio}}, \code{\link{sortino.ratio}}
 }
 \examples{
 # Randomly generate daily stock gains over a 5-year period
 set.seed(123)
-stock.gains <- rnorm(251*5, 0.0005, 0.01)
+stock.gains <- rnorm(252 * 5, 0.0005, 0.01)
 
 # Convert to daily balances assuming an initial balance of $10,000
 daily.balances <- balances(stock.gains + 1)
