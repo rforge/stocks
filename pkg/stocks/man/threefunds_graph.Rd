@@ -35,7 +35,7 @@ Character string indicating ticker symbol for benchmark index. Only relevant if 
   \item{reference.tickers}{
 Character string or vector of ticker symbols to include on the graph as a data point for comparative purposes.
 }
-  \item{ticker.gains}{
+  \item{tickers.gains}{
 Numeric matrix of gains (daily or otherwise), where each column has gains for a particular fund. The first, second, and third column are assumed to be first three-fund set, the fourth through sixth are assumed to be the second set, and so on.
 }
   \item{benchmark.gains}{
