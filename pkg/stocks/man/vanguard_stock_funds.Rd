@@ -18,8 +18,6 @@ Simply a character vector of ticker symbols for Vanguard mutual funds.
 Acknowledgment: This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE-0940903.
 }
 \examples{
-# Load and print list of mutual funds
-#data(vanguard.stock.funds)
-#vanguard.stock.funds
+NA
 }
 \keyword{datasets}

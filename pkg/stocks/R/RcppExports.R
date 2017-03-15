@@ -1780,7 +1780,8 @@ growth.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
                          initial = 10000,
                          add.plot = FALSE, 
                          colors = NULL, 
-                         plot.list = NULL) {
+                         plot.list = NULL,
+                         points.list = NULL) {
   
   # If tickers specified, load various historical prices from Yahoo! Finance
   if (!is.null(tickers)) {

@@ -13,7 +13,8 @@ growth.graph(tickers = NULL, intercepts = NULL, slopes = NULL,
              initial = 10000,
              add.plot = FALSE,
              colors = NULL, 
-             plot.list = NULL)
+             plot.list = NULL,
+             points.list = NULL)
 }
 \arguments{
   \item{tickers}{
@@ -48,6 +49,9 @@ Character string of colors for each investment.
 }
   \item{plot.list}{
 Optional list of inputs to plot function.  
+}
+  \item{points.list}{
+Optional list of inputs to points function.
 }
 }
 \details{

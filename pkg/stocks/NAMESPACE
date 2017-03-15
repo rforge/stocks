@@ -1,9 +1,11 @@
 useDynLib(stocks)
 exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp, "evalCpp")
-importFrom("graphics", "abline", "grid", "legend", "lines", "points")
+importFrom("graphics", "abline", "grid", "legend", "lines", "plot", "points",
+           "text")
 importFrom("stats", "sd", "anova", "complete.cases", "cov", "lm", "nlminb", 
-           "pnorm", "predict", "var", "vcov")
+           "pnorm", "predict", "var", "vcov", "cor")
+importFrom("grDevices", "colorRampPalette")
 import(rbenchmark)
 import(quantmod)
 import(lubridate)

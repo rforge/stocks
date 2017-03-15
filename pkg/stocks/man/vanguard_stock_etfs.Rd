@@ -18,8 +18,6 @@ Simply a character vector of ticker symbols for Vanguard ETFs.
 Acknowledgment: This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE-0940903.
 }
 \examples{
-# Load and print list of ETFs
-#data(vanguard.stock.etfs)
-#vanguard.stock.etfs
+NA
 }
 \keyword{datasets}
