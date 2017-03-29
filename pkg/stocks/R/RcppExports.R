@@ -4301,3 +4301,4 @@ twometrics.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
 
 # threemetrics.graph
 # twometrics.overtime.graph if feasible!
+# Trigger
