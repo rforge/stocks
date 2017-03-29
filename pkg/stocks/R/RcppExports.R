@@ -4017,281 +4017,281 @@ twometrics.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
 # }
 # 
 # 
-# onemetric.overtime.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
-#                                      gains = NULL, prices = NULL,
-#                                      from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
-#                                      earliest.subset = FALSE, 
-#                                      y.metric = "cagr", 
-#                                      window.units = 50,
-#                                      add.plot = FALSE, 
-#                                      colors = NULL,
-#                                      plot.list = NULL,
-#                                      points.list = NULL,
-#                                      legend.list = NULL,
-#                                      pdf.list = NULL,
-#                                      bmp.list = NULL,
-#                                      jpeg.list = NULL,
-#                                      png.list = NULL,
-#                                      tiff.list = NULL) {
-#   
-#   # If tickers specified, load various historical prices from Yahoo! Finance
-#   if (!is.null(tickers)) {
-#     
-#     # Obtain matrix of gains for each fund
-#     gains <- load.gains(tickers = tickers, from = from, to = to,
-#                         intercepts = intercepts, slopes = slopes, 
-#                         time.scale = time.scale,
-#                         earliest.subset = earliest.subset)
-#     
-#   } else if (!is.null(prices)) {
-#     
-#     # Calculate gains based on price data
-#     gains <- apply(prices, 2, pchanges)
-#     
-#   } else if (is.null(gains)) {
-#     
-#     stop("You must specify one of the following inputs: tickers, gains, or prices")
-#     
-#   }
-#   
-#   # If y.metric requires a benchmark, split gains matrix into ticker gains and benchmark gains
-#   if (y.metric %in% c("alpha", "beta", "r.squared", "pearson", "spearman")) {
-#     benchmark.gains <- gains[, 1, drop = F]
-#     benchmark.ticker <- colnames(benchmark.gains)
-#     if (is.null(benchmark.ticker)) {
-#       benchmark.ticker <- "BENCH"
-#     }
-#     gains <- gains[, -1, drop = F]
-#   }
-#   
-#   # Set tickers to column names of gains matrix; if NULL, use Fund 1, Fund 2, ...
-#   tickers <- colnames(gains)
-#   if (is.null(tickers)) {
-#     tickers <- paste("Fund", 1: ncol(gains))
-#   }
-#   
-#   # Get dates
-#   rows <- rownames(gains)[-c(1: (window.units - 1))]
-#   if (!is.null(rows)) {
-#     dates <- as.Date(rows)
-#   } else {
-#     dates <- 1: nrow(gains)
-#   }
-#   
-#   # Calculate performance metrics
-#   y1 <- y2 <- NULL
-#   if (y.metric == "mean") {
-#     y <- rollapply(gains, width = window.units, 
-#                    FUN = mean, by.column = TRUE) * 100
-#     plot.title <- paste("Mean of ", capitalize(time.scale), " Gains", sep = "")
-#     y.label <- "Mean (%)"
-#   } else if (y.metric == "sd") {
-#     y <- rollapply(gains, width = window.units, 
-#                    FUN = sd, by.column = TRUE) * 100
-#     plot.title <- paste("SD of ", capitalize(time.scale), " Gains", sep = "")
-#     y.label <- "Standard deviation (%)"
-#     y1 <- 0
-#   } else if (y.metric == "growth") {
-#     y <- rollapply(gains, width = window.units, 
-#                    FUN = function(x) gains.rate(gains = x, units.rate = units.year) * 100, by.column = TRUE)
-#     plot.title <- "Total Growth"
-#     y.label <- "Growth (%)"
-#   } else if (y.metric == "cagr") {
-#     units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
-#     y <- rollapply(gains, width = window.units, 
-#                    FUN = function(x) gains.rate(gains = x, units.rate = units.year) * 100, by.column = TRUE)
-#     plot.title <- "Compound Annualized Growth Rate"
-#     y.label <- "CAGR (%)"
-#   } else if (y.metric == "mdd") {
-#     y <- rollapply(gains, width = window.units, 
-#                    FUN = function(x) mdd(gains = x) * 100, by.column = TRUE)
-#     plot.title <- "Maximum Drawdown"
-#     y.label <- "MDD (%)"
-#     y1 <- 0
-#   } else if (y.metric == "sharpe") {
-#     y <- rollapply(gains, width = window.units, 
-#                    FUN = sharpe.ratio, by.column = TRUE)
-#     plot.title <- "Sharpe Ratio"
-#     y.label <- "Sharpe ratio"
-#   } else if (y.metric == "sortino") {
-#     y <- rollapply(gains, width = window.units, 
-#                    FUN = sortino.ratio, by.column = TRUE)
-#     plot.title <- "Sortino Ratio"
-#     y.label <- "Sortino ratio"
-#   } else if (y.metric == "alpha") {
-#     y <- matrix(NA, ncol = length(tickers), nrow = nrow(gains) - window.units + 1)
-#     for (ii in (window.units: nrow(gains))) {
-#       locs <- (ii - window.units + 1): ii
-#       for (jj in 1: ncol(gains)) {
-#         y[(ii - window.units + 1), jj] <- lm(gains[locs, jj] ~ benchmark.gains[locs])$coef[1] * 100
-#       }
-#     }
-#     plot.title <- paste("Alpha w/ ", benchmark.ticker, sep = "")
-#     y.label <- "Alpha (%)"
-#   } else if (y.metric == "beta") {
-#     y <- matrix(NA, ncol = length(tickers), nrow = nrow(gains) - window.units + 1)
-#     for (ii in (window.units: nrow(gains))) {
-#       locs <- (ii - window.units + 1): ii
-#       for (jj in 1: ncol(gains)) {
-#         y[(ii - window.units + 1), jj] <- lm(gains[locs, jj] ~ benchmark.gains[locs])$coef[2]
-#       }
-#     }
-#     plot.title <- paste("Beta w/ ", benchmark.ticker, sep = "")
-#     y.label <- "Beta"
-#   } else if (y.metric == "r.squared") {
-#     y <- matrix(NA, ncol = length(tickers), nrow = nrow(gains) - window.units + 1)
-#     for (ii in (window.units: nrow(gains))) {
-#       locs <- (ii - window.units + 1): ii
-#       for (jj in 1: ncol(gains)) {
-#         y[(ii - window.units + 1), jj] <- summary(lm(gains[locs, jj] ~ benchmark.gains[locs]))$r.squared
-#       }
-#     }
-#     plot.title <- paste("R-squared w/ ", benchmark.ticker, sep = "")
-#     y.label <- "R-squared"
-#     y1 <- 0
-#   } else if (y.metric == "pearson") {
-#     y <- matrix(NA, ncol = length(tickers), nrow = nrow(gains) - window.units + 1)
-#     for (ii in (window.units: nrow(gains))) {
-#       locs <- (ii - window.units + 1): ii
-#       for (jj in 1: ncol(gains)) {
-#         y[(ii - window.units + 1), jj] <- cor(gains[locs, jj], benchmark.gains[locs])
-#       }
-#     }
-#     plot.title <- paste("Pearson Cor. w/ ", benchmark.ticker, sep = "")
-#     y.label <- "Pearson correlation"
-#   } else if (y.metric == "spearman") {
-#     y <- matrix(NA, ncol = length(tickers), nrow = nrow(gains) - window.units + 1)
-#     for (ii in (window.units: nrow(gains))) {
-#       locs <- (ii - window.units + 1): ii
-#       for (jj in 1: ncol(gains)) {
-#         y[(ii - window.units + 1), jj] <- cor(gains[locs, jj], benchmark.gains[locs], method = "spearman")
-#       }
-#     }
-#     plot.title <- paste("Spearman Cor. w/ ", benchmark.ticker, sep = "")
-#     y.label <- "Spearman correlation"
-#   } else if (y.metric == "auto.pearson") {
-#     y <- rollapply(gains, width = window.units + 1, 
-#                    FUN = function(x) cor(x[-length(x)], x[-1]), by.column = TRUE)
-#     plot.title <- "Autocorrelation"
-#     y.label <- paste("Pearson cor. for adjacent ", time.scale, " gains", sep = "")
-#   } else if (y.metric == "auto.spearman") {
-#     y <- rollapply(gains, width = window.units + 1, 
-#                    FUN = function(x) cor(x[-length(x)], x[-1], method = "spearman"), by.column = TRUE)
-#     plot.title <- "Autocorrelation"
-#     y.label <- paste("Spearman cor. for adjacent ", time.scale, " gains", sep = "")
-#   }
-#   
-#   # If NULL, set appropriate values for ylim range
-#   if (is.null(y1)) {
-#     y1 <- min(y) * ifelse(min(y) > 0, 1.05, 0.95)
-#   }
-#   if (is.null(y2)) {
-#     y2 <- max(y) * ifelse(max(y) > 0, 1.05, 0.95)
-#   }
-#   
-#   # Create color scheme for plot
-#   n.funds <- length(tickers)
-#   if (is.null(colors)) {
-#     if (n.funds == 1) {
-#       colors <- "black"
-#     } else if (n.funds == 2) {
-#       colors <- c("blue", "red")
-#     } else if (n.funds == 3) {
-#       colors <- c("blue", "red", "orange")
-#     } else if (n.funds == 4) {
-#       colors <- c("blue", "red", "orange", "purple")
-#     } else if (n.funds > 4) {
-#       #colors <- distinctColorPalette(n.funds)
-#       colors <- colorRampPalette(c("blue", "red", "darkgreen"))(n.funds)
-#     }
-#   }
-#   
-#   # Figure out features of graph, based on user inputs where available
-#   plot.list <- list.override(list1 = list(x = dates, 
-#                                           y = y[, 1], type = "n",
-#                                           main = plot.title, cex.main = 1.25,
-#                                           xlab = "Date", ylab = y.label,
-#                                           ylim = c(y1, y2)),
-#                              list2 = plot.list)
-#   points.list <- list.override(list1 = list(pch = 16),
-#                                list2 = points.list)
-#   legend.list <- list.override(list1 = list(x = "topleft", lty = 1, col = colors, legend = tickers),
-#                                list2 = legend.list)
-#   
-#   # If pdf.list is not NULL, call pdf
-#   if (!is.null(pdf.list)) {
-#     if (is.null(pdf.list$file)) {
-#       pdf.list$file <- "figure1.pdf"
-#     }
-#     do.call(pdf, pdf.list)
-#   }
-#   
-#   # If bmp.list is not NULL, call bmp
-#   if (!is.null(bmp.list)) {
-#     if (is.null(bmp.list$file)) {
-#       bmp.list$file <- "figure1.bmp"
-#     }
-#     do.call(bmp, bmp.list)
-#   }
-#   
-#   # If jpeg.list is not NULL, call jpeg
-#   if (!is.null(jpeg.list)) {
-#     if (is.null(jpeg.list$file)) {
-#       jpeg.list$file <- "figure1.jpg"
-#     }
-#     do.call(jpeg, jpeg.list)
-#   }
-#   
-#   # If png.list is not NULL, call png
-#   if (!is.null(png.list)) {
-#     if (is.null(png.list$file)) {
-#       png.list$file <- "figure1.png"
-#     }
-#     do.call(png, png.list)
-#   }
-#   
-#   # If tiff.list is not NULL, call tiff
-#   if (!is.null(tiff.list)) {
-#     if (is.null(tiff.list$file)) {
-#       tiff.list$file <- "figure1.tif"
-#     }
-#     do.call(tiff, tiff.list)
-#   }
-#   
-#   # Create plot region
-#   if (! add.plot) {
-#     do.call(plot, plot.list)
-#   }
-#   
-#   # Add horizontal/vertical lines if useful for requested metrics
-#   if (y.metric %in% c("mean", "sd", "growth", "cagr", "sharpe", "sortino", "alpha", "pearson", 
-#                       "spearman", "auto.pearson", "auto.spearman")) {
-#     abline(h = 0, lty = 2)
-#   } else if (y.metric %in% c("beta", "r.squared")) {
-#     abline(h = 1, lty = 2)
-#   }
-#   
-#   # Add curves for each fund
-#   for (ii in 1: n.funds) {
-#     
-#     # Add colored curves and data points
-#     do.call(points, c(list(x = dates, y = y[, ii], type = "l", col = colors[ii]), points.list))
-#     
-#   }
-#   
-#   # Add legend
-#   do.call(legend, legend.list)
-#   
-#   # Close graphics device if necessary
-#   if (!is.null(pdf.list) | !is.null(bmp.list) | !is.null(jpeg.list) |
-#       !is.null(png.list) | !is.null(tiff.list)) {
-#     dev.off()
-#   }
-#   
-#   # Return matrix of y values
-#   return(y)
-#   
-# }
+onemetric.overtime.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
+                                     gains = NULL, prices = NULL,
+                                     from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
+                                     earliest.subset = FALSE,
+                                     y.metric = "cagr",
+                                     window.units = 50,
+                                     add.plot = FALSE,
+                                     colors = NULL,
+                                     plot.list = NULL,
+                                     points.list = NULL,
+                                     legend.list = NULL,
+                                     pdf.list = NULL,
+                                     bmp.list = NULL,
+                                     jpeg.list = NULL,
+                                     png.list = NULL,
+                                     tiff.list = NULL) {
+
+  # If tickers specified, load various historical prices from Yahoo! Finance
+  if (!is.null(tickers)) {
+
+    # Obtain matrix of gains for each fund
+    gains <- load.gains(tickers = tickers, from = from, to = to,
+                        intercepts = intercepts, slopes = slopes,
+                        time.scale = time.scale,
+                        earliest.subset = earliest.subset)
+
+  } else if (!is.null(prices)) {
+
+    # Calculate gains based on price data
+    gains <- apply(prices, 2, pchanges)
+
+  } else if (is.null(gains)) {
+
+    stop("You must specify one of the following inputs: tickers, gains, or prices")
+
+  }
+
+  # If y.metric requires a benchmark, split gains matrix into ticker gains and benchmark gains
+  if (y.metric %in% c("alpha", "beta", "r.squared", "pearson", "spearman")) {
+    benchmark.gains <- gains[, 1, drop = F]
+    benchmark.ticker <- colnames(benchmark.gains)
+    if (is.null(benchmark.ticker)) {
+      benchmark.ticker <- "BENCH"
+    }
+    gains <- gains[, -1, drop = F]
+  }
+
+  # Set tickers to column names of gains matrix; if NULL, use Fund 1, Fund 2, ...
+  tickers <- colnames(gains)
+  if (is.null(tickers)) {
+    tickers <- paste("Fund", 1: ncol(gains))
+  }
+
+  # Get dates
+  rows <- rownames(gains)[-c(1: (window.units - 1))]
+  if (!is.null(rows)) {
+    dates <- as.Date(rows)
+  } else {
+    dates <- 1: nrow(gains)
+  }
+
+  # Calculate performance metrics
+  y1 <- y2 <- NULL
+  if (y.metric == "mean") {
+    y <- rollapply(gains, width = window.units,
+                   FUN = mean, by.column = TRUE) * 100
+    plot.title <- paste("Mean of ", capitalize(time.scale), " Gains", sep = "")
+    y.label <- "Mean (%)"
+  } else if (y.metric == "sd") {
+    y <- rollapply(gains, width = window.units,
+                   FUN = sd, by.column = TRUE) * 100
+    plot.title <- paste("SD of ", capitalize(time.scale), " Gains", sep = "")
+    y.label <- "Standard deviation (%)"
+    y1 <- 0
+  } else if (y.metric == "growth") {
+    y <- rollapply(gains, width = window.units,
+                   FUN = function(x) gains.rate(gains = x, units.rate = units.year) * 100, by.column = TRUE)
+    plot.title <- "Total Growth"
+    y.label <- "Growth (%)"
+  } else if (y.metric == "cagr") {
+    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+    y <- rollapply(gains, width = window.units,
+                   FUN = function(x) gains.rate(gains = x, units.rate = units.year) * 100, by.column = TRUE)
+    plot.title <- "Compound Annualized Growth Rate"
+    y.label <- "CAGR (%)"
+  } else if (y.metric == "mdd") {
+    y <- rollapply(gains, width = window.units,
+                   FUN = function(x) mdd(gains = x) * 100, by.column = TRUE)
+    plot.title <- "Maximum Drawdown"
+    y.label <- "MDD (%)"
+    y1 <- 0
+  } else if (y.metric == "sharpe") {
+    y <- rollapply(gains, width = window.units,
+                   FUN = sharpe.ratio, by.column = TRUE)
+    plot.title <- "Sharpe Ratio"
+    y.label <- "Sharpe ratio"
+  } else if (y.metric == "sortino") {
+    y <- rollapply(gains, width = window.units,
+                   FUN = sortino.ratio, by.column = TRUE)
+    plot.title <- "Sortino Ratio"
+    y.label <- "Sortino ratio"
+  } else if (y.metric == "alpha") {
+    y <- matrix(NA, ncol = length(tickers), nrow = nrow(gains) - window.units + 1)
+    for (ii in (window.units: nrow(gains))) {
+      locs <- (ii - window.units + 1): ii
+      for (jj in 1: ncol(gains)) {
+        y[(ii - window.units + 1), jj] <- lm(gains[locs, jj] ~ benchmark.gains[locs])$coef[1] * 100
+      }
+    }
+    plot.title <- paste("Alpha w/ ", benchmark.ticker, sep = "")
+    y.label <- "Alpha (%)"
+  } else if (y.metric == "beta") {
+    y <- matrix(NA, ncol = length(tickers), nrow = nrow(gains) - window.units + 1)
+    for (ii in (window.units: nrow(gains))) {
+      locs <- (ii - window.units + 1): ii
+      for (jj in 1: ncol(gains)) {
+        y[(ii - window.units + 1), jj] <- lm(gains[locs, jj] ~ benchmark.gains[locs])$coef[2]
+      }
+    }
+    plot.title <- paste("Beta w/ ", benchmark.ticker, sep = "")
+    y.label <- "Beta"
+  } else if (y.metric == "r.squared") {
+    y <- matrix(NA, ncol = length(tickers), nrow = nrow(gains) - window.units + 1)
+    for (ii in (window.units: nrow(gains))) {
+      locs <- (ii - window.units + 1): ii
+      for (jj in 1: ncol(gains)) {
+        y[(ii - window.units + 1), jj] <- summary(lm(gains[locs, jj] ~ benchmark.gains[locs]))$r.squared
+      }
+    }
+    plot.title <- paste("R-squared w/ ", benchmark.ticker, sep = "")
+    y.label <- "R-squared"
+    y1 <- 0
+  } else if (y.metric == "pearson") {
+    y <- matrix(NA, ncol = length(tickers), nrow = nrow(gains) - window.units + 1)
+    for (ii in (window.units: nrow(gains))) {
+      locs <- (ii - window.units + 1): ii
+      for (jj in 1: ncol(gains)) {
+        y[(ii - window.units + 1), jj] <- cor(gains[locs, jj], benchmark.gains[locs])
+      }
+    }
+    plot.title <- paste("Pearson Cor. w/ ", benchmark.ticker, sep = "")
+    y.label <- "Pearson correlation"
+  } else if (y.metric == "spearman") {
+    y <- matrix(NA, ncol = length(tickers), nrow = nrow(gains) - window.units + 1)
+    for (ii in (window.units: nrow(gains))) {
+      locs <- (ii - window.units + 1): ii
+      for (jj in 1: ncol(gains)) {
+        y[(ii - window.units + 1), jj] <- cor(gains[locs, jj], benchmark.gains[locs], method = "spearman")
+      }
+    }
+    plot.title <- paste("Spearman Cor. w/ ", benchmark.ticker, sep = "")
+    y.label <- "Spearman correlation"
+  } else if (y.metric == "auto.pearson") {
+    y <- rollapply(gains, width = window.units + 1,
+                   FUN = function(x) cor(x[-length(x)], x[-1]), by.column = TRUE)
+    plot.title <- "Autocorrelation"
+    y.label <- paste("Pearson cor. for adjacent ", time.scale, " gains", sep = "")
+  } else if (y.metric == "auto.spearman") {
+    y <- rollapply(gains, width = window.units + 1,
+                   FUN = function(x) cor(x[-length(x)], x[-1], method = "spearman"), by.column = TRUE)
+    plot.title <- "Autocorrelation"
+    y.label <- paste("Spearman cor. for adjacent ", time.scale, " gains", sep = "")
+  }
+
+  # If NULL, set appropriate values for ylim range
+  if (is.null(y1)) {
+    y1 <- min(y) * ifelse(min(y) > 0, 1.05, 0.95)
+  }
+  if (is.null(y2)) {
+    y2 <- max(y) * ifelse(max(y) > 0, 1.05, 0.95)
+  }
+
+  # Create color scheme for plot
+  n.funds <- length(tickers)
+  if (is.null(colors)) {
+    if (n.funds == 1) {
+      colors <- "black"
+    } else if (n.funds == 2) {
+      colors <- c("blue", "red")
+    } else if (n.funds == 3) {
+      colors <- c("blue", "red", "orange")
+    } else if (n.funds == 4) {
+      colors <- c("blue", "red", "orange", "purple")
+    } else if (n.funds > 4) {
+      #colors <- distinctColorPalette(n.funds)
+      colors <- colorRampPalette(c("blue", "red", "darkgreen"))(n.funds)
+    }
+  }
+
+  # Figure out features of graph, based on user inputs where available
+  plot.list <- list.override(list1 = list(x = dates,
+                                          y = y[, 1], type = "n",
+                                          main = plot.title, cex.main = 1.25,
+                                          xlab = "Date", ylab = y.label,
+                                          ylim = c(y1, y2)),
+                             list2 = plot.list)
+  points.list <- list.override(list1 = list(pch = 16),
+                               list2 = points.list)
+  legend.list <- list.override(list1 = list(x = "topleft", lty = 1, col = colors, legend = tickers),
+                               list2 = legend.list)
+
+  # If pdf.list is not NULL, call pdf
+  if (!is.null(pdf.list)) {
+    if (is.null(pdf.list$file)) {
+      pdf.list$file <- "figure1.pdf"
+    }
+    do.call(pdf, pdf.list)
+  }
+
+  # If bmp.list is not NULL, call bmp
+  if (!is.null(bmp.list)) {
+    if (is.null(bmp.list$file)) {
+      bmp.list$file <- "figure1.bmp"
+    }
+    do.call(bmp, bmp.list)
+  }
+
+  # If jpeg.list is not NULL, call jpeg
+  if (!is.null(jpeg.list)) {
+    if (is.null(jpeg.list$file)) {
+      jpeg.list$file <- "figure1.jpg"
+    }
+    do.call(jpeg, jpeg.list)
+  }
+
+  # If png.list is not NULL, call png
+  if (!is.null(png.list)) {
+    if (is.null(png.list$file)) {
+      png.list$file <- "figure1.png"
+    }
+    do.call(png, png.list)
+  }
+
+  # If tiff.list is not NULL, call tiff
+  if (!is.null(tiff.list)) {
+    if (is.null(tiff.list$file)) {
+      tiff.list$file <- "figure1.tif"
+    }
+    do.call(tiff, tiff.list)
+  }
+
+  # Create plot region
+  if (! add.plot) {
+    do.call(plot, plot.list)
+  }
+
+  # Add horizontal/vertical lines if useful for requested metrics
+  if (y.metric %in% c("mean", "sd", "growth", "cagr", "sharpe", "sortino", "alpha", "pearson",
+                      "spearman", "auto.pearson", "auto.spearman")) {
+    abline(h = 0, lty = 2)
+  } else if (y.metric %in% c("beta", "r.squared")) {
+    abline(h = 1, lty = 2)
+  }
+
+  # Add curves for each fund
+  for (ii in 1: n.funds) {
+
+    # Add colored curves and data points
+    do.call(points, c(list(x = dates, y = y[, ii], type = "l", col = colors[ii]), points.list))
+
+  }
+
+  # Add legend
+  do.call(legend, legend.list)
+
+  # Close graphics device if necessary
+  if (!is.null(pdf.list) | !is.null(bmp.list) | !is.null(jpeg.list) |
+      !is.null(png.list) | !is.null(tiff.list)) {
+    dev.off()
+  }
+
+  # Return matrix of y values
+  return(y)
+
+}
 
 # PLANS: 
 

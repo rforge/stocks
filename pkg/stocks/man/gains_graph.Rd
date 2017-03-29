@@ -66,6 +66,9 @@ Optional list of inputs to plot function.
   \item{points.list}{
 Optional list of inputs to points function.
 }
+  \item{legend.list}{
+Optional list of inputs to legend function.
+}
   \item{pdf.list}{
 Optional list of inputs to pdf function. If not NULL, .pdf file is created.
 }

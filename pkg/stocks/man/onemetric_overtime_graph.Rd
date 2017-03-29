@@ -56,9 +56,6 @@ Character string specifying what performance metric should be plotted. Possible 
   \item{add.plot}{
 If TRUE, data is plotted on current plot frame rather than a new one.
 }
-  \item{sort.tickers}{
-If TRUE, tickers are arranged in decreasing order of the performance metric.
-}
   \item{plot.list}{
 Optional list of inputs to pass to plot function.  
 }

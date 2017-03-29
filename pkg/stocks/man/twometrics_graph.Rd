@@ -17,6 +17,7 @@ twometrics.graph(tickers = NULL, intercepts = NULL, slopes = NULL,
                  sort.tickers = TRUE,
                  plot.list = NULL,
                  points.list = NULL,
+                 text.list = NULL,
                  axis.list = NULL,
                  pdf.list = NULL,
                  bmp.list = NULL,
@@ -64,17 +65,14 @@ Can be any of the following: numeric vector of length 2 giving x-axis and y-axis
   \item{add.plot}{
 If TRUE, data is plotted on current plot frame rather than a new one.
 }
-  \item{sort.tickers}{
-If TRUE, tickers are arranged in decreasing order of the performance metric.
-}
   \item{plot.list}{
 Optional list of inputs to pass to plot function.  
 }
   \item{points.list}{
 Optional list of inputs to pass to points function.
 }
-  \item{axis.list}{
-Optional list of inputs to pass to axis function.
+  \item{text.list}{
+Optional list of inputs to pass to text function.
 }
   \item{pdf.list}{
 Optional list of inputs to pdf function. If not NULL, .pdf file is created.

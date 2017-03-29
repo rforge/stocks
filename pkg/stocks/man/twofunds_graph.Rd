@@ -60,9 +60,6 @@ Date or character string in form of date (e.g. "2016-01-01" for Jan. 1, 2016), i
   \item{time.scale}{
 Character string that controls the time frame for performance metrics. Possible values are "daily", "monthly", and "yearly".
 }
-  \item{earliest.subset}{
-If TRUE, only the subset of tickers with data going back to "from" date (or the earliest) are included; if FALSE, all tickers are included, and data covering their mutual lifetimes is used.
-}
   \item{step.data}{
 Allocation increments for data used to fit curves.
 }

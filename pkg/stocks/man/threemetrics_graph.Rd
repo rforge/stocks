@@ -55,8 +55,11 @@ If TRUE, only the subset of tickers with data going back to "from" date (or the 
   \item{x.metric}{
 Character string specifying what performance metric should be plotted on x-axis. Possible values are as follows: "mean" for mean of gains; "sd" for standard deviation of gains; "growth" for total growth; "cagr" for compound annualized growth rate; "mdd" for maximum drawdown; "sharpe" for Sharpe ratio; "sortino" for Sortino ratio; "alpha" or "beta" for alpha and beta from capital assets pricing model theory; "r.squared" for R-squared from regression on benchmark fund; "pearson" or "spearman" for Pearson or Spearman correlation with benchmark fund; "alpha2", "beta2", r.squared2", "pearson2", or "spearman2" for same as previously described, but using the second benchmark index; or "auto.pearson" or "auto.spearman" for Pearson or Spearman autocorrelation, defined as the correlation between subsequent gains.
 }
-\item{y.metric}{
+  \item{y.metric}{
 Character string specifying what performance metric should be plotted on y-axis. Possible values are as follows: "mean" for mean of gains; "sd" for standard deviation of gains; "growth" for total growth; "cagr" for compound annualized growth rate; "mdd" for maximum drawdown; "sharpe" for Sharpe ratio; "sortino" for Sortino ratio; "alpha" or "beta" for alpha and beta from capital assets pricing model theory; "r.squared" for R-squared from regression on benchmark fund; "pearson" or "spearman" for Pearson or Spearman correlation with benchmark fund; "alpha2", "beta2", r.squared2", "pearson2", or "spearman2" for same as previously described, but using the second benchmark index; or "auto.pearson" or "auto.spearman" for Pearson or Spearman autocorrelation, defined as the correlation between subsequent gains.
+}
+  \item{size.metric}{
+Character string specifying what performance metric the size of the data points should be proportional to.
 }
   \item{tickerlabel.offsets}{
 Can be any of the following: numeric vector of length 2 giving x-axis and y-axis offsets for ticker labels on all data points; 2-column matrix where each row gives x-axis offset and y-axis offset for a particular ticker, following same order of tickers as in tickers vector; or a 3-column data frame where each row contains a ticker symbol, an x-axis offset, and a y-axis offset.
