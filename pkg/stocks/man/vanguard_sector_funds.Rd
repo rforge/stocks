@@ -7,7 +7,7 @@ List of Vanguard Sector Mutual Funds as of March 6, 2017.
 \description{
 Simply a character vector of ticker symbols for Vanguard mutual funds.
 }
-\usage{data("vanguard.sector.funds")}
+%\usage{data("vanguard.sector.funds")}
 \format{
   A character vector with 4 tickers.
 }

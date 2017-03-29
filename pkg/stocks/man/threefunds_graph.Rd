@@ -8,16 +8,23 @@ Creates graph of one performance metric vs. another as allocation for three-fund
 }
 \usage{
 threefunds.graph(tickers = NULL, intercepts = NULL, slopes = NULL,
-                 benchmark.ticker = "VFINX", reference.tickers = benchmark.ticker,
+                 benchmark.tickers = NULL, reference.tickers = NULL,
                  tickers.gains = NULL, benchmark.gains = NULL, reference.gains = NULL,
                  from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
                  step.data = 0.0025, step.points = 0.1, step.curves = 0.2,
-                 y.axis = "mean", x.axis = "sd",
+                 x.metric = "sd", y.metric = "mean",
+                 tickerlabel.offsets = NULL,
+                 reflabel.offsets = NULL,
                  add.plot = FALSE,
                  colors = NULL,
                  plot.list = NULL,
                  points.list = NULL,
-                 text.list = NULL)
+                 text.list = NULL,
+                 pdf.list = NULL,
+                 bmp.list = NULL,
+                 jpeg.list = NULL,
+                 png.list = NULL,
+                 tiff.list = NULL)
 }
 \arguments{
   \item{tickers}{
@@ -29,8 +36,8 @@ Numeric vector or matrix of values to add to daily gains for each ticker. For ex
   \item{slopes}{
 Numeric vector or matrix of values to multiply daily gains for each ticker by. For example, if you have three tickers and want to simulate a 2x leveraged version of the third fund, you would set slopes to c(1, 1, 2). The slopes are multiplied prior to adding the intercepts. Like the tickers input, can be a vector divisible by three or a three-row matrix.
 }
-  \item{benchmark.ticker}{
-Character string indicating ticker symbol for benchmark index. Only relevant if either x.axis or y.axis input is set to "alpha" or "beta".
+  \item{benchmark.tickers}{
+Character vector of length 1 or 2 indicating ticker symbols for benchmark indexes, to be used if x.metric or y.metric is set to "alpha", "beta", "r.squared", "pearson", "spearman", or "alpha2", "beta2", and so on. For example, if you wish to plot correlation with SPY on the x-axis and correlation with TLT on the y-axis, you would set x.metric to "pearson" and y.metric to "pearson2", and set benchmark.tickers to c("SPY", "TLT").
 }
   \item{reference.tickers}{
 Character string or vector of ticker symbols to include on the graph as a data point for comparative purposes.
@@ -39,7 +46,7 @@ Character string or vector of ticker symbols to include on the graph as a data p
 Numeric matrix of gains (daily or otherwise), where each column has gains for a particular fund. The first, second, and third column are assumed to be first three-fund set, the fourth through sixth are assumed to be the second set, and so on.
 }
   \item{benchmark.gains}{
-Numeric vector or matrix of gains for benchmark index. Only relevant if either x.axis or y.axis input is set to "alpha" or "beta".
+Numeric vector or matrix of gains for benchmark indexes. Only relevant if either x.metric or y.metric input is set to "alpha", "beta", "r.squared", "pearson", "spearman", or "alpha2", "beta2", and so on. For example, if you wish to plot correlation with SPY on the x-axis and correlation with TLT on the y-axis, you would set x.metric to "pearson" and y.metric to "pearson2", and benchmark.gains should be a 2-column matrix where the first column has SPY gains and the second column has TLT gains.
 }
   \item{reference.gains}{
 Numeric vector or matrix of gains for reference funds.
@@ -51,7 +58,7 @@ Date or character string in form of date (e.g. "2015-01-01" for Jan. 1, 2015), i
 Date or character string in form of date (e.g. "2016-01-01" for Jan. 1, 2016), indicating the ending date for the period of interest.
 }
   \item{time.scale}{
-Controls time frame for performance metrics. Possible values are "daily", "monthly", and "yearly".
+Character string that controls the time frame for performance metrics. Possible values are "daily", "monthly", and "yearly".
 }
   \item{step.data}{
 Allocation increments for data used to fit curves.
@@ -62,11 +69,17 @@ Allocation increments for data points plotted on top of curves. Set to NULL to s
   \item{step.curves}{
 Allocation increments for first fund in each set. For example, if set to 0.2, there will be six curves for each three-fund set: one for 0\% fund 1, another for 20\% fund 1, and so on, up to 100\% fund 1 (which is technically a data point, not a curve).
 }
-  \item{y.axis}{
-Character string specifying what performance metric should be plotted on y-axis. Possible values are as follows: "mean" for mean of gains; "sd" for standard deviation of gains; "cagr" for compound annualized growth rate; "mdd" for maximum drawdown; "sharpe" for Sharpe ratio; "sortino" for Sortino ratio; "alpha" or "beta" for alpha and beta from capital assets pricing model theory; or "allocation" for allocation to second fund in each set.
+  \item{x.metric}{
+Character string specifying what performance metric should be plotted on x-axis. Possible values are as follows: "mean" for mean of gains; "sd" for standard deviation of gains; "growth" for total growth; "cagr" for compound annualized growth rate; "mdd" for maximum drawdown; "sharpe" for Sharpe ratio; "sortino" for Sortino ratio; "alpha" or "beta" for alpha and beta from capital assets pricing model theory; "r.squared" for R-squared from regression on benchmark fund; "pearson" or "spearman" for Pearson or Spearman correlation with benchmark fund; "alpha2", "beta2", r.squared2", "pearson2", or "spearman2" for same as previously described, but using the second benchmark index; "auto.pearson" or "auto.spearman" for Pearson or Spearman autocorrelation, defined as the correlation between subsequent gains; or "allocation" for allocation to first fund in each pair.
 }
-  \item{x.axis}{
-Character string specifying what performance metric should be plotted on x-axis. Possible values are as follows: "mean" for mean of gains; "sd" for standard deviation of gains; "cagr" for compound annualized growth rate; "mdd" for maximum drawdown; "sharpe" for Sharpe ratio; "sortino" for Sortino ratio; "alpha" or "beta" for alpha and beta from capital assets pricing model theory; or "allocation" for allocation to second fund in each set.
+  \item{y.metric}{
+Same as x.metric, but for y-axis variable.
+}
+  \item{tickerlabel.offsets}{
+Either a numeric vector of length 2 giving the x-axis and y-axis offsets for ticker labels, or a 2-column matrix where each row gives the x-axis offset and y-axis offset for a particular ticker, following the same order of tickers as in the tickers matrix (going down each column, then to the next row) or across the ticker.gains matrix.
+}
+  \item{reflabel.offsets}{
+Either a numeric vector of length 2 giving the x-axis and y-axis offsets for reference ticker labels, or a 2-column matrix where each row gives the x-axis offset and y-axis offset for a particular reference ticker, following the same order of tickers as in the reference.tickers vector or across the reference.gains matrix.
 }
   \item{add.plot}{
 If TRUE, data is plotted on current plot frame rather than a new one.
@@ -75,13 +88,28 @@ If TRUE, data is plotted on current plot frame rather than a new one.
 Character string of colors for each three-fund set.  
 }
   \item{plot.list}{
-Optional list of inputs to plot function.  
+Optional list of inputs to pass to plot function.  
 }
   \item{points.list}{
-Optional list of inputs to points function.
+Optional list of inputs to pass to points function.
 }
   \item{text.list}{
-Optional list of inputs to text function.
+Optional list of inputs to pass to text function.
+}
+  \item{pdf.list}{
+Optional list of inputs to pdf function. If not NULL, .pdf file is created.
+}
+  \item{bmp.list}{
+Optional list of inputs to bmp function. If not NULL, .bmp file is created.
+}
+  \item{jpeg.list}{
+Optional list of inputs to pdf function. If not NULL, .jpg file is created.
+}
+  \item{png.list}{
+Optional list of inputs to pdf function. If not NULL, .png file is created.
+}
+  \item{tiff.list}{
+Optional list of inputs to pdf function. If not NULL, .tif file is created.
 }
 }
 \details{

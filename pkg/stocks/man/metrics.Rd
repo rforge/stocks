@@ -4,13 +4,16 @@
 Calculate a Variety of Performance Metrics
 }
 \description{
-Calculates total growth, compound annualized growth rate, maximum drawdown, Sharpe ratio, Sortino ratio, and alpha and beta if a benchmark is specified. 
+Calculates any or all of the following: mean and standard deviation of gains; total growth and compound annualized growth rate; maximum drawdown; Sharpe ratio and Sortino ratio; alpha, beta, Pearson correlation, and Spearman correlation, using first investment as the benchmark; and Pearson and Spearman autocorrelation, defined as the correlation between subsequent gains for each investment.
 }
 \usage{
 metrics(tickers = NULL, intercepts = NULL, slopes = NULL,
         gains = NULL, prices = NULL, 
-        from = "1900-01-01", to = Sys.Date(),
-        benchmark.fund = NULL, time.scale = "daily")
+        from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
+        earliest.subset = TRUE,
+        perf.metrics = c("mean", "sd", "growth", "cagr", "mdd", "sharpe",
+                         "sortino", "alpha", "beta", "r.squared", "pearson",
+                         "spearman", "auto.pearson", "auto.spearman"))
 }
 \arguments{
   \item{tickers}{
@@ -34,18 +37,21 @@ Date or character string in form of date (e.g. "2015-01-01" for Jan. 1, 2015), i
   \item{to}{
 Date or character string in form of date (e.g. "2016-01-01" for Jan. 1, 2016), indicating the ending date for the period of interest.
 }
-  \item{benchmark.fund}{
-Numeric value or character string indicating which of the tickers should serve as the benchmark fund for calculating alpha and beta. If not specified, alpha and beta are not calculated.
-}
   \item{time.scale}{
-Controls time frame for gains. Possible values are "daily", "monthly", and "yearly".
+Character string that controls the time frame for gains. Possible values are "daily", "monthly", and "yearly".
+}
+  \item{earliest.subset}{
+If TRUE, only the subset of tickers with data going back to "from" date (or the earliest) are included; if FALSE, all tickers are included, and data covering their mutual lifetimes is used.
+}
+  \item{perf.metrics}{
+Character vector indicating what metrics should be calculated. If it includes "alpha", "beta", "r.squared", "pearson", or "spearman", the first investment is used as the benchmark.
 }
 }
 \details{
 If tickers input is specified, function loads historical prices for the tickers from Yahoo! Finance using the quantmod package [1]. If gains or prices are specified, performance metrics are calculated directly from that information.
 }
 \value{
-A numeric matrix where each column indicates the daily/monthly/yearly gains for a given ticker over the time period of interest.
+A list containing a data frame with the performance metrics and a correlation matrix for gains for the various investments.
 }
 \note{
 NA
@@ -64,6 +70,5 @@ Dane R. Van Domelen
 \examples{
 # Calculate performance metrics for leveraged ETFs SSO and UPRO, 
 # using SPY as benchmark for alpha and beta
-perf.metrics <- metrics(tickers = c("SSO", "UPRO", "SPY"), 
-                        benchmark.fund = "SPY")
+metrics1 <- perf.metrics(tickers = c("SPY", "SSO", "UPRO"))
 }

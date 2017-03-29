@@ -6,6 +6,8 @@ importFrom("graphics", "abline", "grid", "legend", "lines", "plot", "points",
 importFrom("stats", "sd", "anova", "complete.cases", "cov", "lm", "nlminb", 
            "pnorm", "predict", "var", "vcov", "cor")
 importFrom("grDevices", "colorRampPalette")
+importFrom("Hmisc", "capitalize")
+importFrom("zoo", "rollapply")
 import(rbenchmark)
 import(quantmod)
 import(lubridate)

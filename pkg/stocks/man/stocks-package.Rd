@@ -13,7 +13,7 @@ Functions for analyzing stocks or other investments. Main features are loading a
 Package: \tab stocks\cr
 Type: \tab Package\cr
 Version: \tab 1.1.2\cr
-Date: \tab 2016-03-18\cr
+Date: \tab 2016-03-29\cr
 License: \tab GPL-2\cr
 }
 The following functions are included:
@@ -44,6 +44,10 @@ The following functions are included:
 \code{\link{twofunds.graph}}
 \code{\link{threefunds.graph}}
 \code{\link{growth.graph}}
+\code{\link{gains.graph}}
+\code{\link{onemetric.graph}}
+\code{\link{twometrics.graph}}
+\code{\link{onemetric.overtime.graph}}
 }
 \author{
 Dane R. Van Domelen

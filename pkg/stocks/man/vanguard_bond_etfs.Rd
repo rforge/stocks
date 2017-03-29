@@ -7,7 +7,7 @@ List of Vanguard Bond ETFs as of March 6, 2017.
 \description{
 Simply a character vector of ticker symbols for Vanguard ETFs.
 }
-\usage{data("vanguard.bond.etfs")}
+%\usage{data("vanguard.bond.etfs")}
 \format{
   A character vector with 14 tickers.
 }

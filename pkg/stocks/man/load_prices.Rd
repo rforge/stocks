@@ -9,7 +9,8 @@ Downloads and aligns historical prices for specified tickers from Yahoo! Finance
 \usage{
 load.prices(tickers, intercepts = NULL, slopes = NULL,
             from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
-            initial = NULL)
+            initial = NULL,
+            earliest.subset = TRUE)
 }
 \arguments{
   \item{tickers}{
@@ -28,10 +29,13 @@ Date or character string in form of date (e.g. "2015-01-01" for Jan. 1, 2015), i
 Date or character string in form of date (e.g. "2016-01-01" for Jan. 1, 2016), indicating the ending date for the period of interest.
 }
   \item{time.scale}{
-Controls time frame for prices. Possible values are "daily", "monthly", and "yearly".
+Character string that Controls the time frame for prices. Possible values are "daily", "monthly", and "yearly".
 }
   \item{initial}{
 Numeric value indicating what you would like to scale the initial price of each fund to. May be useful When loading data for multiple funds that you want to compare.
+}
+  \item{earliest.subset}{
+If TRUE, only the subset of tickers with data going back to "from" date (or the earliest) are included; if FALSE, all tickers are included, and data covering their mutual lifetimes is returned.
 }
 }
 \details{

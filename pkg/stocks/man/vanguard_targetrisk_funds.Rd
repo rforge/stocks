@@ -7,7 +7,7 @@ List of Vanguard Target Risk Mutual Funds as of March 6, 2017.
 \description{
 Simply a character vector of ticker symbols for Vanguard mutual funds.
 }
-\usage{data("vanguard.targetrisk.funds")}
+%\usage{data("vanguard.targetrisk.funds")}
 \format{
   A character vector with 4 tickers.
 }

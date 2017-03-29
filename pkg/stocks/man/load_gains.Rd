@@ -8,7 +8,8 @@ Downloads and aligns historical investment gains for specified tickers from Yaho
 }
 \usage{
 load.gains(tickers, intercepts = NULL, slopes = NULL, 
-           from = "1900-01-01", to = Sys.Date(), time.scale = "daily")
+           from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
+           earliest.subset = TRUE)
 }
 \arguments{
   \item{tickers}{
@@ -27,7 +28,10 @@ Date or character string in form of date (e.g. "2015-01-01" for Jan. 1, 2015), i
 Date or character string in form of date (e.g. "2016-01-01" for Jan. 1, 2016), indicating the ending date for the period of interest.
 }
   \item{time.scale}{
-Controls time frame for gains. Possible values are "daily", "monthly", and "yearly".
+Character string that Controls the time frame for gains. Possible values are "daily", "monthly", and "yearly".
+}
+  \item{earliest.subset}{
+If TRUE, only the subset of tickers with data going back to "from" date (or the earliest) are included; if FALSE, all tickers are included, and data covering their mutual lifetimes is returned.
 }
 }
 \details{
