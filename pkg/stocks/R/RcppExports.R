@@ -2740,7 +2740,7 @@ growth.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   }
 
   # Figure out features of graph, based on user inputs where available
-  plot.list <- list.override(list1 = list(x = dates, y = prices[, 1], type = "n"),
+  plot.list <- list.override(list1 = list(x = dates, y = prices[, 1], type = "n",
                                           main = paste("Growth of $", initial, sep = ""), cex.main = 1.25,
                                           xlab = "Date", ylab = "Balance ($)",
                                           xlim = range(dates), ylim = c(0, max(prices) * 1.05)),
