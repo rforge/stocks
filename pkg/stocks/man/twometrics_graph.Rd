@@ -14,11 +14,10 @@ twometrics.graph(tickers = NULL, intercepts = NULL, slopes = NULL,
                  x.metric = "mdd", y.metric = "cagr", 
                  tickerlabel.offsets = NULL,
                  add.plot = FALSE, 
-                 sort.tickers = TRUE,
+                 colors = NULL,
                  plot.list = NULL,
                  points.list = NULL,
                  text.list = NULL,
-                 axis.list = NULL,
                  pdf.list = NULL,
                  bmp.list = NULL,
                  jpeg.list = NULL,
@@ -64,6 +63,9 @@ Can be any of the following: numeric vector of length 2 giving x-axis and y-axis
 }
   \item{add.plot}{
 If TRUE, data is plotted on current plot frame rather than a new one.
+}
+  \item{colors}{
+Character string of colors for each fund.
 }
   \item{plot.list}{
 Optional list of inputs to pass to plot function.  

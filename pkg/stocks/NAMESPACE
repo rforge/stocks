@@ -8,7 +8,7 @@ importFrom("stats", "sd", "anova", "complete.cases", "cov", "lm", "nlminb",
            "pnorm", "predict", "var", "vcov", "cor")
 importFrom("grDevices", "colorRampPalette")
 importFrom("Hmisc", "capitalize")
-#importFrom("zoo", "rollapply")
+importFrom("zoo", "rollapply")
 import(rbenchmark)
 import(quantmod)
 import(lubridate)

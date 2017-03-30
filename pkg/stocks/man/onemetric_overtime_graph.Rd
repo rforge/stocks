@@ -12,10 +12,12 @@ onemetric.overtime.graph(tickers = NULL, intercepts = NULL, slopes = NULL,
                          from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
                          earliest.subset = FALSE,
                          y.metric = "cagr", 
+                         window.units = 50,
                          add.plot = FALSE, 
+                         colors = NULL,
                          plot.list = NULL,
                          points.list = NULL,
-                         axis.list = NULL,
+                         legend.list = NULL,
                          pdf.list = NULL,
                          bmp.list = NULL,
                          jpeg.list = NULL,
@@ -50,11 +52,17 @@ Character string that controls the time frame for data points. Possible values a
   \item{earliest.subset}{
 If TRUE, only the subset of tickers with data going back to "from" date (or the earliest) are included; if FALSE, all tickers are included, and data covering their mutual lifetimes is used.
 }
-\item{y.metric}{
+  \item{y.metric}{
 Character string specifying what performance metric should be plotted. Possible values are as follows: "mean" for mean of gains; "sd" for standard deviation of gains; "growth" for total growth; "cagr" for compound annualized growth rate; "mdd" for maximum drawdown; "sharpe" for Sharpe ratio; "sortino" for Sortino ratio; "alpha" or "beta" for alpha and beta from capital assets pricing model theory; "r.squared" for R-squared from regression on benchmark fund; "pearson" or "spearman" for Pearson or Spearman correlation with benchmark fund; or "auto.pearson" or "auto.spearman" for Pearson or Spearman autocorrelation, defined as the correlation between subsequent gains.
+}
+  \item{window.units}{
+Numeric value indicating the width of the moving window. For example, if time.scale is "daily" and window.units is set to 50, the plot will show the performance metric for each 50-gain (51-day) interval spanning the time period of interest.
 }
   \item{add.plot}{
 If TRUE, data is plotted on current plot frame rather than a new one.
+}
+  \item{colors}{
+Character string of colors for each fund.
 }
   \item{plot.list}{
 Optional list of inputs to pass to plot function.  
@@ -62,8 +70,8 @@ Optional list of inputs to pass to plot function.
   \item{points.list}{
 Optional list of inputs to pass to points function.
 }
-  \item{axis.list}{
-Optional list of inputs to pass to axis function.
+  \item{legend.list}{
+Optional list of inputs to pass to legend function.
 }
   \item{pdf.list}{
 Optional list of inputs to pdf function. If not NULL, .pdf file is created.
