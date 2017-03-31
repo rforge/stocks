@@ -148,7 +148,8 @@ ticker.dates <- function(tickers, from = "1900-01-01", to = Sys.Date()) {
   ret <- data.frame(ticker = tickers,
                     start.date = as.Date(unlist(lapply(prices, function(x) rownames(x)[1]))),
                     end.date = as.Date(unlist(lapply(prices, function(x) rev(rownames(x))[1]))),
-                    days = unlist(lapply(prices, function(x) nrow(x))))
+                    days = unlist(lapply(prices, function(x) nrow(x))),
+                    stringsAsFactors = FALSE)
   return(ret)
   
 }
@@ -731,7 +732,7 @@ metrics <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
   
   # Calculate performance metrics for each fund
-  p.metrics <- data.frame(ticker = tickers)
+  p.metrics <- data.frame(ticker = tickers, stringsAsFactors = FALSE)
   if ("mean" %in% perf.metrics) {
     p.metrics$mean <- apply(gains, 2, mean)
   }
@@ -1545,16 +1546,16 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   }
 
   # Add horizontal/vertical lines if useful for requested metrics
-  if (y.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "pearson", "pearson2",
+  if (y.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "beta", "beta2", "pearson", "pearson2",
                       "spearman", "spearman2", "auto.pearson", "auto.spearman", "growth", "cagr")) {
     abline(h = 0, lty = 2)
-  } else if (y.metric %in% c("beta", "beta2", "r.squared", "r.squared2")) {
+  } else if (y.metric %in% c("r.squared", "r.squared2")) {
     abline(h = 1, lty = 2)
   }
-  if (x.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "pearson", "pearson2",
+  if (x.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "beta", "beta2", "pearson", "pearson2",
                       "spearman", "spearman2", "auto.pearson", "auto.spearman", "growth", "cagr")) {
     abline(v = 0, lty = 2)
-  } else if (x.metric %in% c("beta", "beta2", "r.squared", "r.squared2")) {
+  } else if (x.metric %in% c("r.squared", "r.squared2")) {
     abline(v = 1, lty = 2)
   }
 
@@ -2582,16 +2583,16 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   }
 
   # Add horizontal/vertical lines if useful for requested metrics
-  if (y.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "pearson", "pearson2",
+  if (y.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "beta", "beta2", "pearson", "pearson2",
                       "spearman", "spearman2", "auto.pearson", "auto.spearman", "growth", "cagr")) {
     abline(h = 0, lty = 2)
-  } else if (y.metric %in% c("beta", "beta2", "r.squared", "r.squared2")) {
+  } else if (y.metric %in% c("r.squared", "r.squared2")) {
     abline(h = 1, lty = 2)
   }
-  if (x.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "pearson", "pearson2",
+  if (x.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "beta", "beta2", "pearson", "pearson2",
                       "spearman", "spearman2", "auto.pearson", "auto.spearman", "growth", "cagr")) {
     abline(v = 0, lty = 2)
-  } else if (x.metric %in% c("beta", "beta2", "r.squared", "r.squared2")) {
+  } else if (x.metric %in% c("r.squared", "r.squared2")) {
     abline(v = 1, lty = 2)
   }
 
@@ -3176,10 +3177,10 @@ onemetric.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   }
 
   # Add horizontal/vertical lines if useful for requested metrics
-  if (y.metric %in% c("mean", "sharpe", "sortino", "alpha", "pearson",
+  if (y.metric %in% c("mean", "sharpe", "sortino", "alpha", "beta", "pearson",
                       "spearman", "auto.pearson", "auto.spearman", "growth", "cagr")) {
     abline(h = 0, lty = 2)
-  } else if (y.metric %in% c("beta", "r.squared")) {
+  } else if (y.metric == "r.squared") {
     abline(h = 1, lty = 2)
   }
 
@@ -3197,7 +3198,8 @@ onemetric.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
 
   # Return data frame containing tickers and metrics
   return(data.frame(ticker = tickers,
-                    y.metric = y, row.names = NULL))
+                    y.metric = y, 
+                    row.names = NULL, stringsAsFactors = FALSE))
 
 }
 
@@ -3451,16 +3453,20 @@ twometrics.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
 
   # If NULL, set appropriate values for xlim and ylim ranges
   if (is.null(x1)) {
-    x1 <- min(x) * ifelse(min(x) > 0, 1.05, 0.95)
+    x1 <- min(x) - 0.05 * diff(range(x))
+    #x1 <- min(x) * ifelse(min(x) > 0, 1.05, 0.95)
   }
   if (is.null(x2)) {
-    x2 <- max(x) * ifelse(max(x) > 0, 1.05, 0.95)
+    x2 <- max(x) + 0.05 * diff(range(x))
+    #x2 <- max(x) * ifelse(max(x) > 0, 1.05, 0.95)
   }
   if (is.null(y1)) {
-    y1 <- min(y) * ifelse(min(y) > 0, 1.05, 0.95)
+    y1 <- min(y) - 0.05 * diff(range(y))
+    #y1 <- min(y) * ifelse(min(y) > 0, 1.05, 0.95)
   }
   if (is.null(y2)) {
-    y2 <- max(y) * ifelse(max(y) > 0, 1.05, 0.95)
+    y2 <- max(y) + 0.05 * diff(range(y))
+    #y2 <- max(y) * ifelse(max(y) > 0, 1.05, 0.95)
   }
 
   # Create color scheme for plot
@@ -3567,16 +3573,16 @@ twometrics.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   }
 
   # Add horizontal/vertical lines if useful for requested metrics
-  if (y.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "pearson", "pearson2",
+  if (y.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "beta", "beta2", "pearson", "pearson2",
                       "spearman", "spearman2", "auto.pearson", "auto.spearman", "growth", "cagr")) {
     abline(h = 0, lty = 2)
-  } else if (y.metric %in% c("beta", "beta2", "r.squared", "r.squared2")) {
+  } else if (y.metric %in% c("r.squared", "r.squared2")) {
     abline(h = 1, lty = 2)
   }
-  if (x.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "pearson", "pearson2",
+  if (x.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "beta", "beta2", "pearson", "pearson2",
                       "spearman", "spearman2", "auto.pearson", "auto.spearman", "growth", "cagr")) {
     abline(v = 0, lty = 2)
-  } else if (x.metric %in% c("beta", "beta2", "r.squared", "r.squared2")) {
+  } else if (x.metric %in% c("r.squared", "r.squared2")) {
     abline(v = 1, lty = 2)
   }
 
@@ -3596,7 +3602,7 @@ twometrics.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   return(data.frame(ticker = tickers,
                     x.metric = x,
                     y.metric = y,
-                    row.names = NULL))
+                    row.names = NULL, stringsAsFactors = FALSE))
 
 }
 
@@ -4017,6 +4023,24 @@ twometrics.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
 # }
 # 
 # 
+
+# intercepts = NULL; slopes = NULL;
+# gains = NULL; prices = NULL;
+# from = "1900-01-01"; to = Sys.Date(); time.scale = "daily";
+# earliest.subset = FALSE;
+# y.metric = "cagr";
+# window.units = 50;
+# add.plot = FALSE;
+# colors = NULL;
+# plot.list = NULL;
+# points.list = NULL;
+# legend.list = NULL;
+# pdf.list = NULL;
+# bmp.list = NULL;
+# jpeg.list = NULL;
+# png.list = NULL;
+# tiff.list = NULL
+
 onemetric.overtime.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
                                      gains = NULL, prices = NULL,
                                      from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
@@ -4076,6 +4100,9 @@ onemetric.overtime.graph <- function(tickers = NULL, intercepts = NULL, slopes =
     dates <- as.Date(rows)
   } else {
     dates <- 1: nrow(gains)
+  }
+  if (y.metric %in% c("auto.pearson", "auto.spearman")) {
+    dates <- dates[-1]
   }
 
   # Calculate performance metrics
@@ -4264,10 +4291,10 @@ onemetric.overtime.graph <- function(tickers = NULL, intercepts = NULL, slopes =
   }
 
   # Add horizontal/vertical lines if useful for requested metrics
-  if (y.metric %in% c("mean", "sd", "growth", "cagr", "sharpe", "sortino", "alpha", "pearson",
+  if (y.metric %in% c("mean", "sd", "growth", "cagr", "sharpe", "sortino", "alpha", "beta", "pearson",
                       "spearman", "auto.pearson", "auto.spearman")) {
     abline(h = 0, lty = 2)
-  } else if (y.metric %in% c("beta", "r.squared")) {
+  } else if (y.metric == "r.squared") {
     abline(h = 1, lty = 2)
   }
 
