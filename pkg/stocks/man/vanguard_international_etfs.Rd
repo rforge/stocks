@@ -1,0 +1,22 @@
+\name{vanguard.international.etfs}
+\alias{vanguard.international.etfs}
+\docType{data}
+\title{
+List of Vanguard International ETFs as of March 31, 2017.
+}
+\description{
+Simply a character vector of ticker symbols for Vanguard ETFs.
+}
+\format{
+  A character vector with 13 tickers.
+}
+\source{
+\url{https://investor.vanguard.com/etf/list#/etf/asset-class/month-end-returns}
+}
+\references{
+Acknowledgment: This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE-0940903.
+}
+\examples{
+NA
+}
+\keyword{datasets}

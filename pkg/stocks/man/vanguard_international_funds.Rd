@@ -7,7 +7,6 @@ List of Vanguard International Mutual Funds as of March 6, 2017.
 \description{
 Simply a character vector of ticker symbols for Vanguard mutual funds.
 }
-%\usage{data("vanguard.international.funds")}
 \format{
   A character vector with 19 tickers.
 }

@@ -758,10 +758,10 @@ metrics <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
     p.metrics$alpha <- apply(gains, 2, function(x) lm(x ~ gains[, 1])$coef[1])
   }
   if ("beta" %in% perf.metrics) {
-    p.metrics$alpha <- apply(gains, 2, function(x) lm(x ~ gains[, 1])$coef[2])
+    p.metrics$beta <- apply(gains, 2, function(x) lm(x ~ gains[, 1])$coef[2])
   }
   if ("r.squared" %in% perf.metrics) {
-    p.metrics$alpha <- apply(gains, 2, function(x) summary(lm(x ~ gains[, 1]))$r.squared)
+    p.metrics$r.squared <- apply(gains, 2, function(x) summary(lm(x ~ gains[, 1]))$r.squared)
   }
   if ("pearson" %in% perf.metrics) {
     p.metrics$pearson <- apply(gains, 2, function(x) cor(x, gains[, 1]))
