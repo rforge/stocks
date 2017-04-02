@@ -2,12 +2,11 @@
 \alias{vanguard.bond.funds}
 \docType{data}
 \title{
-List of Vanguard Bond Mutual Funds as of March 6, 2017.
+List of Vanguard Bond Mutual Funds as of April 2, 2017.
 }
 \description{
 Simply a character vector of ticker symbols for Vanguard mutual funds.
 }
-%\usage{data("vanguard.bond.funds")}
 \format{
   A character vector with 37 tickers.
 }

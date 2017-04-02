@@ -1,17 +1,17 @@
-\name{vanguard.stock.etfs}
-\alias{vanguard.stock.etfs}
+\name{vanguard.igrade.etfs}
+\alias{vanguard.igrade.etfs}
 \docType{data}
 \title{
-List of Vanguard Stock ETFs as of April 2, 2017.
+List of Vanguard Investment-grade Bond ETFs as of April 2, 2017.
 }
 \description{
 Simply a character vector of ticker symbols for Vanguard ETFs.
 }
 \format{
-  A character vector with 17 tickers.
+  A character vector with 3 tickers.
 }
 \source{
-\url{https://investor.vanguard.com/etf/list?assetclass=stk#/etf/asset-class/month-end-returns}
+\url{https://investor.vanguard.com/etf/list?assetclass=bond#/etf/asset-class/month-end-returns}
 }
 \references{
 Acknowledgment: This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE-0940903.

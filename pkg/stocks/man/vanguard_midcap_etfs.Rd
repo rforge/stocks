@@ -1,14 +1,14 @@
-\name{vanguard.stock.etfs}
-\alias{vanguard.stock.etfs}
+\name{vanguard.midcap.etfs}
+\alias{vanguard.midcap.etfs}
 \docType{data}
 \title{
-List of Vanguard Stock ETFs as of April 2, 2017.
+List of Vanguard Mid-cap Stock ETFs as of April 2, 2017.
 }
 \description{
 Simply a character vector of ticker symbols for Vanguard ETFs.
 }
 \format{
-  A character vector with 17 tickers.
+  A character vector with 4 tickers.
 }
 \source{
 \url{https://investor.vanguard.com/etf/list?assetclass=stk#/etf/asset-class/month-end-returns}
