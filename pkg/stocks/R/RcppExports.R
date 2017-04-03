@@ -3101,11 +3101,11 @@ onemetric.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
     plot.title <- paste("Spearman cor. w/ ", benchmark.ticker, sep = "")
     y.label <- "Spearman correlation"
   } else if (y.metric == "auto.pearson") {
-    y <- apply(gains, 2, function(x) cor(x[-length(x)], x[-1], method = "spearman"))
+    y <- apply(gains, 2, function(x) cor(x[-length(x)], x[-1]))
     plot.title <- "Autocorrelation"
     y.label <- paste("Pearson cor. for adjacent ", time.scale, " gains", sep = "")
   } else if (y.metric == "auto.spearman") {
-    y <- apply(gains, 2, function(x) cor(x[-length(x)], x[-1]))
+    y <- apply(gains, 2, function(x) cor(x[-length(x)], x[-1], method = "spearman"))
     plot.title <- "Autocorrelation"
     y.label <- paste("Spearman cor. for adjacent ", time.scale, " gains", sep = "")
   }
@@ -3122,8 +3122,8 @@ onemetric.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
                                           y = y, type = "n",
                                           main = plot.title, cex.main = 1.25,
                                           xaxt = "n",
-                                          xlab = "Fund", ylab = y.label,
-                                          xlim = c(0.5, length(tickers) + 0.5)),
+                                          xlab = "Fund", ylab = y.label),
+                                          #xlim = c(0.5, length(tickers) + 0.5))
                              list2 = plot.list)
   points.list <- list.override(list1 = list(x = 1: length(tickers), y = y,
                                             cex = 1, pch = 16),
