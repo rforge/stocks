@@ -844,8 +844,8 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
     tickers <- matrix(colnames(gains)[1: length(tickers)], nrow = 2)
 
     # Separate benchmark gains, reference gains, and ticker gains
-    tickers.gains <- gains[, 1: length(tickers)]
-    extra.gains <- gains[, -c(1: length(tickers))]
+    tickers.gains <- gains[, 1: length(tickers), drop = F]
+    extra.gains <- gains[, -c(1: length(tickers)), drop = F]
     if (!is.null(benchmark.tickers)) {
       benchmark.gains <- extra.gains[, 1: length(benchmark.tickers), drop = F]
       extra.gains <- extra.gains[, -c(1: length(benchmark.tickers)), drop = F]
@@ -1123,156 +1123,123 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   }
 
   # Create variables for plot
+  x1 <- x2 <- y1 <- y2 <- NULL
   reference.y <- NULL
   if (y.metric == "mean") {
     plot.title <- paste("Mean of ", capitalize(time.scale), " Gains vs. ", sep = "")
     y.label <- paste("Mean of ", time.scale, " gains (%)", sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, mean) * 100
     }
   } else if (y.metric == "sd") {
     plot.title <- paste("SD of ", capitalize(time.scale), " Gains vs. ", sep = "")
     y.label <- paste("SD of ", time.scale, " gains (%)", sep = "")
-    y1 <- 0
-    y2 <- max(unlist(y)) * 1.05
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, sd) * 100
     }
+    y1 <- 0
   } else if (y.metric == "growth") {
     plot.title <- "Total Growth vs. "
     y.label <- "Growth (%)"
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) gains.rate(gains = x)) * 100
     }
   } else if (y.metric == "cagr") {
     plot.title <- "CAGR vs. "
     y.label <- "CAGR (%)"
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) gains.rate(gains = x, units.rate = units.year)) * 100
     }
   } else if (y.metric == "mdd") {
     plot.title <- "MDD vs. "
     y.label <- "MDD (%)"
-    y1 <- 0
-    y2 <- max(unlist(y)) * 1.05
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) mdd(gains = x)) * 100
     }
+    y1 <- 0
   } else if (y.metric == "sharpe") {
     plot.title <- "Sharpe Ratio vs. "
     y.label <- "Sharpe ratio"
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) sharpe.ratio(gains = x))
     }
   } else if (y.metric == "sortino") {
     plot.title <- "Sharpe Ratio vs. "
     y.label <- "Sortino ratio"
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) sortino.ratio(gains = x))
     }
   } else if (y.metric == "alpha") {
     plot.title <- "Alpha vs. "
     y.label <- paste("Alpha w/ ", benchmark.tickers[1], " (%)", sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 1])$coef[1]) * 100
     }
   } else if (y.metric == "alpha2") {
     plot.title <- "Alpha vs. "
     y.label <- paste("Alpha w/ ", benchmark.tickers[2], " (%)", sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 2])$coef[1]) * 100
     }
   } else if (y.metric == "beta") {
     plot.title <- "Beta vs. "
     y.label <- paste("Beta w/ ", benchmark.tickers[1], sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 1])$coef[2])
     }
   } else if (y.metric == "beta2") {
     plot.title <- "Beta vs. "
     y.label <- paste("Beta w/ ", benchmark.tickers[2], sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 2])$coef[2])
     }
   } else if (y.metric == "r.squared") {
     plot.title <- "R-squared vs. "
     y.label <- paste("R-squared w/", benchmark.tickers[1], sep = "")
-    y1 <- 0
-    y2 <- max(unlist(y)) * 1.05
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains[, 1]))$r.squared)
     }
+    y1 <- 0
   } else if (y.metric == "r.squared2") {
     plot.title <- "R-squared vs. "
     y.label <- paste("R-squared w/ ", benchmark.tickers[2], sep = "")
-    y1 <- 0
-    y2 <- max(unlist(y)) * 1.05
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains[, 2]))$r.squared)
     }
+    y1 <- 0
   } else if (y.metric == "pearson") {
     plot.title <- "Pearson Cor. vs. "
     y.label <- paste("Pearson cor. w/ ", benchmark.tickers[1], sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 1]))
     }
   } else if (y.metric == "pearson2") {
     plot.title <- "Pearson Cor. vs. "
     y.label <- paste("Pearson cor. w/ ", benchmark.tickers[2], sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 2]))
     }
   } else if (y.metric == "spearman") {
     plot.title <- "Spearman Cor. vs. "
     y.label <- paste("Spearman cor. w/ ", benchmark.tickers[1], sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 1], method = "spearman"))
     }
   } else if (y.metric == "spearman2") {
     plot.title <- "Spearman Cor. vs. "
     y.label <- paste("Spearman cor. w/ ", benchmark.tickers[2], sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 2], method = "spearman"))
     }
   } else if (y.metric == "auto.pearson") {
     plot.title <- "Autocorrelation vs. "
     y.label <- "Pearson autocorrelation"
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1]))
     }
   } else if (y.metric == "auto.spearman") {
     plot.title <- "Autocorrelation vs. "
     y.label <- "Spearman autocorrelation"
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1], method = "spearman"))
     }
@@ -1287,152 +1254,118 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   if (x.metric == "mean") {
     plot.title <- paste(plot.title, "Mean of ", capitalize(time.scale), " Gains", sep = "")
     x.label <- paste("Mean of ", time.scale, " gains (%)", sep = "")
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, mean) * 100
     }
   } else if (x.metric == "sd") {
     plot.title <- paste(plot.title, "SD of ", capitalize(time.scale), " Gains", sep = "")
     x.label <- paste("SD of ", time.scale, " gains (%)", sep = "")
-    x1 <- 0
-    x2 <- max(unlist(x)) * 1.2
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, sd) * 100
     }
+    x1 <- 0
   } else if (x.metric == "growth") {
     plot.title <- paste(plot.title, "Total Growth", sep = "")
     x.label <- "Growth (%)"
-    x1 <- min(min(unlist(x)) * 1.05, 0)
-    x2 <- max(0, max(unlist(x)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) gains.rate(gains = x)) * 100
     }
   } else if (x.metric == "cagr") {
     plot.title <- paste(plot.title, "CAGR", sep = "")
     x.label <- "CAGR (%)"
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) gains.rate(gains = x, units.rate = units.year)) * 100
     }
   } else if (x.metric == "mdd") {
     plot.title <- paste(plot.title, "MDD", sep = "")
     x.label <- "MDD (%)"
-    x1 <- 0
-    x2 <- max(unlist(x)) * 1.2
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) mdd(gains = x)) * 100
     }
+    x1 <- 0
   } else if (x.metric == "sharpe") {
     plot.title <- paste(plot.title, "Sharpe Ratio", sep = "")
     x.label <- "Sharpe ratio"
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) sharpe.ratio(gains = x))
     }
   } else if (x.metric == "sortino") {
     plot.title <- paste(plot.title, "Sortino Ratio", sep = "")
     x.label <- "Sortino ratio"
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) sharpe.ratio(gains = x))
     }
   } else if (x.metric == "alpha") {
     plot.title <- paste(plot.title, "Alpha")
     x.label <- paste("Alpha w/ ", benchmark.tickers[1], " (%)", sep = "")
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains)$coef[1]) * 100
     }
   } else if (x.metric == "alpha2") {
     plot.title <- paste(plot.title, "Alpha")
     x.label <- paste("Alpha w/ ", benchmark.tickers[2], " (%)", sep = "")
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains)$coef[1]) * 100
     }
   } else if (x.metric == "beta") {
     plot.title <- paste(plot.title, "Beta")
     x.label <- paste("Beta w/ ", benchmark.tickers[1], sep = "")
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains)$coef[2])
     }
   } else if (x.metric == "beta2") {
     plot.title <- paste(plot.title, "Beta")
     x.label <- paste("Beta w/ ", benchmark.tickers[2], sep = "")
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains)$coef[2])
     }
   } else if (x.metric == "r.squared") {
     plot.title <- paste(plot.title, "R-squared", sep = "")
     x.label <- paste("R-squared w/ ", benchmark.tickers[1], sep = "")
-    x1 <- 0
-    x2 <- max(unlist(x)) * 1.05
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains))$r.squared)
     }
+    x1 <- 0
   } else if (x.metric == "r.squared2") {
     plot.title <- paste(plot.title, "R-squared", sep = "")
     x.label <- paste("R-squared w/ ", benchmark.tickers[2], sep = "")
-    x1 <- 0
-    x2 <- max(unlist(x)) * 1.05
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains))$r.squared)
     }
+    x1 <- 0
   } else if (x.metric == "pearson") {
     plot.title <- paste(plot.title, "Pearson Cor.", sep = "")
     x.label <- paste("Pearson cor. w/ ", benchmark.tickers[1], sep = "")
-    x1 <- min(min(unlist(x)) * 1.05, 0)
-    x2 <- max(0, max(unlist(x)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains))
     }
   } else if (x.metric == "pearson2") {
     plot.title <- paste(plot.title, "Pearson Cor.", sep = "")
     x.label <- paste("Pearson cor. w/ ", benchmark.tickers[2], sep = "")
-    x1 <- min(min(unlist(x)) * 1.05, 0)
-    x2 <- max(0, max(unlist(x)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains))
     }
   } else if (x.metric == "spearman") {
     plot.title <- paste(plot.title, "Spearman Cor.", sep = "")
     x.label <- paste("Spearman cor. w/ ", benchmark.tickers[1], sep = "")
-    x1 <- min(min(unlist(x)) * 1.05, 0)
-    x2 <- max(0, max(unlist(x)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains, method = "spearman"))
     }
   } else if (x.metric == "spearman") {
     plot.title <- paste(plot.title, "Spearman Cor.", sep = "")
     x.label <- paste("Spearman cor. w/ ", benchmark.tickers[2], sep = "")
-    x1 <- min(min(unlist(x)) * 1.05, 0)
-    x2 <- max(0, max(unlist(x)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains, method = "spearman"))
     }
   } else if (x.metric == "auto.pearson") {
     plot.title <- paste(plot.title, "Autocorrelation", "")
     x.label <- "Pearson autocorrelation"
-    x1 <- min(min(unlist(x)) * 1.05, 0)
-    x2 <- max(0, max(unlist(x)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1]))
     }
   } else if (x.metric == "auto.spearman") {
     plot.title <- paste(plot.title, "Autocorrelation", sep = "")
     x.label <- "Spearman autocorrelation"
-    x1 <- min(min(unlist(x)) * 1.05, 0)
-    x2 <- max(0, max(unlist(x)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1], method = "spearman"))
     }
@@ -1442,6 +1375,26 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
     x.label <- "Allocation (%)"
     x1 <- -5
     x2 <- 105
+  }
+  
+  # If NULL, set appropriate values for xlim and ylim ranges
+  if (is.null(x1) | is.null(x2) | is.null(y1) | is.null(y2)) {
+    xvals <- c(unlist(x), reference.x)
+    xvals.range <- range(xvals)
+    yvals <- c(unlist(y), reference.y)
+    yvals.range <- range(yvals)
+    if (is.null(x1)) {
+      x1 <- xvals.range[1] - 0.05 * diff(xvals.range)
+    }
+    if (is.null(x2)) {
+      x2 <- xvals.range[2] + 0.05 * diff(xvals.range)
+    }
+    if (is.null(y1)) {
+      y1 <- yvals.range[1] - 0.05 * diff(yvals.range)
+    }
+    if (is.null(y2)) {
+      y2 <- yvals.range[2] + 0.05 * diff(yvals.range)
+    }
   }
 
   # Create color scheme for plot
@@ -1606,10 +1559,10 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
 
         do.call(points, c(list(x = reference.x[ii], y = reference.y[ii], type = "p", col = "black"), points.list))
         if (! reference.tickers[ii] %in% tickers) {
-          do.call(text, c(list = c(list(x = reference.x[ii] + reflabel.offsets[ii, 1],
-                                        y = reference.y[ii] + reflabel.offsets[ii, 2],
-                                        label = reference.tickers[ii], cex = 0.7),
-                                   text.list)))
+          do.call(text, c(list(x = reference.x[ii] + reflabel.offsets[ii, 1],
+                               y = reference.y[ii] + reflabel.offsets[ii, 2],
+                               label = reference.tickers[ii]),
+                          text.list))
         }
       } else {
         abline(h = reference.y[ii], lty = 2, col = "black")
@@ -1695,7 +1648,7 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
     tickers <- matrix(colnames(gains)[1: length(tickers)], nrow = 3)
 
     # Separate benchmark gains, reference gains, and ticker gains
-    tickers.gains <- gains[, 1: length(tickers)]
+    tickers.gains <- gains[, 1: length(tickers), drop = F]
     extra.gains <- gains[, -c(1: length(tickers)), drop = F]
     if (!is.null(benchmark.tickers)) {
       benchmark.gains <- extra.gains[, 1: length(benchmark.tickers), drop = F]
@@ -2154,156 +2107,123 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   y <- lapply(portfolio.xy, function(x) lapply(x, function(x) x[, 2]))
 
   # Create variables for plot
+  x1 <- x2 <- y1 <- y2 <- NULL
   reference.y <- NULL
   if (y.metric == "mean") {
     plot.title <- paste("Mean of ", capitalize(time.scale), " Gains vs. ", sep = "")
     y.label <- paste("Mean of ", time.scale, " gains (%)", sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, mean) * 100
     }
   } else if (y.metric == "sd") {
     plot.title <- paste("SD of ", capitalize(time.scale), " Gains vs. ", sep = "")
     y.label <- paste("SD of ", time.scale, " gains (%)", sep = "")
-    y1 <- 0
-    y2 <- max(unlist(y)) * 1.05
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, sd) * 100
     }
+    y1 <- 0
   } else if (y.metric == "growth") {
     plot.title <- "Total Growth vs. "
     y.label <- "Growth (%)"
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) gains.rate(gains = x)) * 100
     }
   } else if (y.metric == "cagr") {
     plot.title <- "CAGR vs. "
     y.label <- "CAGR (%)"
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) gains.rate(gains = x, units.rate = units.year)) * 100
     }
   } else if (y.metric == "mdd") {
     plot.title <- "MDD vs. "
     y.label <- "MDD (%)"
-    y1 <- 0
-    y2 <- max(unlist(y)) * 1.05
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) mdd(gains = x)) * 100
     }
+    y1 <- 0
   } else if (y.metric == "sharpe") {
     plot.title <- "Sharpe Ratio vs. "
     y.label <- "Sharpe ratio"
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) sharpe.ratio(gains = x))
     }
   } else if (y.metric == "sortino") {
     plot.title <- "Sortino Ratio vs. "
     y.label <- "Sortino ratio"
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) sortino.ratio(gains = x))
     }
   } else if (y.metric == "alpha") {
     plot.title <- "Alpha vs. "
     y.label <- paste("Alpha w/ ", benchmark.tickers[1], " (%)", sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 1])$coef[1]) * 100
     }
   } else if (y.metric == "alpha2") {
     plot.title <- "Alpha vs. "
     y.label <- paste("Alpha w/ ", benchmark.tickers[2], " (%)", sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 2])$coef[1]) * 100
     }
   } else if (y.metric == "beta") {
     plot.title <- "Beta vs. "
     y.label <- paste("Beta w/ ", benchmark.tickers[1], sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 1])$coef[2])
     }
   } else if (y.metric == "beta2") {
     plot.title <- "Beta vs. "
     y.label <- paste("Beta w/ ", benchmark.tickers[2], sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 2])$coef[2])
     }
   } else if (y.metric == "r.squared") {
     plot.title <- "R-squared vs. "
     y.label <- paste("R-squared w/ ", benchmark.tickers[1], sep = "")
-    y1 <- 0
-    y2 <- max(unlist(y)) * 1.05
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains[, 1]))$r.squared)
     }
+    y1 <- 0
   } else if (y.metric == "r.squared2") {
     plot.title <- "R-squared vs. "
     y.label <- paste("R-squared w/ ", benchmark.tickers[2], sep = "")
-    y1 <- 0
-    y2 <- max(unlist(y)) * 1.05
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains[, 2]))$r.squared)
     }
+    y1 <- 0
   } else if (y.metric == "pearson") {
     plot.title <- "Pearson Cor. vs. "
     y.label <- paste("Pearson cor. w/ ", benchmark.tickers[1], sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 1]))
     }
   } else if (y.metric == "pearson2") {
     plot.title <- "Pearson Cor. vs. "
     y.label <- paste("Pearson cor. w/ ", benchmark.tickers[2], sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 2]))
     }
   } else if (y.metric == "spearman") {
     plot.title <- "Spearman Cor. vs. "
     y.label <- paste("Spearman cor. w/ ", benchmark.tickers[1], sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 1], method = "spearman"))
     }
   } else if (y.metric == "spearman2") {
     plot.title <- "Spearman Cor. vs. "
     y.label <- paste("Spearman cor. w/ ", benchmark.tickers[2], sep = "")
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 2], method = "spearman"))
     }
   } else if (y.metric == "auto.pearson") {
     plot.title <- "Autocorrelation vs. "
     y.label <- "Pearson autocorrelation"
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1]))
     }
   } else if (y.metric == "auto.spearman") {
     plot.title <- "Autocorrelation vs. "
     y.label <- "Spearman autocorrelation"
-    y1 <- min(min(unlist(y)) * 1.05, 0)
-    y2 <- max(0, max(unlist(y)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1], method = "spearman"))
     }
@@ -2318,152 +2238,118 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   if (x.metric == "mean") {
     plot.title <- paste(plot.title, "Mean of ", capitalize(time.scale), " Gains", sep = "")
     x.label <- paste("Mean of ", time.scale, " gains (%)", sep = "")
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, mean) * 100
     }
   } else if (x.metric == "sd") {
     plot.title <- paste(plot.title, "SD of ", capitalize(time.scale), " Gains", sep = "")
     x.label <- paste("SD of ", time.scale, " gains (%)", sep = "")
-    x1 <- 0
-    x2 <- max(unlist(x)) * 1.2
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, sd) * 100
     }
+    x1 <- 0
   } else if (x.metric == "growth") {
     plot.title <- paste(plot.title, "Total Growth", sep = "")
     x.label <- "Growth (%)"
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) gains.rate(gains = x)) * 100
     }
   } else if (x.metric == "cagr") {
     plot.title <- paste(plot.title, "CAGR", sep = "")
     x.label <- "CAGR (%)"
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) gains.rate(gains = x, units.rate = units.year)) * 100
     }
   } else if (x.metric == "mdd") {
     plot.title <- paste(plot.title, "MDD", sep = "")
     x.label <- "MDD (%)"
-    x1 <- 0
-    x2 <- max(unlist(x)) * 1.2
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) mdd(gains = x)) * 100
     }
+    x1 <- 0
   } else if (x.metric == "sharpe") {
     plot.title <- paste(plot.title, "Sharpe Ratio", sep = "")
     x.label <- "Sharpe ratio"
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) sharpe.ratio(gains = x))
     }
   } else if (x.metric == "sortino") {
     plot.title <- paste(plot.title, "Sortino Ratio", sep = "")
     x.label <- "Sortino ratio"
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) sharpe.ratio(gains = x))
     }
   } else if (x.metric == "alpha") {
     plot.title <- paste(plot.title, "Alpha", sep = "")
     x.label <- paste("Alpha w/ ", benchmark.tickers[1], " (%)", sep = "")
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 1])$coef[1]) * 100
     }
   } else if (x.metric == "alpha2") {
     plot.title <- paste(plot.title, "Alpha", sep = "")
     x.label <- paste("Alpha w/ ", benchmark.tickers[2], " (%)", sep = "")
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 2])$coef[1]) * 100
     }
   } else if (x.metric == "beta") {
     plot.title <- paste(plot.title, "Beta", sep = "")
     x.label <- paste("Beta w/ ", benchmark.tickers[1], sep = "")
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 1])$coef[2])
     }
   } else if (x.metric == "beta2") {
     plot.title <- paste(plot.title, "Beta", sep = "")
     x.label <- paste("Beta w/ ", benchmark.tickers[2], sep = "")
-    x1 <- min(min(unlist(x)) * 1.2, 0)
-    x2 <- max(0, max(unlist(x)) * 1.2)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 2])$coef[2])
     }
   } else if (x.metric == "r.squared") {
     plot.title <- paste(plot.title, "R-squared", sep = "")
     x.label <- paste("R-squared w/ ", benchmark.tickers[1], sep = "")
-    x1 <- 0
-    x2 <- max(unlist(x)) * 1.05
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains[, 1]))$r.squared)
     }
+    x1 <- 0
   } else if (x.metric == "r.squared2") {
     plot.title <- paste(plot.title, "R-squared", sep = "")
     x.label <- paste("R-squared w/ ", benchmark.tickers[2], sep = "")
-    x1 <- 0
-    x2 <- max(unlist(x)) * 1.05
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains[, 2]))$r.squared)
     }
+    x1 <- 0
   } else if (x.metric == "pearson") {
     plot.title <- paste(plot.title, "Pearson Cor.", sep = "")
     x.label <- paste("Pearson cor. w/ ", benchmark.tickers[1], sep = "")
-    x1 <- min(min(unlist(x)) * 1.05, 0)
-    x2 <- max(0, max(unlist(x)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 1]))
     }
   } else if (x.metric == "pearson") {
     plot.title <- paste(plot.title, "Pearson Cor.", sep = "")
     x.label <- paste("Pearson cor. w/ ", benchmark.tickers[2], sep = "")
-    x1 <- min(min(unlist(x)) * 1.05, 0)
-    x2 <- max(0, max(unlist(x)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 2]))
     }
   } else if (x.metric == "spearman") {
     plot.title <- paste(plot.title, "Spearman Cor.", sep = "")
     x.label <- paste("Spearman cor. w/ ", benchmark.tickers[1], sep = "")
-    x1 <- min(min(unlist(x)) * 1.05, 0)
-    x2 <- max(0, max(unlist(x)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 1], method = "spearman"))
     }
   } else if (x.metric == "spearman") {
     plot.title <- paste(plot.title, "Spearman Cor.", sep = "")
     x.label <- paste("Spearman cor. w/ ", benchmark.tickers[2], sep = "")
-    x1 <- min(min(unlist(x)) * 1.05, 0)
-    x2 <- max(0, max(unlist(x)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 2], method = "spearman"))
     }
   } else if (x.metric == "auto.pearson") {
     plot.title <- paste(plot.title, "Autocorrelation", sep = "")
     x.label <- "Pearson autocorrelation"
-    x1 <- min(min(unlist(x)) * 1.05, 0)
-    x2 <- max(0, max(unlist(x)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1]))
     }
   } else if (x.metric == "auto.spearman") {
     plot.title <- paste(plot.title, "Autocorrelation", sep = "")
     x.label <- "Spearman autocorrelation"
-    x1 <- min(min(unlist(x)) * 1.05, 0)
-    x2 <- max(0, max(unlist(x)) * 1.05)
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1], method = "spearman"))
     }
@@ -2472,6 +2358,26 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
     x.label <- "Allocation (%)"
     x1 <- -5
     x2 <- 105
+  }
+  
+  # If NULL, set appropriate values for xlim and ylim ranges
+  if (is.null(x1) | is.null(x2) | is.null(y1) | is.null(y2)) {
+    xvals <- c(unlist(x), reference.x)
+    xvals.range <- range(xvals)
+    yvals <- c(unlist(y), reference.y)
+    yvals.range <- range(yvals)
+    if (is.null(x1)) {
+      x1 <- xvals.range[1] - 0.05 * diff(xvals.range)
+    }
+    if (is.null(x2)) {
+      x2 <- xvals.range[2] + 0.05 * diff(xvals.range)
+    }
+    if (is.null(y1)) {
+      y1 <- yvals.range[1] - 0.05 * diff(yvals.range)
+    }
+    if (is.null(y2)) {
+      y2 <- yvals.range[2] + 0.05 * diff(yvals.range)
+    }
   }
 
   # Create color scheme for plot
@@ -3452,21 +3358,21 @@ twometrics.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   }
 
   # If NULL, set appropriate values for xlim and ylim ranges
-  if (is.null(x1)) {
-    x1 <- min(x) - 0.05 * diff(range(x))
-    #x1 <- min(x) * ifelse(min(x) > 0, 1.05, 0.95)
-  }
-  if (is.null(x2)) {
-    x2 <- max(x) + 0.05 * diff(range(x))
-    #x2 <- max(x) * ifelse(max(x) > 0, 1.05, 0.95)
-  }
-  if (is.null(y1)) {
-    y1 <- min(y) - 0.05 * diff(range(y))
-    #y1 <- min(y) * ifelse(min(y) > 0, 1.05, 0.95)
-  }
-  if (is.null(y2)) {
-    y2 <- max(y) + 0.05 * diff(range(y))
-    #y2 <- max(y) * ifelse(max(y) > 0, 1.05, 0.95)
+  if (is.null(x1) | is.null(x2) | is.null(y1) | is.null(y2)) {
+    x.range <- range(x)
+    y.range <- range(y)
+    if (is.null(x1)) {
+      x1 <- x.range[1] - 0.05 * diff(x.range)
+    }
+    if (is.null(x2)) {
+      x2 <- x.range[2] + 0.05 * diff(x.range)
+    }
+    if (is.null(y1)) {
+      y1 <- y.range[1] - 0.05 * diff(y.range)
+    }
+    if (is.null(y2)) {
+      y2 <- y.range[2] + 0.05 * diff(y.range)
+    }
   }
 
   # Create color scheme for plot
