@@ -2,7 +2,7 @@
 \alias{vanguard.taxexempt.bond.funds}
 \docType{data}
 \title{
-List of Vanguard Tax-exempt Bond Mutual Funds as of April 2, 2017.
+List of Vanguard Tax-exempt Bond Mutual Funds as of April 2, 2017
 }
 \description{
 Simply a character vector of ticker symbols for Vanguard mutual funds.

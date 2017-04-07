@@ -1,17 +1,17 @@
-\name{vanguard.etfs}
-\alias{vanguard.etfs}
+\name{sector.spdr.etfs}
+\alias{sector.spdr.etfs}
 \docType{data}
 \title{
-List of Vanguard ETFs as of April 2, 2017
+List of Sector SPDR ETFs as of April 7, 2017
 }
 \description{
-Simply a character vector of ticker symbols for Vanguard ETFs.
+Simply a character vector of ticker symbols for sector SPDR ETFs.
 }
 \format{
-  A character vector with 55 tickers.
+  A character vector with 10 tickers.
 }
 \source{
-\url{https://investor.vanguard.com/etf/list#/etf/asset-class/month-end-returns}
+\url{http://www.sectorspdr.com/sectorspdr/sectors/performance}
 }
 \references{
 Acknowledgment: This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE-0940903.

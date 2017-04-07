@@ -2,7 +2,7 @@
 \alias{vanguard.bond.etfs}
 \docType{data}
 \title{
-List of Vanguard Bond ETFs as of April 2, 2017.
+List of Vanguard Bond ETFs as of April 2, 2017
 }
 \description{
 Simply a character vector of ticker symbols for Vanguard ETFs.

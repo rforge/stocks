@@ -2,7 +2,7 @@
 \alias{vanguard.funds}
 \docType{data}
 \title{
-List of Vanguard Mutual Funds as of March 6, 2017.
+List of Vanguard Mutual Funds as of April 2, 2017
 }
 \description{
 Simply a character vector of ticker symbols for Vanguard mutual funds.

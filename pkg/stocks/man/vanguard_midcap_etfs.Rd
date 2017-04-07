@@ -2,7 +2,7 @@
 \alias{vanguard.midcap.etfs}
 \docType{data}
 \title{
-List of Vanguard Mid-cap Stock ETFs as of April 2, 2017.
+List of Vanguard Mid-cap Stock ETFs as of April 2, 2017
 }
 \description{
 Simply a character vector of ticker symbols for Vanguard ETFs.
