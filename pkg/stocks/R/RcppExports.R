@@ -2597,6 +2597,7 @@ growth.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
                          colors = NULL,
                          plot.list = NULL,
                          points.list = NULL,
+                         grid.list = NULL,
                          legend.list = NULL,
                          pdf.list = NULL,
                          bmp.list = NULL,
@@ -2654,6 +2655,8 @@ growth.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
                              list2 = plot.list)
   legend.list <- list.override(list1 = list(x = "topleft", lty = 1, col = colors, legend = tickers),
                                list2 = legend.list)
+  grid.list <- list.override(list1 = list(nx = 0, ny = NULL),
+                             list2 = grid.list)
 
   # If pdf.list is not NULL, call pdf
   if (!is.null(pdf.list)) {
@@ -2705,6 +2708,9 @@ growth.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   for (ii in 1: ncol(prices)) {
     do.call(points, c(list(x = dates, y = prices[, ii], type = "l", col = colors[ii]), points.list))
   }
+  
+  # Add grid lines
+  do.call(grid, grid.list)
 
   # Add legend
   do.call(legend, legend.list)

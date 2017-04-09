@@ -16,6 +16,7 @@ growth.graph(tickers = NULL, intercepts = NULL, slopes = NULL,
              colors = NULL, 
              plot.list = NULL,
              points.list = NULL,
+             grid.list = NULL,
              legend.list = NULL,
              pdf.list = NULL,
              bmp.list = NULL,
@@ -62,6 +63,9 @@ Optional list of inputs to pass to plot function.
 }
   \item{points.list}{
 Optional list of inputs to pass to points function.
+}
+  \item{grid.list}{
+Optional list of inputs to pass to grid function.  
 }
   \item{legend.list}{
 Optional list of inputs to pass to legend function.  
