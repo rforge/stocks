@@ -3936,23 +3936,6 @@ twometrics.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
 # 
 # 
 
-# intercepts = NULL; slopes = NULL;
-# gains = NULL; prices = NULL;
-# from = "1900-01-01"; to = Sys.Date(); time.scale = "daily";
-# earliest.subset = FALSE;
-# y.metric = "cagr";
-# window.units = 50;
-# add.plot = FALSE;
-# colors = NULL;
-# plot.list = NULL;
-# points.list = NULL;
-# legend.list = NULL;
-# pdf.list = NULL;
-# bmp.list = NULL;
-# jpeg.list = NULL;
-# png.list = NULL;
-# tiff.list = NULL
-
 onemetric.overtime.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
                                      gains = NULL, prices = NULL,
                                      from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
@@ -4032,7 +4015,7 @@ onemetric.overtime.graph <- function(tickers = NULL, intercepts = NULL, slopes =
     y1 <- 0
   } else if (y.metric == "growth") {
     y <- rollapply(gains, width = window.units,
-                   FUN = function(x) gains.rate(gains = x, units.rate = units.year) * 100, by.column = TRUE)
+                   FUN = function(x) gains.rate(gains = x) * 100, by.column = TRUE)
     plot.title <- "Total Growth"
     y.label <- "Growth (%)"
   } else if (y.metric == "cagr") {
