@@ -4105,7 +4105,7 @@ onemetric.overtime.graph <- function(tickers = NULL, intercepts = NULL, slopes =
 
   # If NULL, set appropriate values for ylim range
   if (is.null(y1)) {
-    y1 <- min(y) * ifelse(min(y) > 0, 1.05, 0.95)
+    y1 <- min(y) * ifelse(min(y) > 0, 0.95, 1.05)
   }
   if (is.null(y2)) {
     y2 <- max(y) * ifelse(max(y) > 0, 1.05, 0.95)
