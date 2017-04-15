@@ -4202,7 +4202,9 @@ onemetric.overtime.graph <- function(tickers = NULL, intercepts = NULL, slopes =
   }
 
   # Add legend
-  do.call(legend, legend.list)
+  if (length(tickers) > 1) {
+    do.call(legend, legend.list)
+  }
 
   # Close graphics device if necessary
   if (!is.null(pdf.list) | !is.null(bmp.list) | !is.null(jpeg.list) |
