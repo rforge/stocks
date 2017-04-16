@@ -853,34 +853,38 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
     if (!is.null(reference.tickers)) {
       reference.gains <- extra.gains
     }
-
+    
   } else {
-
-      # Figure out tickers from tickers.gains
-      tickers <- matrix(colnames(tickers.gains), nrow = 2)
-
-      # Convert reference.gains to matrix if necessary, and figure out reference.tickers
-      if (is.vector(reference.gains)) {
-        reference.gains <- matrix(reference.gains, ncol = 1)
-        reference.tickers <- "REF"
-      } else if (is.matrix(reference.gains)) {
-        reference.tickers <- colnames(reference.gains)
-        if (is.null(reference.tickers)) {
-          reference.tickers <- paste("REF", 1: ncol(reference.gains), sep = "")
-        }
+    
+    # Figure out tickers from tickers.gains
+    tickers <- colnames(tickers.gains)
+    if (is.null(tickers)) {
+      tickers <- paste("FUND", 1: ncol(tickers.gains), sep = "")
+    }
+    tickers <- matrix(tickers, nrow = 2)
+    
+    # Convert reference.gains to matrix if necessary, and figure out reference.tickers
+    if (is.vector(reference.gains)) {
+      reference.gains <- matrix(reference.gains, ncol = 1)
+      reference.tickers <- "REF"
+    } else if (is.matrix(reference.gains)) {
+      reference.tickers <- colnames(reference.gains)
+      if (is.null(reference.tickers)) {
+        reference.tickers <- paste("REF", 1: ncol(reference.gains), sep = "")
       }
-
-      # Convert benchmark.gains to matrix if necessary, and figure out benchmark.tickers
-      if (is.vector(benchmark.gains)) {
-        benchmark.gains <- matrix(benchmark.gains, ncol = 1)
-        benchmark.tickers <- "BENCH"
-      } else if (is.matrix(benchmark.gains)) {
-        benchmark.tickers <- colnames(benchmark.gains)
-        if (is.null(benchmark.tickers)) {
-          benchmark.tickers <- paste("BENCH", 1: ncol(benchmark.gains), sep = "")
-        }
+    }
+    
+    # Convert benchmark.gains to matrix if necessary, and figure out benchmark.tickers
+    if (is.vector(benchmark.gains)) {
+      benchmark.gains <- matrix(benchmark.gains, ncol = 1)
+      benchmark.tickers <- "BENCH"
+    } else if (is.matrix(benchmark.gains)) {
+      benchmark.tickers <- colnames(benchmark.gains)
+      if (is.null(benchmark.tickers)) {
+        benchmark.tickers <- paste("BENCH", 1: ncol(benchmark.gains), sep = "")
       }
-
+    }
+    
   }
 
   # Initialize list to store x-axis values and y-axis values for each pair
@@ -1661,7 +1665,11 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   } else {
 
     # Figure out tickers from tickers.gains
-    tickers <- matrix(colnames(tickers.gains), nrow = 2)
+    tickers <- colnames(tickers.gains)
+    if (is.null(tickers)) {
+      tickers <- paste("FUND", 1: ncol(tickers.gains), sep = "")
+    }
+    tickers <- matrix(tickers, nrow = 3)
 
     # Convert reference.gains to matrix if necessary, and figure out reference.tickers
     if (is.vector(reference.gains)) {
