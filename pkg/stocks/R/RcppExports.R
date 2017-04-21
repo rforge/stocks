@@ -157,7 +157,7 @@ ticker.dates <- function(tickers, from = "1900-01-01", to = Sys.Date()) {
 
 load.gains <- function(tickers, intercepts = NULL, slopes = NULL, 
                        from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
-                       earliest.subset = TRUE) {
+                       earliest.subset = FALSE) {
   
   # # Remove CASH if included in tickers
   # cash.included <- "CASH" %in% tickers
