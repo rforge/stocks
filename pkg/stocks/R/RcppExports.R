@@ -4002,7 +4002,7 @@ onemetric.overtime.graph <- function(tickers = NULL, intercepts = NULL, slopes =
   if (!is.null(rows)) {
     dates <- as.Date(rows)
   } else {
-    dates <- 1: nrow(gains)
+    dates <- 1: (nrow(gains) - window.units + 1)
   }
   if (y.metric %in% c("auto.pearson", "auto.spearman")) {
     dates <- dates[-1]
