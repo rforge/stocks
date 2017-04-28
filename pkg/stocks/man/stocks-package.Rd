@@ -13,7 +13,7 @@ Functions for analyzing stocks or other investments. Main features are loading a
 Package: \tab stocks\cr
 Type: \tab Package\cr
 Version: \tab 1.1.2\cr
-Date: \tab 2017-04-23\cr
+Date: \tab 2017-04-27\cr
 License: \tab GPL-2\cr
 }
 The following functions are included:

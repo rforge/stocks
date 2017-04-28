@@ -2,13 +2,13 @@
 \alias{vanguard.targetdate.funds}
 \docType{data}
 \title{
-List of Vanguard Target Date Mutual Funds as of April 2, 2017
+Vanguard Target Date Mutual Funds as of April 2, 2017
 }
 \description{
-Simply a character vector of ticker symbols for Vanguard mutual funds.
+Data frame where first column is ticker symbol and second column is inception date.
 }
 \format{
-  A character vector with 12 tickers.
+  A 12-row data frame with 2 variables: ticker (character string) and start.date (date).
 }
 \source{
 \url{https://investor.vanguard.com/mutual-funds/list#/mutual-funds/asset-class/month-end-returns}

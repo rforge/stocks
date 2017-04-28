@@ -2,13 +2,13 @@
 \alias{sector.spdr.etfs}
 \docType{data}
 \title{
-List of Sector SPDR ETFs as of April 7, 2017
+Sector SPDR ETFs and Inception Dates as of April 7, 2017
 }
 \description{
-Simply a character vector of ticker symbols for sector SPDR ETFs.
+Data frame where first column is ticker symbol and second column is inception date.
 }
 \format{
-  A character vector with 10 tickers.
+  A 10-row data frame with 2 variables: ticker (character string) and start.date (date).
 }
 \source{
 \url{http://www.sectorspdr.com/sectorspdr/sectors/performance}

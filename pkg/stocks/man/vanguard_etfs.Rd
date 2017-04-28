@@ -2,13 +2,13 @@
 \alias{vanguard.etfs}
 \docType{data}
 \title{
-List of Vanguard ETFs as of April 2, 2017
+Vanguard ETFs and Inception Dates as of April 2, 2017
 }
 \description{
-Simply a character vector of ticker symbols for Vanguard ETFs.
+Data frame where first column is ticker symbol and second column is inception date.
 }
 \format{
-  A character vector with 55 tickers.
+  A 55-row data frame with 2 variables: ticker (character string) and start.date (date).
 }
 \source{
 \url{https://investor.vanguard.com/etf/list#/etf/asset-class/month-end-returns}

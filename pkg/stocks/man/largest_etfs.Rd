@@ -2,13 +2,13 @@
 \alias{largest.etfs}
 \docType{data}
 \title{
-List of 100 Largest Market Cap ETFs as of April 9, 2017
+Largest 100 Market Cap ETFs and Inception Dates as of April 9, 2017
 }
 \description{
-Simply a character vector of ticker symbols for ETFs.
+Data frame where first column is ticker symbol and second column is inception date.
 }
 \format{
-  A character vector with 100 tickers.
+  A 100-row data frame with 2 variables: ticker (character string) and start.date (date).
 }
 \source{
 \url{http://etfdb.com/compare/market-cap/}

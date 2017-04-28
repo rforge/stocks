@@ -2,13 +2,13 @@
 \alias{highyield.etfs}
 \docType{data}
 \title{
-List of High Yield ETFs from ETFdb.com as of April 7, 2017
+High-Yield ETFs from ETFdb.com and Inception Dates as of April 7, 2017
 }
 \description{
-Simply a character vector of ticker symbols for high-yield ETFs.
+Data frame where first column is ticker symbol and second column is inception date.
 }
 \format{
-  A character vector with 46 tickers.
+  A 46-row data frame with 2 variables: ticker (character string) and start.date (date).
 }
 \source{
 \url{http://etfdb.com/etfdb-category/high-yield-bonds/#etfs&sort_name=assets_under_management&sort_order=desc&page=2}

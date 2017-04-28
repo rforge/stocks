@@ -2,13 +2,13 @@
 \alias{vanguard.international.etfs}
 \docType{data}
 \title{
-List of Vanguard International ETFs as of April 2, 2017
+Vanguard International ETFs and Inception Dates as of April 2, 2017
 }
 \description{
-Simply a character vector of ticker symbols for Vanguard ETFs.
+Data frame where first column is ticker symbol and second column is inception date.
 }
 \format{
-  A character vector with 13 tickers.
+  A 13-row data frame with 2 variables: ticker (character string) and start.date (date).
 }
 \source{
 \url{https://investor.vanguard.com/etf/list#/etf/asset-class/month-end-returns}

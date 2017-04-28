@@ -2,13 +2,13 @@
 \alias{vanguard.igrade.funds}
 \docType{data}
 \title{
-List of Vanguard Investment-grade Bond Mutual Funds as of April 2, 2017
+Vanguard Investment-grade Bond Mutual Funds and Inception Dates as of April 2, 2017
 }
 \description{
-Simply a character vector of ticker symbols for Vanguard mutual funds.
+Data frame where first column is ticker symbol and second column is inception date.
 }
 \format{
-  A character vector with 8 tickers.
+  An 8-row data frame with 2 variables: ticker (character string) and start.date (date).
 }
 \source{
 \url{https://investor.vanguard.com/mutual-funds/list?assetclass=bond#/mutual-funds/asset-class/month-end-returns}
