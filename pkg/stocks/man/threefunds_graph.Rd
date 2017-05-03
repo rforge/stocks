@@ -104,9 +104,6 @@ Optional list of inputs to pdf function. If not NULL, .png file is created.
   \item{tiff.list}{
 Optional list of inputs to pdf function. If not NULL, .tif file is created.
 }
-  \item{...}{
-Arguments to pass to \code{\link{load.gains}} function, if you wish to load data on the fly rather than specify tickers.gains.
-}
 }
 \details{
 If tickers input is specified, it gets passed to \code{\link{load.gains}} to load historical prices from Yahoo! Finance using the quantmod package [1]. If tickers.gains is specified, performance metrics are calcualted directly from that matrix.

@@ -20,8 +20,7 @@ growth.graph(tickers = NULL, ...,
              bmp.list = NULL,
              jpeg.list = NULL,
              png.list = NULL,
-             tiff.list = NULL,
-             ...)
+             tiff.list = NULL)
 }
 \arguments{
   \item{tickers}{

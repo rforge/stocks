@@ -7,7 +7,7 @@ Calculate a Variety of Performance Metrics
 Calculates any or all of the following: mean and standard deviation of gains; total growth and compound annualized growth rate; maximum drawdown; Sharpe ratio and Sortino ratio; alpha, beta, Pearson correlation, and Spearman correlation, using first investment as the benchmark; and Pearson and Spearman autocorrelation, defined as the correlation between subsequent gains for each investment.
 }
 \usage{
-metrics(tickers = NULL, ...
+metrics(tickers = NULL, ...,
         gains = NULL, prices = NULL,
         perf.metrics = c("mean", "sd", "growth", "cagr", "mdd", "sharpe",
                          "sortino", "alpha", "beta", "r.squared", "pearson",

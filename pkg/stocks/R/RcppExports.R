@@ -916,7 +916,23 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
   fund2.all <- 1 - fund1.all
   fund.all <- cbind(fund1.all, fund2.all)
   num.points <- length(fund1.all)
-  units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+  
+  # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
+  units.year <- 252
+  if (hasArg(time.scale)) {
+    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+  } else {
+    min.diffdates <- min(diff(as.Date(rownames(tickers.gains)[1: min(10, nrow(tickers.gains))])))
+    if (! is.null(min.diffdates)) {
+      if (min.diffdates >= 2 & min.diffdates <= 30) {
+        time.scale <- "monthly"
+        units.year <- 12
+      } else if (min.diffdates > 30) {
+        time.scale <- "yearly"
+        units.year <- 1
+      }
+    }
+  }
 
   for (ii in 1: ncol(tickers)) {
 
@@ -1720,7 +1736,23 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
   fund3.all <- 1 - fund2.all
   num.curves <- length(fund1.all)
   num.points <- length(fund2.all)
-  units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+  
+  # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
+  units.year <- 252
+  if (hasArg(time.scale)) {
+    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+  } else {
+    min.diffdates <- min(diff(as.Date(rownames(tickers.gains)[1: min(10, nrow(tickers.gains))])))
+    if (! is.null(min.diffdates)) {
+      if (min.diffdates >= 2 & min.diffdates <= 30) {
+        time.scale <- "monthly"
+        units.year <- 12
+      } else if (min.diffdates > 30) {
+        time.scale <- "yearly"
+        units.year <- 1
+      }
+    }
+  }
 
   # Going in different direction. If doesn't work, revert back to version in exports file
   for (ii in 1: ncol(tickers)) {
@@ -2786,8 +2818,22 @@ gains.graph <- function(tickers = NULL, ...,
     tickers <- paste("Fund", 1: ncol(gains))
   }
 
-  # Figure out value for units.rate to get annualized growth from gains.rate function
-  units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+  # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
+  units.year <- 252
+  if (hasArg(time.scale)) {
+    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+  } else {
+    min.diffdates <- min(diff(as.Date(rownames(gains)[1: min(10, nrow(gains))])))
+    if (! is.null(min.diffdates)) {
+      if (min.diffdates >= 2 & min.diffdates <= 30) {
+        time.scale <- "monthly"
+        units.year <- 12
+      } else if (min.diffdates > 30) {
+        time.scale <- "yearly"
+        units.year <- 1
+      }
+    }
+  }
 
   # Create color scheme for plot
   n.tickers <- length(tickers)
@@ -2969,6 +3015,23 @@ onemetric.graph <- function(tickers = NULL, ...,
   if (is.null(tickers)) {
     tickers <- paste("Fund", 1: ncol(gains))
   }
+  
+  # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
+  units.year <- 252
+  if (hasArg(time.scale)) {
+    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+  } else {
+    min.diffdates <- min(diff(as.Date(rownames(gains)[1: min(10, nrow(gains))])))
+    if (! is.null(min.diffdates)) {
+      if (min.diffdates >= 2 & min.diffdates <= 30) {
+        time.scale <- "monthly"
+        units.year <- 12
+      } else if (min.diffdates > 30) {
+        time.scale <- "yearly"
+        units.year <- 1
+      }
+    }
+  }
 
   # Calculate performance metrics
   if (y.metric == "mean") {
@@ -2984,7 +3047,6 @@ onemetric.graph <- function(tickers = NULL, ...,
     plot.title <- "Total Growth"
     y.label <- "Growth (%)"
   } else if (y.metric == "cagr") {
-    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
     y <- apply(gains, 2, function(x) gains.rate(gains = x, units.rate = units.year)) * 100
     plot.title <- "Compound Annualized Growth Rate"
     y.label <- "CAGR (%)"
@@ -3181,6 +3243,23 @@ twometrics.graph <- function(tickers = NULL, ...,
   if (is.null(tickers)) {
     tickers <- paste("Fund", 1: ncol(gains))
   }
+  
+  # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
+  units.year <- 252
+  if (hasArg(time.scale)) {
+    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+  } else {
+    min.diffdates <- min(diff(as.Date(rownames(gains)[1: min(10, nrow(gains))])))
+    if (! is.null(min.diffdates)) {
+      if (min.diffdates >= 2 & min.diffdates <= 30) {
+        time.scale <- "monthly"
+        units.year <- 12
+      } else if (min.diffdates > 30) {
+        time.scale <- "yearly"
+        units.year <- 1
+      }
+    }
+  }
 
   # Calculate performance metrics
   x1 <- x2 <- y1 <- y2 <- NULL
@@ -3198,7 +3277,6 @@ twometrics.graph <- function(tickers = NULL, ...,
     plot.title <- "Total Growth vs. "
     y.label <- "Growth (%)"
   } else if (y.metric == "cagr") {
-    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
     y <- apply(gains, 2, function(x) gains.rate(gains = x, units.rate = units.year)) * 100
     plot.title <- "CAGR vs. "
     y.label <- "CAGR (%)"
@@ -3997,6 +4075,23 @@ onemetric.overtime.graph <- function(tickers = NULL, ...,
   if (y.metric %in% c("auto.pearson", "auto.spearman")) {
     dates <- dates[-1]
   }
+  
+  # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
+  units.year <- 252
+  if (hasArg(time.scale)) {
+    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+  } else {
+    min.diffdates <- min(diff(as.Date(rownames(gains)[1: min(10, nrow(gains))])))
+    if (! is.null(min.diffdates)) {
+      if (min.diffdates >= 2 & min.diffdates <= 30) {
+        time.scale <- "monthly"
+        units.year <- 12
+      } else if (min.diffdates > 30) {
+        time.scale <- "yearly"
+        units.year <- 1
+      }
+    }
+  }
 
   # Calculate performance metrics
   y1 <- y2 <- NULL
@@ -4017,7 +4112,6 @@ onemetric.overtime.graph <- function(tickers = NULL, ...,
     plot.title <- "Total Growth"
     y.label <- "Growth (%)"
   } else if (y.metric == "cagr") {
-    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
     y <- rollapply(gains, width = window.units,
                    FUN = function(x) gains.rate(gains = x, units.rate = units.year) * 100, by.column = TRUE)
     plot.title <- "Compound Annualized Growth Rate"
