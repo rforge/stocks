@@ -711,16 +711,7 @@ metrics <- function(tickers = NULL, ...,
   if (! is.null(tickers)) {
     
     # Obtain matrix of gains for each fund
-    # gains <- load.gains(tickers = tickers, intercepts = intercepts, slopes = slopes,
-    #                     from = from, to = to, time.scale = time.scale,
-    #                     preto.days = preto.days, prefrom.days = prefrom.days,
-    #                     earliest.subset = earliest.subset)
     gains <- load.gains(tickers = tickers, ...)
-    
-    # # If trailing is specified, get just most recent 'trailing' units
-    # if (!is.null(trailing)) {
-    #   gains <- gains[(nrow(gains) - trailing + 1): nrow(gains), ]
-    # }
     
   } else if (! is.null(prices)) {
     
@@ -739,8 +730,22 @@ metrics <- function(tickers = NULL, ...,
     tickers <- paste("Fund", 1: ncol(gains))
   }
   
-  # Figure out value for units.rate to get annualized growth from gains.rate function
-  units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+  # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
+  units.year <- 252
+  if (hasArg(time.scale)) {
+    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+  } else {
+    min.diffdates <- min(diff(as.Date(rownames(gains)[1: min(10, nrow(gains))])))
+    if (! is.null(min.diffdates)) {
+      if (min.diffdates >= 2 & min.diffdates <= 30) {
+        time.scale <- "monthly"
+        units.year <- 12
+      } else if (min.diffdates > 30) {
+        time.scale <- "yearly"
+        units.year <- 1
+      }
+    }
+  }
   
   # Calculate performance metrics for each fund
   p.metrics <- data.frame(ticker = tickers, stringsAsFactors = FALSE)
