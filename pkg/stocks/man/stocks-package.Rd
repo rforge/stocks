@@ -63,21 +63,21 @@ Acknowledgment: This material is based upon work supported by the National Scien
 \keyword{ package }
 \examples{
 # Load historical prices for VFINX and VBLTX
-vfinx.vbltx <- load.prices(tickers = c("VFINX", "VBLTX"))
+#vfinx.vbltx <- load.prices(tickers = c("VFINX", "VBLTX"))
 
 # Calculate total growth for VFINX and VBLTX
-apply(vfinx.vbltx, 2, prices.rate)
+#apply(vfinx.vbltx, 2, prices.rate)
 
 # Calculate performance metrics for VFINX and VBLTX
-metrics(prices = vfinx.vbltx)
+#metrics(prices = vfinx.vbltx)
 
 # Plot mean vs. SD of daily gains for VFINX/VBLTX portfolios
-graph1 <- twofunds.graph(tickers = c("VFINX", "VBLTX"))
+#graph1 <- twofunds.graph(tickers = c("VFINX", "VBLTX"))
 
 # Plot CAGR vs. MDD for VFINX/VBLTX and VFINX/VWEHX portfolios
-graph2 <- twofunds.graph(tickers = matrix(c("VFINX", "VBLTX", "VFINX", "VWEHX"), 2),
+#graph2 <- twofunds.graph(tickers = matrix(c("VFINX", "VBLTX", "VFINX", "VWEHX"), 2),
                          x.metric = "mdd", y.metric = "cagr")
                          
 # Plot mean vs. SD of monthly gains for VWEHX/VFINX/VBLTX portfolio
-graph3 <- threefunds.graph(tickers = c("VWEHX", "VFINX", "VBLTX"))
+#graph3 <- threefunds.graph(tickers = c("VWEHX", "VFINX", "VBLTX"))
 }

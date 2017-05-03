@@ -9,5 +9,5 @@ Description: Functions for analyzing stocks or other investments. Main features 
 LazyData: true
 License: GPL-2
 Depends: R (>= 3.0.0), rbenchmark, quantmod
-Imports: Rcpp (>= 0.11.0), graphics, grDevices, stats, Hmisc, zoo, lubridate, RColorBrewer
+Imports: Rcpp (>= 0.11.0), graphics, grDevices, stats, methods, Hmisc, zoo, lubridate, RColorBrewer
 LinkingTo: Rcpp

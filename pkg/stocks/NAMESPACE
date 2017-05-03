@@ -6,6 +6,7 @@ importFrom("graphics", "abline", "grid", "legend", "lines", "plot", "points",
 importFrom("grDevices", "pdf", "bmp", "jpeg", "png", "tiff", "dev.off")
 importFrom("stats", "sd", "anova", "complete.cases", "cov", "lm", "nlminb", 
            "pnorm", "predict", "var", "vcov", "cor")
+importFrom("methods", "hasArg")
 importFrom("grDevices", "colorRampPalette")
 importFrom("Hmisc", "capitalize")
 importFrom("zoo", "rollapply")
