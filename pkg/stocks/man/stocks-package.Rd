@@ -76,7 +76,7 @@ Acknowledgment: This material is based upon work supported by the National Scien
 
 # Plot CAGR vs. MDD for VFINX/VBLTX and VFINX/VWEHX portfolios
 #graph2 <- twofunds.graph(tickers = matrix(c("VFINX", "VBLTX", "VFINX", "VWEHX"), 2),
-                         x.metric = "mdd", y.metric = "cagr")
+#                         x.metric = "mdd", y.metric = "cagr")
                          
 # Plot mean vs. SD of monthly gains for VWEHX/VFINX/VBLTX portfolio
 #graph3 <- threefunds.graph(tickers = c("VWEHX", "VFINX", "VBLTX"))
