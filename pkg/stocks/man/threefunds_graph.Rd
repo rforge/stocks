@@ -7,10 +7,9 @@ Graph One Performance Metric vs. Another for Three-Fund Portfolio(s) with Varyin
 Creates graph of one performance metric vs. another as allocation for three-fund portfolio(s) varies. Each curve shows data for a fixed allocation to fund 1 of a set, while the remaining allocation ranges from 100\% fund 2 to 100\% fund 3.
 }
 \usage{
-threefunds.graph(tickers = NULL, intercepts = NULL, slopes = NULL,
+threefunds.graph(tickers = NULL, intercepts = NULL, slopes = NULL, ...,
                  benchmark.tickers = NULL, reference.tickers = NULL,
                  tickers.gains = NULL, benchmark.gains = NULL, reference.gains = NULL,
-                 from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
                  step.data = 0.0025, step.points = 0.1, step.curves = 0.2,
                  x.metric = "sd", y.metric = "mean",
                  tickerlabel.offsets = NULL,
@@ -36,6 +35,9 @@ Numeric vector or matrix of values to add to daily gains for each ticker. For ex
   \item{slopes}{
 Numeric vector or matrix of values to multiply daily gains for each ticker by. For example, if you have three tickers and want to simulate a 2x leveraged version of the third fund, you would set slopes to c(1, 1, 2). The slopes are multiplied prior to adding the intercepts. Like the tickers input, can be a vector divisible by three or a three-row matrix.
 }
+  \item{...}{
+Arguments to pass along with tickers, intercepts, and slopes to \code{\link{load.gains}} function, if you wish to load data on the fly rather than specify tickers.gains.
+}
   \item{benchmark.tickers}{
 Character vector of length 1 or 2 indicating ticker symbols for benchmark indexes, to be used if x.metric or y.metric is set to "alpha", "beta", "r.squared", "pearson", "spearman", or "alpha2", "beta2", and so on. For example, if you wish to plot correlation with SPY on the x-axis and correlation with TLT on the y-axis, you would set x.metric to "pearson" and y.metric to "pearson2", and set benchmark.tickers to c("SPY", "TLT").
 }
@@ -50,15 +52,6 @@ Numeric vector or matrix of gains for benchmark indexes. Only relevant if either
 }
   \item{reference.gains}{
 Numeric vector or matrix of gains for reference funds.
-}
-  \item{from}{
-Date or character string in form of date (e.g. "2015-01-01" for Jan. 1, 2015), indicating the starting date for the period of interest.
-}
-  \item{to}{
-Date or character string in form of date (e.g. "2016-01-01" for Jan. 1, 2016), indicating the ending date for the period of interest.
-}
-  \item{time.scale}{
-Character string that controls the time frame for performance metrics. Possible values are "daily", "monthly", and "yearly".
 }
   \item{step.data}{
 Allocation increments for data used to fit curves.
@@ -111,9 +104,12 @@ Optional list of inputs to pdf function. If not NULL, .png file is created.
   \item{tiff.list}{
 Optional list of inputs to pdf function. If not NULL, .tif file is created.
 }
+  \item{...}{
+Arguments to pass to \code{\link{load.gains}} function, if you wish to load data on the fly rather than specify tickers.gains.
+}
 }
 \details{
-If tickers input is specified, function loads historical prices for the tickers from Yahoo! Finance using the quantmod package [1]. If tickers.gains input is specified, performance metrics are calculated directly from that matrix.
+If tickers input is specified, it gets passed to \code{\link{load.gains}} to load historical prices from Yahoo! Finance using the quantmod package [1]. If tickers.gains is specified, performance metrics are calcualted directly from that matrix.
 }
 \value{
 In addition to the graph, a list containing the following items: (1) A list where each element is a list of two-column matrices of x- and y-axis values for a particular three-fund set with a particular allocation to fund 1; (2) a numeric vector of mean gains for each ticker; and (3) a numeric matrix containing a correlation matrix for gains of each ticker.

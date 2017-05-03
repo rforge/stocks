@@ -157,14 +157,18 @@ ticker.dates <- function(tickers, from = "1900-01-01", to = Sys.Date()) {
 
 load.gains <- function(tickers, intercepts = NULL, slopes = NULL, 
                        from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
+                       preto.days = NULL, prefrom.days = NULL, 
                        earliest.subset = FALSE) {
   
-  # # Remove CASH if included in tickers
-  # cash.included <- "CASH" %in% tickers
-  # if (cash.included) {
-  #   loc.cash <- which(tickers == "CASH")
-  #   tickers <- tickers[-loc.cash]
-  # }
+  # If preto.days is specified, adjust from date
+  if (!is.null(preto.days)) {
+    from <- as.Date(to) - ifelse(preto.days <= 10, 20, ceiling(preto.days * 1.65))
+  }
+
+  # If prefrom.days is specified, adjust from date
+  if (!is.null(prefrom.days)) {
+    from <- from - ifelse(prefrom.days <= 10, 20, ceiling(prefrom.days * 1.65))
+  }
   
   # Download stock prices for tickers from Yahoo! Finance, using the quantmod package
   prices <- list()
@@ -290,39 +294,38 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
     
   }
   
-  # Convert to prices on last day of month/year if requested
+  # Get dates
   dates <- as.Date(rownames(prices[[1]]))
+  length.dates <- length(dates)
+  
+  # If preto.days and/or prefrom.days specified, get just most recent (preto.days + prefrom.days) subset
+  if (!is.null(preto.days) | !is.null(prefrom.days)) {
+    total.days <- ifelse(!is.null(preto.days), preto.days, 0) + ifelse(!is.null(prefrom.days), prefrom.days, 0)
+    prices <- lapply(prices, function(x) x[(length.dates - total.days): length.dates, ])
+    dates <- dates[(length.dates - total.days): length.dates]
+    length.dates <- length(dates)
+  }
+  
+  # Convert to prices on last day of month/year if requested
   if (time.scale == "monthly") {
     locs <- which(diff(month(dates)) %in% c(1, -11))
     prices <- lapply(prices, function(x) x[locs, ])
     dates <- dates[locs]
-    #dates <- sapply(dates, function(x) paste(unlist(strsplit(as.character(x), "-"))[-3], collapse = "-"))
   } else if (time.scale == "yearly") {
     locs <- which(diff(year(dates)) == 1)
     prices <- lapply(prices, function(x) x[locs, ])
     dates <- dates[locs]
-    #dates <- year(dates[locs])
   }
   
   # Output message indicating date range
-  message(paste("Results are for ", dates[1], " to " , dates[length(dates)], sep = ""))
+  message(paste("Results are for ", dates[1], " to " , dates[length.dates], sep = ""))
   
-  # Create and return matrix of gains
+  # Create gains matrix
   gains.mat <- matrix(unlist(lapply(prices, function(x) pchanges(x[, 6]))), byrow = F, ncol = length(tickers))
-  # if (cash.included) {
-  #   if (loc.cash == 1) {
-  #     gains.mat <- cbind(rep(0, nrow(gains.mat)), gains.mat)
-  #     colnames(gains.mat) <- c("CASH", tickers)
-  #   } else {
-  #     gains.mat <- cbind(gains.mat[, 1: (loc.cash - 1)], rep(0, nrow(gains.mat)), 
-  #                        gains.mat[, loc.cash: ncol(gains.mat)])
-  #     colnames(gains.mat) <- c(tickers[1: (loc.cash - 1)], "CASH", tickers[loc.cash: length(tickers)])
-  #   } 
-  # } else {
-  #   colnames(gains.mat) <- tickers
-  # }
   colnames(gains.mat) <- tickers
   rownames(gains.mat) <- as.character(dates)[-1]
+  
+  # Return gains matrix
   return(gains.mat)
   
 }
@@ -330,15 +333,19 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
 
 load.prices <- function(tickers, intercepts = NULL, slopes = NULL, 
                         from = "1900-01-01", to = Sys.Date(), time.scale = "daily", 
+                        preto.days = NULL, prefrom.days = NULL,
                         initial = NULL, 
-                        earliest.subset = TRUE) {
+                        earliest.subset = FALSE) {
   
-  # # Remove CASH if included in tickers
-  # cash.included <- "CASH" %in% tickers
-  # if (cash.included) {
-  #   loc.cash <- which(tickers == "CASH")
-  #   tickers <- tickers[-loc.cash]
-  # }
+  # If preto.days is specified, adjust from date
+  if (!is.null(preto.days)) {
+    from <- as.Date(to) - ifelse(preto.days <= 10, 20, ceiling(preto.days * 1.65))
+  }
+  
+  # If prefrom.days is specified, adjust from date
+  if (!is.null(prefrom.days)) {
+    from <- from - ifelse(prefrom.days <= 10, 20, ceiling(prefrom.days * 1.65))
+  }
   
   # Download stock prices for tickers from Yahoo! Finance, using the quantmod package
   prices <- list()
@@ -439,8 +446,20 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
     
   }
   
-  # Convert to prices on last day of month/year if requested
+  # Get dates
   dates <- as.Date(rownames(prices[[1]]))
+  length.dates <- length(dates)
+  
+  # If preto.days and/or prefrom.days specified, get just most recent (preto.days + prefrom.days) subset
+  if (!is.null(preto.days) | !is.null(prefrom.days)) {
+    total.days <- ifelse(!is.null(preto.days), preto.days, 0) + ifelse(!is.null(prefrom.days), prefrom.days, 0)
+    length.dates <- length(dates)
+    prices <- lapply(prices, function(x) x[(length.dates - total.days + 1): length.dates, ])
+    dates <- dates[(length.dates - total.days + 1): length.dates]
+    length.dates <- length(dates)
+  }
+  
+  # Convert to prices on last day of month/year if requested
   if (time.scale == "monthly") {
     locs <- which(diff(month(dates)) %in% c(1, -11))
     prices <- lapply(prices, function(x) x[locs, ])
@@ -452,23 +471,8 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
     dates <- dates[locs]
   }
   
-  # Output message indicating date range
-  message(paste("Results are for ", dates[1], " to " , dates[length(dates)], sep = ""))
-  
   # Create matrix of closing prices
   closing.prices <- matrix(unlist(lapply(prices, function(x) x[, 6])), byrow = F, ncol = length(tickers))
-  # if (cash.included) {
-  #   if (loc.cash == 1) {
-  #     closing.prices <- cbind(rep(1, nrow(closing.prices)), closing.prices)
-  #     colnames(closing.prices) <- c("CASH", tickers)
-  #   } else {
-  #     closing.prices <- cbind(closing.prices[, 1: (loc.cash - 1)], rep(1, nrow(closing.prices)), 
-  #                             closing.prices[, loc.cash: ncol(closing.prices)])
-  #     colnames(closing.prices) <- c(tickers[1: (loc.cash - 1)], "CASH", tickers[loc.cash: length(tickers)])
-  #   }
-  # } else {
-  #   colnames(closing.prices) <- tickers
-  # }
   colnames(closing.prices) <- tickers
   rownames(closing.prices) <- as.character(dates)
   
@@ -503,6 +507,9 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
     closing.prices <- apply(closing.prices, 2, function(x) x / x[1] * initial)
     
   }
+  
+  # Output message indicating date range
+  message(paste("Results are for ", dates[1], " to " , dates[length.dates], sep = ""))
   
   # Return closing prices
   return(closing.prices)
@@ -694,24 +701,28 @@ rrr <- function(prices = NULL, gains = NULL, highs = NULL, lows = NULL, nas = FA
 }
 
 
-metrics <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
-                    gains = NULL, prices = NULL, 
-                    from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
-                    earliest.subset = TRUE,
+metrics <- function(tickers = NULL, ..., 
+                    gains = NULL, prices = NULL,
                     perf.metrics = c("mean", "sd", "growth", "cagr", "mdd", "sharpe",
                                      "sortino", "alpha", "beta", "r.squared", 
                                      "pearson", "spearman", "auto.pearson", "auto.spearman")) {
   
   # If tickers specified, load various historical prices from Yahoo! Finance
-  if (!is.null(tickers)) {
+  if (! is.null(tickers)) {
     
     # Obtain matrix of gains for each fund
-    gains <- load.gains(tickers = tickers, from = from, to = to,
-                        intercepts = intercepts, slopes = slopes, 
-                        time.scale = time.scale,
-                        earliest.subset = earliest.subset)
+    # gains <- load.gains(tickers = tickers, intercepts = intercepts, slopes = slopes,
+    #                     from = from, to = to, time.scale = time.scale,
+    #                     preto.days = preto.days, prefrom.days = prefrom.days,
+    #                     earliest.subset = earliest.subset)
+    gains <- load.gains(tickers = tickers, ...)
     
-  } else if (!is.null(prices)) {
+    # # If trailing is specified, get just most recent 'trailing' units
+    # if (!is.null(trailing)) {
+    #   gains <- gains[(nrow(gains) - trailing + 1): nrow(gains), ]
+    # }
+    
+  } else if (! is.null(prices)) {
     
     # Calculate gains based on price data
     gains <- apply(prices, 2, pchanges)
@@ -755,13 +766,13 @@ metrics <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
     p.metrics$sortino <- apply(gains, 2, function(x) sortino.ratio(gains = x))
   }
   if ("alpha" %in% perf.metrics) {
-    p.metrics$alpha <- apply(gains, 2, function(x) lm(x ~ gains[, 1])$coef[1])
+    p.metrics$alpha <- c(0, apply(gains[, -1, drop = F], 2, function(x) lm(x ~ gains[, 1])$coef[1]))
   }
   if ("beta" %in% perf.metrics) {
-    p.metrics$beta <- apply(gains, 2, function(x) lm(x ~ gains[, 1])$coef[2])
+    p.metrics$beta <- c(1, apply(gains[, -1, drop = F], 2, function(x) lm(x ~ gains[, 1])$coef[2]))
   }
   if ("r.squared" %in% perf.metrics) {
-    p.metrics$r.squared <- apply(gains, 2, function(x) summary(lm(x ~ gains[, 1]))$r.squared)
+    p.metrics$r.squared <- c(1, apply(gains[, -1, drop = F], 2, function(x) summary(lm(x ~ gains[, 1]))$r.squared))
   }
   if ("pearson" %in% perf.metrics) {
     p.metrics$pearson <- apply(gains, 2, function(x) cor(x, gains[, 1]))
@@ -786,10 +797,24 @@ metrics <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
 }
 
 
-twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
+beta.trailing50 <- function(ticker, benchmark.ticker = "SPY") {
+  
+  # Load gains for last 90 calendar days
+  gains <- load.gains(tickers = c(benchmark.ticker, ticker), from = Sys.Date() - 90)
+  
+  # Get subset of most recent 50 gains
+  gains.last50 <- gains[(nrow(gains) - 49): nrow(gains), ]
+  
+  # Calculate and return beta
+  ticker.beta <- as.numeric(lm(gains.last50[, 2] ~ gains.last50[, 1])$coef[2])
+  return(ticker.beta)
+  
+}
+
+
+twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ..., 
                            benchmark.tickers = NULL, reference.tickers = NULL,
                            tickers.gains = NULL, benchmark.gains = NULL, reference.gains = NULL,
-                           from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
                            step.data = 0.0025, step.points = 0.1,
                            x.metric = "sd", y.metric = "mean",
                            tickerlabel.offsets = NULL,
@@ -804,9 +829,9 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
                            jpeg.list = NULL,
                            png.list = NULL,
                            tiff.list = NULL) {
-
+  
   # If tickers specified, load various historical prices from Yahoo! Finance
-  if (!is.null(tickers)) {
+  if (! is.null(tickers)) {
 
     # If vectors rather than matrices are provided for tickers, intercepts, or slopes, convert to 2-row matrices
     if (is.vector(tickers)) {
@@ -834,11 +859,7 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
     tickers.vec <- c(as.vector(tickers), extra.tickers)
     intercepts.vec <- c(as.vector(intercepts), rep(0, length(extra.tickers)))
     slopes.vec <- c(as.vector(slopes), rep(1, length(extra.tickers)))
-    gains <- load.gains(tickers = tickers.vec,
-                        from = from, to = to,
-                        intercepts = intercepts.vec, slopes = slopes.vec,
-                        time.scale = time.scale,
-                        earliest.subset = FALSE)
+    gains <- load.gains(tickers = tickers.vec, intercepts = intercepts.vec, slopes = slopes.vec, ...)
 
     # Update ticker names to show intercept/slope
     tickers <- matrix(colnames(gains)[1: length(tickers)], nrow = 2)
@@ -1416,7 +1437,7 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
       colors <- colorRampPalette(c("blue", "red"))(n.pairs)
     }
   }
-
+  
   # Figure out features of graph, based on user inputs where available
   plot.list <- list.override(list1 = list(x = 0, y = 0, type = "n",
                                           main = plot.title, cex.main = 1.25,
@@ -1594,10 +1615,9 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
 }
 
 
-threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
+threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...,
                              benchmark.tickers = NULL, reference.tickers = NULL,
                              tickers.gains = NULL, benchmark.gains = NULL, reference.gains = NULL,
-                             from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
                              step.data = 0.0025, step.points = 0.1, step.curves = 0.2,
                              x.metric = "sd", y.metric = "mean",
                              tickerlabel.offsets = NULL,
@@ -1612,9 +1632,9 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
                              jpeg.list = NULL,
                              png.list = NULL,
                              tiff.list = NULL) {
-
+  
   # If tickers specified, load various historical prices from Yahoo! Finance
-  if (!is.null(tickers)) {
+  if (! is.null(tickers)) {
 
     # If vectors rather than matrices are provided for tickers, intercepts, or slopes, convert to 2-row matrices
     if (is.vector(tickers)) {
@@ -1642,11 +1662,7 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
     tickers.vec <- c(as.vector(tickers), extra.tickers)
     intercepts.vec <- c(as.vector(intercepts), rep(0, length(extra.tickers)))
     slopes.vec <- c(as.vector(slopes), rep(1, length(extra.tickers)))
-    gains <- load.gains(tickers = tickers.vec,
-                        from = from, to = to,
-                        intercepts = intercepts.vec, slopes = slopes.vec,
-                        time.scale = time.scale,
-                        earliest.subset = FALSE)
+    gains <- load.gains(tickers = tickers.vec, intercepts = intercepts.vec, slopes = slopes.vec, ...)
 
     # Update ticker names to show intercept/slope
     tickers <- matrix(colnames(gains)[1: length(tickers)], nrow = 3)
@@ -2596,10 +2612,8 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
 }
 
 
-growth.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
+growth.graph <- function(tickers = NULL, ..., 
                          prices = NULL,
-                         from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
-                         earliest.subset = TRUE,
                          initial = 10000,
                          add.plot = FALSE,
                          colors = NULL,
@@ -2614,14 +2628,10 @@ growth.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
                          tiff.list = NULL) {
 
   # If tickers specified, load various historical prices from Yahoo! Finance
-  if (!is.null(tickers)) {
+  if (! is.null(tickers)) {
 
     # Obtain matrix of prices for each fund
-    prices <- load.prices(tickers = tickers, intercepts = intercepts, slopes = slopes,
-                          from = from, to = to,
-                          time.scale = time.scale,
-                          earliest.subset = earliest.subset,
-                          initial = initial)
+    prices <- load.prices(tickers = tickers, initial = initial, ...)
 
   }
 
@@ -2739,10 +2749,8 @@ growth.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
 }
 
 
-gains.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
+gains.graph <- function(tickers = NULL, ...,
                         gains = NULL, prices = NULL,
-                        from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
-                        earliest.subset = TRUE,
                         orders = 1,
                         add.plot = FALSE,
                         colors = NULL,
@@ -2756,13 +2764,10 @@ gains.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
                         tiff.list = NULL) {
 
   # If tickers specified, load various historical prices from Yahoo! Finance
-  if (!is.null(tickers)) {
+  if (! is.null(tickers)) {
 
     # Obtain matrix of gains for each fund
-    gains <- load.gains(tickers = tickers, from = from, to = to,
-                        intercepts = intercepts, slopes = slopes,
-                        time.scale = time.scale,
-                        earliest.subset = FALSE) * 100
+    gains <- load.gains(tickers = tickers, ...) * 100
 
   } else if (!is.null(prices)) {
 
@@ -2918,10 +2923,8 @@ gains.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
 }
 
 
-onemetric.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
+onemetric.graph <- function(tickers = NULL, ...,
                             gains = NULL, prices = NULL,
-                            from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
-                            earliest.subset = FALSE,
                             y.metric = "cagr",
                             add.plot = FALSE,
                             sort.tickers = TRUE,
@@ -2935,13 +2938,10 @@ onemetric.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
                             tiff.list = NULL) {
 
   # If tickers specified, load various historical prices from Yahoo! Finance
-  if (!is.null(tickers)) {
+  if (! is.null(tickers)) {
 
     # Obtain matrix of gains for each fund
-    gains <- load.gains(tickers = tickers, from = from, to = to,
-                        intercepts = intercepts, slopes = slopes,
-                        time.scale = time.scale,
-                        earliest.subset = earliest.subset)
+    gains <- load.gains(tickers = tickers, ...)
 
   } else if (!is.null(prices)) {
 
@@ -3124,10 +3124,8 @@ onemetric.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
 }
 
 
-twometrics.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
+twometrics.graph <- function(tickers = NULL, ...,
                              gains = NULL, prices = NULL,
-                             from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
-                             earliest.subset = FALSE,
                              x.metric = "mdd", y.metric = "cagr",
                              tickerlabel.offsets = NULL,
                              add.plot = FALSE,
@@ -3142,13 +3140,10 @@ twometrics.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
                              tiff.list = NULL) {
 
   # If tickers specified, load various historical prices from Yahoo! Finance
-  if (!is.null(tickers)) {
+  if (! is.null(tickers)) {
 
     # Obtain matrix of gains for each fund
-    gains <- load.gains(tickers = tickers, from = from, to = to,
-                        intercepts = intercepts, slopes = slopes,
-                        time.scale = time.scale,
-                        earliest.subset = earliest.subset)
+    gains <- load.gains(tickers = tickers, ...)
 
   } else if (!is.null(prices)) {
 
@@ -3944,10 +3939,8 @@ twometrics.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
 # 
 # 
 
-onemetric.overtime.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
+onemetric.overtime.graph <- function(tickers = NULL, ...,
                                      gains = NULL, prices = NULL,
-                                     from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
-                                     earliest.subset = FALSE,
                                      y.metric = "cagr",
                                      window.units = 50,
                                      add.plot = FALSE,
@@ -3962,13 +3955,10 @@ onemetric.overtime.graph <- function(tickers = NULL, intercepts = NULL, slopes =
                                      tiff.list = NULL) {
 
   # If tickers specified, load various historical prices from Yahoo! Finance
-  if (!is.null(tickers)) {
+  if (! is.null(tickers)) {
 
     # Obtain matrix of gains for each fund
-    gains <- load.gains(tickers = tickers, from = from, to = to,
-                        intercepts = intercepts, slopes = slopes,
-                        time.scale = time.scale,
-                        earliest.subset = earliest.subset)
+    gains <- load.gains(tickers = tickers, ...)
 
   } else if (!is.null(prices)) {
 
@@ -4224,6 +4214,815 @@ onemetric.overtime.graph <- function(tickers = NULL, intercepts = NULL, slopes =
   return(y)
 
 }
+
+
+
+
+# trailing <- 50
+# dat <- load.gains(tickers = c("VFINX", "VBLTX", "VMNFX"), from = "2016-01-01", to = "2017-04-28")
+# dates <- as.Date(rownames(dat))
+# loc <- which(dates == "2016-03-18")
+# dat <- dat[(loc - trailing + 1): nrow(dat), ]
+# 
+# gains <- dat[, 1: 2]
+# benchmark.gains <- NULL
+# reference.gains <- dat[, 3, drop = F]
+# target.beta <- 0
+# tol <- 0.15
+# trailing <- 50
+# failure.method <- "cash"
+# initial <- 10000
+# 
+# try1 <- targetbeta.strategy()
+# 
+# try1 <- targetbeta.strategy(gains = gains, reference.gains = reference.gains, failure.method = c("cash", "lower.absolute"))
+# 
+# 
+# bals <- cbind(try1$failure.cash$fund.balances[, "PORT"], try1$failure.lower.absolute$fund.balances[, "PORT"])
+# head(bals)
+# dates <- as.Date(rownames(bals))
+# plot(dates, bals[, 1], type = "l", col = "blue", ylim = c(0, 12000))
+# points(dates, bals[, 2], type = "l", col = "red")
+# 
+# 
+# # A bit weird, that betas can both drift away from 0, maybe both be positive, but still operate... Maybe
+# # rebalance as long as one of them is within tolerance of target beta.
+# 
+# # In the future, would be nice to make it so "from" is first day of results, not 1st day of first time window... But later.
+# # Could add feature for daily gains...
+# targetbeta.strategy <- function(tickers = NULL, intercepts = NULL, slopes = NULL, 
+#                                 benchmark.ticker = NULL, reference.tickers = NULL, 
+#                                 tickers.gains, benchmark.gains = NULL, reference.gains = NULL,
+#                                 from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
+#                                 target.beta = 0, tol = 0.15, 
+#                                 window.units = 50, failure.method = "cash", 
+#                                 initial = 10000) {
+#   
+#   # If tickers specified, load various historical prices from Yahoo! Finance
+#   if (!is.null(tickers)) {
+#     
+#     # If intercepts or slopes NULL, set to matrix of 0's and 1's, respectively
+#     if (is.null(intercepts)) {
+#       intercepts <- rep(0, length(tickers))
+#     }
+#     if (is.null(slopes)) {
+#       slopes <- rep(1, length(tickers))
+#     }
+#     
+#     # Create vector of "extra" tickers comprised of benchmark and reference tickers
+#     extra.tickers <- unique(c(benchmark.ticker, reference.tickers))
+#     
+#     # Calculate gains matrix
+#     tickers.vec <- c(as.vector(tickers), extra.tickers)
+#     intercepts.vec <- c(intercepts, rep(0, length(extra.tickers)))
+#     slopes.vec <- c(slopes, rep(1, length(extra.tickers)))
+#     gains <- load.gains(tickers = tickers.vec, intercepts = intercepts.vec, slopes = slopes.vec,
+#                         from = from, to = to, time.scale = time.scale, 
+#                         earliest.subset = FALSE)
+#     
+#     # Update ticker names to show intercept/slope
+#     tickers <- colnames(gains)[1: length(tickers)]
+#     
+#     # Separate benchmark gains, reference gains, and ticker gains
+#     tickers.gains <- gains[, 1: length(tickers), drop = F]
+#     extra.gains <- gains[, -c(1: length(tickers)), drop = F]
+#     if (!is.null(benchmark.ticker)) {
+#       benchmark.gains <- extra.gains[, 1, drop = F]
+#       extra.gains <- extra.gains[, -1, drop = F]
+#     }
+#     if (!is.null(reference.tickers)) {
+#       reference.gains <- extra.gains
+#     }
+#     
+#   } else {
+#     
+#     # Figure out tickers from tickers.gains
+#     tickers <- colnames(tickers.gains)
+#     if (is.null(tickers)) {
+#       tickers <- paste("FUND", 1: ncol(tickers.gains), sep = "")
+#     }
+#     
+#     # Convert reference.gains to matrix if necessary, and figure out reference.tickers
+#     if (is.vector(reference.gains)) {
+#       reference.gains <- matrix(reference.gains, ncol = 1)
+#       reference.tickers <- "REF"
+#     } else if (is.matrix(reference.gains)) {
+#       reference.tickers <- colnames(reference.gains)
+#       if (is.null(reference.tickers)) {
+#         reference.tickers <- paste("REF", 1: ncol(reference.gains), sep = "")
+#       }
+#     }
+#     
+#     # # Convert benchmark.gains to matrix if necessary, and figure out benchmark.tickers
+#     # if (is.vector(benchmark.gains)) {
+#     #   benchmark.gains <- matrix(benchmark.gains, ncol = 1)
+#     #   benchmark.ticker <- "BENCH"
+#     # } else if (is.matrix(benchmark.gains)) {
+#     #   benchmark.tickers <- colnames(benchmark.gains)
+#     #   if (is.null(benchmark.tickers)) {
+#     #     benchmark.tickers <- paste("BENCH", 1: ncol(benchmark.gains), sep = "")
+#     #   }
+#     # }
+#     
+#   }
+#   
+#   # Calculate acceptable interval for effective portfolio beta
+#   beta.range <- c(target.beta - tol, target.beta + tol)
+#   
+#   # Get dates for row names of various results
+#   dates <- rownames(gains)[-c(1: (trailing - 1))]
+#   
+#   # If benchmark.gains is not specified, use 1st column of gains as benchmark
+#   if (is.null(benchmark.gains)) {
+#     benchmark.gains <- gains[, 1]
+#     col1.benchmark <- TRUE
+#   } else {
+#     col1.benchmark <- FALSE
+#   }
+#   
+#   # Extract gains for fund 1 and fund 2
+#   fund1.gains <- gains[, 1]
+#   fund2.gains <- gains[, 2]
+#   
+#   # Calculate betas for both funds over entire time period
+#   if (col1.benchmark) {
+#     fund1.betas <- rep(1, length(fund1.gains) - trailing + 1)
+#   } else {
+#     fund1.betas <- rollapply(cbind(benchmark.gains, fund1.gains), width = 50, by.column = FALSE, 
+#                                   FUN = function(x) lm(x[, 2] ~ x[, 1])$coef[2])
+#   }
+#   fund2.betas <- rollapply(cbind(benchmark.gains, fund2.gains), width = 50, by.column = FALSE, 
+#                            FUN = function(x) lm(x[, 2] ~ x[, 1])$coef[2])
+#   fund.betas <- matrix(c(fund1.betas, fund2.betas), ncol = 2, dimnames = list(NULL, colnames(gains)))
+#   
+#   # Initialize results.list list
+#   results.list <- list()
+#   
+#   # Implement "cash" failure method if requested
+#   if ("cash" %in% failure.method) {
+#     
+#     # Calculate initial betas and initial target allocation to fund 1
+#     fund1.beta <- fund.betas[1, 1]
+#     fund2.beta <- fund.betas[1, 2]
+#     fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+#     
+#     # Distribute initial balance to fund1, fund2, and cash
+#     if (inside(fund1.all, c(0, 1))) {
+#       fund2.all <- 1 - fund1.all
+#       cash.all <- 0
+#     } else {
+#       fund1.all <- 0
+#       fund2.all <- 0
+#       cash.all <- 1
+#     }
+#     fund1.bal <- initial * fund1.all
+#     fund2.bal <- initial * fund2.all
+#     cash.bal <- initial * cash.all
+#     port.bal <- initial
+#     
+#     # Initialize matrix for fund balances
+#     fund.balances <- matrix(NA, ncol = 4, nrow = nrow(gains) - trailing + 1, 
+#                             dimnames = list(dates, c(colnames(gains), "CASH", "PORT")))
+#     fund.balances[1, ] <- c(fund1.bal, fund2.bal, cash.all, port.bal)
+#     
+#     # Initialize vector for effective betas
+#     effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta
+#     effective.betas <- rep(NA, nrow(gains) - trailing + 1)
+#     names(effective.betas) <- dates
+#     effective.betas[1] <- effective.beta
+#     
+#     # Loop through and implement target-beta strategy
+#     trades <- 0
+#     loop.index <- 1
+#     for (ii in (trailing + 1): nrow(gains)) {
+#       
+#       # Within-loop index
+#       loop.index <- loop.index + 1
+#       
+#       # Apply gains on iith day
+#       fund1.bal <- fund1.bal * (1 + gains[ii, 1])
+#       fund2.bal <- fund2.bal * (1 + gains[ii, 2])
+#       port.bal <- fund1.bal + fund2.bal + cash.bal
+#       fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, cash.bal, port.bal)
+#       
+#       # Get fund 1 and fund 2 betas for time period of interest
+#       fund1.beta <- fund.betas[loop.index, 1]
+#       fund2.beta <- fund.betas[loop.index, 2]
+#       
+#       # Calculate target allocations for fund 1 and fund 2
+#       fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+#       
+#       # Calculate effective beta
+#       effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / port.bal
+#       effective.betas[loop.index] <- effective.beta
+#       
+#       # Rebalance
+#       if (cash.bal > 0) {
+#         if (inside(fund1.all, c(0, 1))) {
+#           trades <- trades + 1
+#           fund2.all <- 1 - fund1.all
+#           cash.all <- 0
+#           fund1.bal <- port.bal * fund1.all
+#           fund2.bal <- port.bal * fund2.all
+#           cash.bal <- 0
+#         } else {
+#           fund1.all <- 0
+#           fund2.all <- 0
+#           cash.all <- 1
+#         }
+#       } else {
+#         if (! inside(effective.beta, beta.range)) {
+#           if (inside(fund1.all, c(0, 1))) {
+#             trades <- trades + 1
+#             fund2.all <- 1 - fund1.all
+#             cash.all <- 0
+#             fund1.bal <- port.bal * fund1.all
+#             fund2.bal <- port.bal * fund2.all
+#             cash.bal <- 0
+#           } else {
+#             trades <- trades + 1
+#             fund1.all <- 0
+#             fund2.all <- 0
+#             cash.all <- 1
+#             fund1.bal <- 0
+#             fund2.bal <- 0
+#             cash.bal <- port.bal
+#           }
+#         }
+#       }
+#       
+#     }
+#     
+#     # If reference funds provided, add to fund.balances matrix
+#     if (!is.null(reference.gains)) {
+#       
+#       fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x) 
+#         balances(ratios = x[(trailing + 1): length(x)] + 1, initial = initial)))
+#       
+#     }
+#     
+#     # Combine results into list, and add it to growing list to return to user
+#     results.list$failure.cash <- list(fund.balances = fund.balances, 
+#                                       fund.betas = fund.betas,
+#                                       effective.betas = effective.betas,
+#                                       trades = trades)
+#     
+#   }
+#   
+#   # Implement "fund1" failure method if requested
+#   if ("fund1" %in% failure.method) {
+#     
+#     # Calculate initial betas and initial target allocation to fund 1
+#     fund1.beta <- fund.betas[1, 1]
+#     fund2.beta <- fund.betas[1, 2]
+#     fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+#     
+#     # Distribute initial balance to fund1, fund2, and cash
+#     if (! inside(fund1.all, c(0, 1))) {
+#       fund1.all <- 1
+#     }
+#     fund2.all <- 1 - fund1.all
+#     fund1.bal <- initial * fund1.all
+#     fund2.bal <- initial * fund2.all
+#     cash.bal <- initial * cash.all
+#     port.bal <- initial
+#     
+#     # Initialize matrix for fund balances
+#     fund.balances <- matrix(NA, ncol = 3, nrow = nrow(gains) - trailing + 1, 
+#                             dimnames = list(dates, c(colnames(gains), "PORT")))
+#     fund.balances[1, ] <- c(fund1.bal, fund2.bal, port.bal)
+#     
+#     # Initialize vector for effective betas
+#     effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta
+#     effective.betas <- rep(NA, nrow(gains) - trailing + 1)
+#     names(effective.betas) <- dates
+#     effective.betas[1] <- effective.beta
+#     
+#     # Loop through and implement target-beta strategy
+#     trades <- 0
+#     loop.index <- 1
+#     for (ii in (trailing + 1): nrow(gains)) {
+#       
+#       # Within-loop index
+#       loop.index <- loop.index + 1
+#       
+#       # Apply gains on iith day
+#       fund1.bal <- fund1.bal * (1 + gains[ii, 1])
+#       fund2.bal <- fund2.bal * (1 + gains[ii, 2])
+#       port.bal <- fund1.bal + fund2.bal
+#       fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, port.bal)
+#       
+#       # Get fund 1 and fund 2 betas for time period of interest
+#       fund1.beta <- fund.betas[loop.index, 1]
+#       fund2.beta <- fund.betas[loop.index, 2]
+#       
+#       # Calculate target allocations for fund 1 and fund 2
+#       fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+#       
+#       # Calculate effective beta
+#       effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / port.bal
+#       effective.betas[loop.index] <- effective.beta
+#       
+#       # Rebalance
+#       if (fund1.bal == port.bal) {
+#         if (inside(fund1.all, c(0, 1))) {
+#           trades <- trades + 1
+#           fund2.all <- 1 - fund1.all
+#           fund1.bal <- port.bal * fund1.all
+#           fund2.bal <- port.bal * fund2.all
+#         } else {
+#           fund1.all <- 1
+#           fund2.all <- 0
+#           fund1.bal <- port.bal
+#           fund2.bal <- 0
+#         }
+#       } else {
+#         if (! inside(effective.beta, beta.range)) {
+#           if (inside(fund1.all, c(0, 1))) {
+#             trades <- trades + 1
+#             fund2.all <- 1 - fund1.all
+#             fund1.bal <- port.bal * fund1.all
+#             fund2.bal <- port.bal * fund2.all
+#           } else {
+#             trades <- trades + 1
+#             fund1.all <- 1
+#             fund2.all <- 0
+#             fund1.bal <- port.bal
+#             fund2.bal <- 0
+#           }
+#         }
+#       }
+#       
+#     }
+#     
+#     # If reference funds provided, add to fund.balances matrix
+#     if (!is.null(reference.gains)) {
+#       
+#       fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x) 
+#         balances(ratios = x[(trailing + 1): length(x)] + 1, initial = initial)))
+#       
+#     }
+#     
+#     # Combine results into list, and add it to growing list to return to user
+#     results.list$failure.fund1 <- list(fund.balances = fund.balances, 
+#                                        fund.betas = fund.betas,
+#                                        effective.betas = effective.betas,
+#                                        trades = trades)
+#     
+#   }
+#   
+#   # Implement "fund2" failure method if requested
+#   if ("fund2" %in% failure.method) {
+#     
+#     # Calculate initial betas and initial target allocation to fund 1
+#     fund1.beta <- fund.betas[1, 1]
+#     fund2.beta <- fund.betas[1, 2]
+#     fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+#     
+#     # Distribute initial balance to fund1, fund2, and cash
+#     if (! inside(fund1.all, c(0, 1))) {
+#       fund1.all <- 0
+#     }
+#     fund2.all <- 1 - fund1.all
+#     fund1.bal <- initial * fund1.all
+#     fund2.bal <- initial * fund2.all
+#     cash.bal <- initial * cash.all
+#     port.bal <- initial
+#     
+#     # Initialize matrix for fund balances
+#     fund.balances <- matrix(NA, ncol = 3, nrow = nrow(gains) - trailing + 1, 
+#                             dimnames = list(dates, c(colnames(gains), "PORT")))
+#     fund.balances[1, ] <- c(fund1.bal, fund2.bal, port.bal)
+#     
+#     # Initialize vector for effective betas
+#     effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta
+#     effective.betas <- rep(NA, nrow(gains) - trailing + 1)
+#     names(effective.betas) <- dates
+#     effective.betas[1] <- effective.beta
+#     
+#     # Loop through and implement target-beta strategy
+#     trades <- 0
+#     loop.index <- 1
+#     for (ii in (trailing + 1): nrow(gains)) {
+#       
+#       # Within-loop index
+#       loop.index <- loop.index + 1
+#       
+#       # Apply gains on iith day
+#       fund1.bal <- fund1.bal * (1 + gains[ii, 1])
+#       fund2.bal <- fund2.bal * (1 + gains[ii, 2])
+#       port.bal <- fund1.bal + fund2.bal
+#       fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, port.bal)
+#       
+#       # Get fund 1 and fund 2 betas for time period of interest
+#       fund1.beta <- fund.betas[loop.index, 1]
+#       fund2.beta <- fund.betas[loop.index, 2]
+#       
+#       # Calculate target allocations for fund 1 and fund 2
+#       fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+#       
+#       # Calculate effective beta
+#       effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / port.bal
+#       effective.betas[loop.index] <- effective.beta
+#       
+#       # Rebalance
+#       if (fund1.bal == port.bal) {
+#         if (inside(fund1.all, c(0, 1))) {
+#           trades <- trades + 1
+#           fund2.all <- 1 - fund1.all
+#           fund1.bal <- port.bal * fund1.all
+#           fund2.bal <- port.bal * fund2.all
+#         } else {
+#           fund1.all <- 0
+#           fund2.all <- 1
+#           fund1.bal <- 0
+#           fund2.bal <- port.bal
+#         }
+#       } else {
+#         if (! inside(effective.beta, beta.range)) {
+#           if (inside(fund1.all, c(0, 1))) {
+#             trades <- trades + 1
+#             fund2.all <- 1 - fund1.all
+#             fund1.bal <- port.bal * fund1.all
+#             fund2.bal <- port.bal * fund2.all
+#           } else {
+#             trades <- trades + 1
+#             fund1.all <- 0
+#             fund2.all <- 1
+#             fund1.bal <- 0
+#             fund2.bal <- port.bal
+#           }
+#         }
+#       }
+#       
+#     }
+#     
+#     # If reference funds provided, add to fund.balances matrix
+#     if (!is.null(reference.gains)) {
+#       
+#       fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x) 
+#         balances(ratios = x[(trailing + 1): length(x)] + 1, initial = initial)))
+#       
+#     }
+#     
+#     # Combine results into list, and add it to growing list to return to user
+#     results.list$failure.fund2 <- list(fund.balances = fund.balances, 
+#                                        fund.betas = fund.betas,
+#                                        effective.betas = effective.betas,
+#                                        trades = trades)
+#     
+#   }
+#   
+#   # Implement "inverse1" failure method if requested
+#   if ("inverse1" %in% failure.method) {
+#     
+#     # Calculate initial betas and initial target allocation to fund 1
+#     fund1.beta <- fund.betas[1, 1]
+#     fund2.beta <- fund.betas[1, 2]
+#     fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+#     if (inside(fund1.all, c(0, 1))) {
+#       inverse1.all <- 0
+#       fund2.all <- 1 - fund1.all
+#     } else {
+#       fund1.all <- 0
+#       inverse1.all <- round((fund2.beta - target.beta) / (fund1.beta + fund2.beta), 3)
+#       fund2.all <- 1 - inverse1.all
+#     }
+#     
+#     # Distribute initial balance to fund1, fund2, and cash
+#     fund1.bal <- initial * fund1.all
+#     fund2.bal <- initial * fund2.all
+#     inverse1.bal <- initial * inverse1.all
+#     port.bal <- initial
+#     
+#     # Initialize matrix for fund balances
+#     fund.balances <- matrix(NA, ncol = 4, nrow = nrow(gains) - trailing + 1, 
+#                             dimnames = list(dates, c(colnames(gains), paste("INVERSE", colnames(gains)[1]), "PORT")))
+#     fund.balances[1, ] <- c(fund1.bal, fund2.bal, inverse1.all, port.bal)
+#     
+#     # Initialize vector for effective betas
+#     effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta - inverse1.all * fund1.beta 
+#     effective.betas <- rep(NA, nrow(gains) - trailing + 1)
+#     names(effective.betas) <- dates
+#     effective.betas[1] <- effective.beta
+#     
+#     # Loop through and implement target-beta strategy
+#     trades <- 0
+#     loop.index <- 1
+#     for (ii in (trailing + 1): nrow(gains)) {
+#       
+#       # Within-loop index
+#       loop.index <- loop.index + 1
+#       
+#       # Apply gains on iith day
+#       fund1.bal <- fund1.bal * (1 + gains[ii, 1])
+#       fund2.bal <- fund2.bal * (1 + gains[ii, 2])
+#       inverse1.bal <- inverse1.bal * (1 - gains[ii, 1])
+#       port.bal <- fund1.bal + fund2.bal + inverse1.bal
+#       fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, inverse1.bal, port.bal)
+#       
+#       # Get fund 1 and fund 2 betas for time period of interest
+#       fund1.beta <- fund.betas[loop.index, 1]
+#       fund2.beta <- fund.betas[loop.index, 2]
+#       
+#       # Calculate target allocations for fund 1 and fund 2
+#       fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+#       
+#       # Calculate effective beta
+#       effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal - fund1.beta * inverse1.bal) / port.bal
+#       effective.betas[loop.index] <- effective.beta
+#       
+#       # Rebalance
+#       if (inverse1.bal > 0) {
+#         if (inside(fund1.all, c(0, 1))) {
+#           trades <- trades + 1
+#           fund2.all <- 1 - fund1.all
+#           inverse1.all <- 0
+#           fund1.bal <- port.bal * fund1.all
+#           fund2.bal <- port.bal * fund2.all
+#           inverse1.bal <- 0
+#         } else {
+#           if (! inside(effective.beta, beta.range)) {
+#             fund1.all <- 0
+#             inverse1.all <- round((fund2.beta - target.beta) / (fund1.beta + fund2.beta), 3)
+#             fund2.all <- 1 - inverse1.all
+#             fund1.bal <- 0
+#             fund2.bal <- port.bal * fund2.all
+#             inverse1.bal <- port.bal * inverse1.all
+#           }
+#         }
+#       } else {
+#         if (! inside(effective.beta, beta.range)) {
+#           if (inside(fund1.all, c(0, 1))) {
+#             trades <- trades + 1
+#             fund2.all <- 1 - fund1.all
+#             inverse1.all <- 0
+#             fund1.bal <- port.bal * fund1.all
+#             fund2.bal <- port.bal * fund2.all
+#             inverse1.bal <- 0
+#           } else {
+#             trades <- trades + 1
+#             fund1.all <- 0
+#             inverse1.all <- round((fund2.beta - target.beta) / (fund1.beta + fund2.beta), 3)
+#             fund2.all <- 1 - inverse1.all
+#             fund1.bal <- 0
+#             fund2.bal <- port.bal * fund2.all
+#             inverse1.bal <- port.bal * inverse1.all
+#           }
+#         }
+#       }
+#       
+#     }
+#     
+#     # If reference funds provided, add to fund.balances matrix
+#     if (!is.null(reference.gains)) {
+#       
+#       fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x) 
+#         balances(ratios = x[(trailing + 1): length(x)] + 1, initial = initial)))
+#       
+#     }
+#     
+#     # Combine results into list, and add it to growing list to return to user
+#     results.list$failure.inverse1 <- list(fund.balances = fund.balances, 
+#                                           fund.betas = fund.betas,
+#                                           effective.betas = effective.betas,
+#                                           trades = trades)
+#     
+#   }
+#   
+#   # Implement "inverse2" failure method if requested
+#   if ("inverse2" %in% failure.method) {
+#     
+#     # Calculate initial betas and initial target allocation to fund 1
+#     fund1.beta <- fund.betas[1, 1]
+#     fund2.beta <- fund.betas[1, 2]
+#     fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+#     if (inside(fund1.all, c(0, 1))) {
+#       fund2.all <- 1 - fund1.all
+#       inverse2.all <- 0
+#     } else {
+#       fund1.all <- round((target.beta + fund2.beta) / (fund1.beta - fund2.beta), 3)
+#       fund2.all <- 0
+#       inverse2.all <- 1 - fund1.all
+#     }
+#     
+#     # Distribute initial balance to fund1, fund2, and cash
+#     fund1.bal <- initial * fund1.all
+#     fund2.bal <- initial * fund2.all
+#     inverse2.bal <- initial * inverse2.all
+#     port.bal <- initial
+#     
+#     # Initialize matrix for fund balances
+#     fund.balances <- matrix(NA, ncol = 4, nrow = nrow(gains) - trailing + 1, 
+#                             dimnames = list(dates, c(colnames(gains), paste("INVERSE", colnames(gains)[2]), "PORT")))
+#     fund.balances[1, ] <- c(fund1.bal, fund2.bal, inverse2.all, port.bal)
+#     
+#     # Initialize vector for effective betas
+#     effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta - inverse2.all * fund2.beta 
+#     effective.betas <- rep(NA, nrow(gains) - trailing + 1)
+#     names(effective.betas) <- dates
+#     effective.betas[1] <- effective.beta
+#     
+#     # Loop through and implement target-beta strategy
+#     trades <- 0
+#     loop.index <- 1
+#     for (ii in (trailing + 1): nrow(gains)) {
+#       
+#       # Within-loop index
+#       loop.index <- loop.index + 1
+#       
+#       # Apply gains on iith day
+#       fund1.bal <- fund1.bal * (1 + gains[ii, 1])
+#       fund2.bal <- fund2.bal * (1 + gains[ii, 2])
+#       inverse2.bal <- inverse2.bal * (1 - gains[ii, 2])
+#       port.bal <- fund1.bal + fund2.bal + inverse2.bal
+#       fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, inverse2.bal, port.bal)
+#       
+#       # Get fund 1 and fund 2 betas for time period of interest
+#       fund1.beta <- fund.betas[loop.index, 1]
+#       fund2.beta <- fund.betas[loop.index, 2]
+#       
+#       # Calculate target allocations for fund 1 and fund 2
+#       fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+#       
+#       # Calculate effective beta
+#       effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal - fund2.beta * inverse2.bal) / port.bal
+#       effective.betas[loop.index] <- effective.beta
+#       
+#       # Rebalance
+#       if (inverse2.bal > 0) {
+#         if (inside(fund1.all, c(0, 1))) {
+#           trades <- trades + 1
+#           fund2.all <- 1 - fund1.all
+#           inverse2.all <- 0
+#           fund1.bal <- port.bal * fund1.all
+#           fund2.bal <- port.bal * fund2.all
+#           inverse2.bal <- 0
+#         } else {
+#           if (! inside(effective.beta, beta.range)) {
+#             fund1.all <- round((target.beta + fund2.beta) / (fund1.beta - fund2.beta), 3)
+#             fund2.all <- 0
+#             inverse2.all <- 1 - fund1.all
+#             fund1.bal <- port.bal * fund1.all
+#             fund2.bal <- 0
+#             inverse2.bal <- port.bal * inverse2.all
+#           }
+#         }
+#       } else {
+#         if (! inside(effective.beta, beta.range)) {
+#           if (inside(fund1.all, c(0, 1))) {
+#             trades <- trades + 1
+#             fund2.all <- 1 - fund1.all
+#             inverse2.all <- 0
+#             fund1.bal <- port.bal * fund1.all
+#             fund2.bal <- port.bal * fund2.all
+#             inverse2.bal <- 0
+#           } else {
+#             trades <- trades + 1
+#             fund1.all <- round((target.beta + fund2.beta) / (fund1.beta - fund2.beta), 3)
+#             fund2.all <- 0
+#             inverse2.all <- 1 - fund1.all
+#             fund1.bal <- port.bal * fund1.all
+#             fund2.bal <- 0
+#             inverse2.bal <- port.bal * inverse2.all
+#           }
+#         }
+#       }
+#       
+#     }
+#     
+#     # If reference funds provided, add to fund.balances matrix
+#     if (!is.null(reference.gains)) {
+#       
+#       fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x) 
+#         balances(ratios = x[(trailing + 1): length(x)] + 1, initial = initial)))
+#       
+#     }
+#     
+#     # Combine results into list, and add it to growing list to return to user
+#     results.list$failure.inverse2 <- list(fund.balances = fund.balances, 
+#                                           fund.betas = fund.betas,
+#                                           effective.betas = effective.betas,
+#                                           trades = trades)
+#     
+#   }
+#   
+#   # Implement "lower.absolute" failure method if requested
+#   if ("lower.absolute" %in% failure.method) {
+#     
+#     # Calculate initial betas and initial target allocations
+#     fund1.beta <- fund.betas[1, 1]
+#     fund2.beta <- fund.betas[1, 2]
+#     fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+#     if (! inside(fund1.all, c(0, 1))) {
+#       fund1.all <- ifelse(abs(fund1.beta) < abs(fund2.beta), 1, 0)
+#     }
+#     fund2.all <- 1 - fund1.all
+#     
+#     # Distribute initial balance to fund1 and fund2
+#     fund1.bal <- initial * fund1.all
+#     fund2.bal <- initial * fund2.all
+#     port.bal <- initial
+#     
+#     # Initialize matrix for fund balances
+#     fund.balances <- matrix(NA, ncol = 3, nrow = nrow(gains) - trailing + 1, 
+#                             dimnames = list(dates, c(colnames(gains), "PORT")))
+#     fund.balances[1, ] <- c(fund1.bal, fund2.bal, port.bal)
+#     
+#     # Initialize vector for effective betas
+#     effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta
+#     effective.betas <- rep(NA, nrow(gains) - trailing + 1)
+#     names(effective.betas) <- dates
+#     effective.betas[1] <- effective.beta
+#     
+#     # Loop through and implement target-beta strategy
+#     trades <- 0
+#     loop.index <- 1
+#     for (ii in (trailing + 1): nrow(gains)) {
+#       
+#       # Within-loop index
+#       loop.index <- loop.index + 1
+#       
+#       # Apply gains on iith day
+#       fund1.bal <- fund1.bal * (1 + gains[ii, 1])
+#       fund2.bal <- fund2.bal * (1 + gains[ii, 2])
+#       port.bal <- fund1.bal + fund2.bal
+#       fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, port.bal)
+#       
+#       # Get fund 1 and fund 2 betas for time period of interest
+#       fund1.beta <- fund.betas[loop.index, 1]
+#       fund2.beta <- fund.betas[loop.index, 2]
+#       
+#       # Calculate target allocations for fund 1 and fund 2
+#       fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+#       
+#       # Calculate effective beta
+#       effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / port.bal
+#       effective.betas[loop.index] <- effective.beta
+#       
+#       # Rebalance
+#       if (fund1.bal == 0 | fund2.bal == 0) {
+#         if (inside(fund1.all, c(0, 1))) {
+#           trades <- trades + 1
+#           fund2.all <- 1 - fund1.all
+#           fund1.bal <- port.bal * fund1.all
+#           fund2.bal <- port.bal * fund2.all
+#         } else {
+#           if (! inside(effective.beta, beta.range)) {
+#             trades <- trades + 1
+#             fund1.all <- ifelse(abs(fund1.beta) < abs(fund2.beta), 1, 0)
+#             fund2.all <- 1 - fund1.all
+#             fund1.bal <- port.bal * fund1.all
+#             fund2.bal <- port.bal * fund2.all
+#           }
+#         }
+#       } else {
+#         if (! inside(effective.beta, beta.range)) {
+#           if (inside(fund1.all, c(0, 1))) {
+#             trades <- trades + 1
+#             fund2.all <- 1 - fund1.all
+#             fund1.bal <- port.bal * fund1.all
+#             fund2.bal <- port.bal * fund2.all
+#           } else {
+#             trades <- trades + 1
+#             fund1.all <- ifelse(abs(fund1.beta) < abs(fund2.beta), 1, 0)
+#             fund2.all <- 1 - fund1.all
+#             fund1.bal <- port.bal * fund1.all
+#             fund2.bal <- port.bal * fund2.all
+#           }
+#         }
+#       }
+#       
+#     }
+#     
+#     # If reference funds provided, add to fund.balances matrix
+#     if (!is.null(reference.gains)) {
+#       
+#       fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x) 
+#         balances(ratios = x[(trailing + 1): length(x)] + 1, initial = initial)))
+#       
+#     }
+#     
+#     # Combine results into list, and add it to growing list to return to user
+#     results.list$failure.lower.absolute <- list(fund.balances = fund.balances, 
+#                                                 fund.betas = fund.betas,
+#                                                 effective.betas = effective.betas,
+#                                                 trades = trades)
+#     
+#   }
+#   
+#   # Return list of results
+#   if (length(results.list) == 1) {
+#     results.list <- results.list[[1]]
+#   }
+#   return(results.list)
+#   
+# }
+  
+
+
+
+# rollApply doesn't seem to work on matrices...
 
 # PLANS: 
 

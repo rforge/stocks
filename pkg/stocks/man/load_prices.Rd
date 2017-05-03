@@ -9,8 +9,9 @@ Downloads and aligns historical prices for specified tickers from Yahoo! Finance
 \usage{
 load.prices(tickers, intercepts = NULL, slopes = NULL,
             from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
+            preto.days = NULL, prefrom.days = NULL,
             initial = NULL,
-            earliest.subset = TRUE)
+            earliest.subset = FALSE)
 }
 \arguments{
   \item{tickers}{
@@ -29,7 +30,13 @@ Date or character string in form of date (e.g. "2015-01-01" for Jan. 1, 2015), i
 Date or character string in form of date (e.g. "2016-01-01" for Jan. 1, 2016), indicating the ending date for the period of interest.
 }
   \item{time.scale}{
-Character string that Controls the time frame for prices. Possible values are "daily", "monthly", and "yearly".
+Character string that controls the time frame for prices. Possible values are "daily", "monthly", and "yearly".
+}
+  \item{preto.days}{
+If specified, function returns prices for preto.days trading days prior to to. To illustrate, if you want to load the most recent 50 daily closing prices, you would leave to and time.scale as the defaults and set preto.days to 50.
+}
+  \item{prefrom.days}{
+If specified, function returns prices for prefrom.days trading days prior to from. Useful when you want to test a trading strategy starting on a particular date, but the strategy requires data leading up to that date, e.g. trailing beta.
 }
   \item{initial}{
 Numeric value indicating what you would like to scale the initial price of each fund to. May be useful When loading data for multiple funds that you want to compare.

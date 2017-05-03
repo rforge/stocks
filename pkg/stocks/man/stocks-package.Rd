@@ -13,40 +13,41 @@ Functions for analyzing stocks or other investments. Main features are loading a
 Package: \tab stocks\cr
 Type: \tab Package\cr
 Version: \tab 1.1.2\cr
-Date: \tab 2017-04-27\cr
+Date: \tab 2017-05-02\cr
 License: \tab GPL-2\cr
 }
 The following functions are included:
 
-\code{\link{diffs}}
-\code{\link{pdiffs}}
-\code{\link{pchanges}}
-\code{\link{ratios}}
-\code{\link{pos}}
-\code{\link{neg}}
-\code{\link{nonpos}}
-\code{\link{nonneg}}
-\code{\link{convert.rate}}
-\code{\link{daily.yearly}}
-\code{\link{yearly.daily}}
-\code{\link{balances}}
-\code{\link{final.balance}}
-\code{\link{ticker.dates}}
-\code{\link{load.gains}}
-\code{\link{load.prices}}
-\code{\link{prices.rate}}
-\code{\link{gains.rate}}
-\code{\link{mdd}}
-\code{\link{sharpe.ratio}}
-\code{\link{sortino.ratio}}
-\code{\link{rrr}}
-\code{\link{metrics}}
-\code{\link{twofunds.graph}}
-\code{\link{threefunds.graph}}
-\code{\link{growth.graph}}
-\code{\link{gains.graph}}
-\code{\link{onemetric.graph}}
-\code{\link{twometrics.graph}}
+\code{\link{diffs}}\cr
+\code{\link{pdiffs}}\cr
+\code{\link{pchanges}}\cr
+\code{\link{ratios}}\cr
+\code{\link{pos}}\cr
+\code{\link{neg}}\cr
+\code{\link{nonpos}}\cr
+\code{\link{nonneg}}\cr
+\code{\link{convert.rate}}\cr
+\code{\link{daily.yearly}}\cr
+\code{\link{yearly.daily}}\cr
+\code{\link{balances}}\cr
+\code{\link{final.balance}}\cr
+\code{\link{ticker.dates}}\cr
+\code{\link{load.gains}}\cr
+\code{\link{load.prices}}\cr
+\code{\link{prices.rate}}\cr
+\code{\link{gains.rate}}\cr
+\code{\link{mdd}}\cr
+\code{\link{sharpe.ratio}}\cr
+\code{\link{sortino.ratio}}\cr
+\code{\link{rrr}}\cr
+\code{\link{metrics}}\cr
+\code{\link{beta.trailing50}}\cr
+\code{\link{twofunds.graph}}\cr
+\code{\link{threefunds.graph}}\cr
+\code{\link{growth.graph}}\cr
+\code{\link{gains.graph}}\cr
+\code{\link{onemetric.graph}}\cr
+\code{\link{twometrics.graph}}\cr
 \code{\link{onemetric.overtime.graph}}
 }
 \author{

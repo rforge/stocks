@@ -7,10 +7,8 @@ Graph Investment Growth
 Creates graph of investment growth for one or more investments.
 }
 \usage{
-growth.graph(tickers = NULL, intercepts = NULL, slopes = NULL,
+growth.graph(tickers = NULL, ..., 
              prices = NULL,
-             from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
-             earliest.subset = TRUE,
              initial = 10000,
              add.plot = FALSE,
              colors = NULL, 
@@ -22,32 +20,18 @@ growth.graph(tickers = NULL, intercepts = NULL, slopes = NULL,
              bmp.list = NULL,
              jpeg.list = NULL,
              png.list = NULL,
-             tiff.list = NULL)
+             tiff.list = NULL,
+             ...)
 }
 \arguments{
   \item{tickers}{
-Character vector of ticker symbols.
+Character vector of ticker symbols.  
 }
-  \item{intercepts}{
-Numeric vector of values to add to daily gains for each ticker. For example, if you have two tickers and want to simulate a 1\% annual expense ratio for only the second fund, you would set intercepts to c(0, convert.rate(-0.01, units.in = 252, units.out = 1)).
-}
-  \item{slopes}{
-Numeric vector of values to multiply daily gains for each ticker by. For example, if you have two tickers and want to simulate a 2x leveraged version of the second fund, you would set slopes to c(1, 2). The slopes are multiplied prior to adding the intercepts.
+  \item{...}{
+Arguments to pass along with tickers to \code{\link{load.prices}} function, if you wish to load data on the fly rather than specify prices.
 }
   \item{prices}{
 Numeric matrix of prices (daily or otherwise), where each column has prices for a particular investment.
-}
-  \item{from}{
-Date or character string in form of date (e.g. "2015-01-01" for Jan. 1, 2015), indicating the starting date for the period of interest.
-}
-  \item{to}{
-Date or character string in form of date (e.g. "2016-01-01" for Jan. 1, 2016), indicating the ending date for the period of interest.
-}
-  \item{time.scale}{
-Controls time frame for data points. Possible values are "daily", "monthly", and "yearly".
-}
-  \item{earliest.subset}{
-If TRUE, only the subset of tickers with data going back to "from" date (or the earliest) are included; if FALSE, all tickers are included, and data covering their mutual lifetimes is used.
 }
   \item{initial}{
 Numeric value indicating what you would like to scale the initial price of each fund to. If set to NULL, actual fund prices are used.
@@ -87,7 +71,7 @@ Optional list of inputs to pdf function. If not NULL, .tif file is created.
 }
 }
 \details{
-If tickers input is specified, function loads historical prices for the tickers from Yahoo! Finance using the quantmod package [1]. If prices input is specified, the graph is created directly from that matrix.
+If tickers input is specified, it gets passed to \code{\link{load.gains}} to load historical prices from Yahoo! Finance using the quantmod package [1]. If prices is specified, performance metrics are calculated directly from that information.
 }
 \value{
 In addition to the graph, a list containing the following items: (1) A numeric matrix of prices for each investment; (2) a numeric vector of mean gains for each ticker; and (3) a numeric matrix containing a correlation matrix for gains of each ticker.
