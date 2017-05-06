@@ -9,7 +9,7 @@ Creates graph of investment growth for one or more investments.
 }
 \usage{
 targetbeta.twofunds(tickers = NULL, intercepts = NULL, slopes = NULL, ..., 
-                    benchmark.tickers = NULL, reference.tickers = NULL,
+                    benchmark.ticker = NULL, reference.tickers = NULL,
                     tickers.gains = NULL, benchmark.gains = NULL, reference.gains = NULL, 
                     target.beta = 0, tol = 0.15,
                     window.units = 50, failure.method = c("cash", "closer"),
@@ -28,8 +28,8 @@ Numeric vector of values to multiply daily gains for each ticker by. For example
   \item{...}{
 Arguments to pass along with tickers, intercepts, and slopes to \code{\link{load.gains}} function, if you wish to load data on the fly rather than specify tickers.gains.
 }
-  \item{benchmark.tickers}{
-Character vector of length 1 or 2 indicating ticker symbols for benchmark indexes, to be used if x.metric or y.metric is set to "alpha", "beta", "r.squared", "pearson", "spearman", or "alpha2", "beta2", and so on. For example, if you wish to plot correlation with SPY on the x-axis and correlation with TLT on the y-axis, you would set x.metric to "pearson" and y.metric to "pearson2", and set benchmark.tickers to c("SPY", "TLT").
+  \item{benchmark.ticker}{
+Character vector indicating ticker symbol for benchmark index that beta should be calculated from. If unspecified, the first fund is used as the benchmark.
 }
   \item{reference.tickers}{
 Character string or vector of ticker symbols to include for comparative purposes.
@@ -53,10 +53,10 @@ Numeric value indicating how far the effective portfolio beta has to deviate fro
 Numeric value indicating the width of the trailing moving window used to estimate each fund's beta.
 }
   \item{failure.method}{
-Character string or vector specifying which method to use when fund betas are such that the target portfolio beta cannot be achieved. Possible values are as follows: "cash", "fund1", "fund2", "inverse1", "inverse2", "closer". See Details.
+Character string or vector specifying method(s) to use when fund betas are such that the target portfolio beta cannot be achieved. Possible values are "cash", "fund1", "fund2", "inverse1", "inverse2", and "closer". See Details.
 }
   \item{initial}{
-Numeric value indicating what the initial value of the portfolio should be.
+Numeric value giving the initial value of the portfolio.
 }
 }
 \details{
