@@ -49,6 +49,7 @@ The following functions are included:
 \code{\link{onemetric.graph}}\cr
 \code{\link{twometrics.graph}}\cr
 \code{\link{onemetric.overtime.graph}}
+\code{\link{targetbeta.twofunds}}
 }
 \author{
 Dane R. Van Domelen
