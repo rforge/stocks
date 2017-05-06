@@ -160,12 +160,12 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
                        preto.days = NULL, prefrom.days = NULL, 
                        earliest.subset = FALSE) {
   
-  # If preto.days is specified, adjust from date
+  # Adjust from date if preto.days or prefrom.days are specified
+  from.initial <- from <- as.Date(from)
+  to <- as.Date(to)
   if (!is.null(preto.days)) {
-    from <- as.Date(to) - ifelse(preto.days <= 10, 20, ceiling(preto.days * 1.65))
+    from <- to - ifelse(preto.days <= 10, 20, ceiling(preto.days * 1.65))
   }
-
-  # If prefrom.days is specified, adjust from date
   if (!is.null(prefrom.days)) {
     from <- from - ifelse(prefrom.days <= 10, 20, ceiling(prefrom.days * 1.65))
   }
@@ -298,13 +298,17 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
   dates <- as.Date(rownames(prices[[1]]))
   length.dates <- length(dates)
   
-  # If preto.days and/or prefrom.days specified, get just most recent (preto.days + prefrom.days) subset
-  if (!is.null(preto.days) | !is.null(prefrom.days)) {
-    total.days <- ifelse(!is.null(preto.days), preto.days, 0) + ifelse(!is.null(prefrom.days), prefrom.days, 0)
-    prices <- lapply(prices, function(x) x[(length.dates - total.days): length.dates, ])
-    dates <- dates[(length.dates - total.days): length.dates]
-    length.dates <- length(dates)
+  # If preto.days and/or prefrom.days specified, get just the date range of interest
+  if (! is.null(prefrom.days) & ! is.null(preto.days)) {
+    prices <- lapply(prices, function(x) x[(length.dates - prefrom.days - preto.days - 1): length.dates, ])
+  } else if (! is.null(prefrom.days) & is.null(preto.days)) {
+    loc.from <- which(dates == from.initial)
+    prices <- lapply(prices, function(x) x[(loc.from - prefrom.days - 1): length.dates, ])
+  } else if (is.null(prefrom.days) & ! is.null(preto.days)) {
+    prices <- lapply(prices, function(x) x[(length.dates - preto.days - 1): length.dates, ])
   }
+  dates <- as.Date(rownames(prices[[1]]))
+  length.dates <- length(dates)
   
   # Convert to prices on last day of month/year if requested
   if (time.scale == "monthly") {
@@ -337,12 +341,12 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
                         initial = NULL, 
                         earliest.subset = FALSE) {
   
-  # If preto.days is specified, adjust from date
+  # Adjust from date if preto.days or prefrom.days are specified
+  from.initial <- from <- as.Date(from)
+  to <- as.Date(to)
   if (!is.null(preto.days)) {
-    from <- as.Date(to) - ifelse(preto.days <= 10, 20, ceiling(preto.days * 1.65))
+    from <- to - ifelse(preto.days <= 10, 20, ceiling(preto.days * 1.65))
   }
-  
-  # If prefrom.days is specified, adjust from date
   if (!is.null(prefrom.days)) {
     from <- from - ifelse(prefrom.days <= 10, 20, ceiling(prefrom.days * 1.65))
   }
@@ -450,14 +454,17 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
   dates <- as.Date(rownames(prices[[1]]))
   length.dates <- length(dates)
   
-  # If preto.days and/or prefrom.days specified, get just most recent (preto.days + prefrom.days) subset
-  if (!is.null(preto.days) | !is.null(prefrom.days)) {
-    total.days <- ifelse(!is.null(preto.days), preto.days, 0) + ifelse(!is.null(prefrom.days), prefrom.days, 0)
-    length.dates <- length(dates)
-    prices <- lapply(prices, function(x) x[(length.dates - total.days + 1): length.dates, ])
-    dates <- dates[(length.dates - total.days + 1): length.dates]
-    length.dates <- length(dates)
+  # If preto.days and/or prefrom.days specified, get just the date range of interest
+  if (! is.null(prefrom.days) & ! is.null(preto.days)) {
+    prices <- lapply(prices, function(x) x[(length.dates - prefrom.days - preto.days): length.dates, ])
+  } else if (! is.null(prefrom.days) & is.null(preto.days)) {
+    loc.from <- which(dates == from.initial)
+    prices <- lapply(prices, function(x) x[(loc.from - prefrom.days): length.dates, ])
+  } else if (is.null(prefrom.days) & ! is.null(preto.days)) {
+    prices <- lapply(prices, function(x) x[(length.dates - preto.days): length.dates, ])
   }
+  dates <- as.Date(rownames(prices[[1]]))
+  length.dates <- length(dates)
   
   # Convert to prices on last day of month/year if requested
   if (time.scale == "monthly") {
@@ -4414,19 +4421,19 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
   beta.range <- c(target.beta - tol, target.beta + tol)
 
   # Get dates for row names of various results
-  dates <- rownames(gains)[-c(1: (window.units - 1))]
+  dates <- rownames(tickers.gains)[-c(1: (window.units - 1))]
 
   # If benchmark.gains is not specified, use 1st column of gains as benchmark
   if (is.null(benchmark.gains)) {
-    benchmark.gains <- gains[, 1]
+    benchmark.gains <- tickers.gains[, 1]
     col1.benchmark <- TRUE
   } else {
     col1.benchmark <- FALSE
   }
 
   # Extract gains for fund 1 and fund 2
-  fund1.gains <- gains[, 1]
-  fund2.gains <- gains[, 2]
+  fund1.gains <- tickers.gains[, 1]
+  fund2.gains <- tickers.gains[, 2]
 
   # Calculate betas for both funds over entire time period
   if (col1.benchmark) {
@@ -4437,7 +4444,7 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
   }
   fund2.betas <- rollapply(cbind(benchmark.gains, fund2.gains), width = window.units, by.column = FALSE,
                            FUN = function(x) lm(x[, 2] ~ x[, 1])$coef[2])
-  fund.betas <- matrix(c(fund1.betas, fund2.betas), ncol = 2, dimnames = list(NULL, colnames(gains)))
+  fund.betas <- matrix(c(fund1.betas, fund2.betas), ncol = 2, dimnames = list(NULL, colnames(tickers.gains)))
 
   # Initialize results.list list
   results.list <- list()
@@ -4466,27 +4473,27 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     port.bal <- initial
 
     # Initialize matrix for fund balances
-    fund.balances <- matrix(NA, ncol = 4, nrow = nrow(gains) - window.units + 1,
-                            dimnames = list(dates, c(colnames(gains), "CASH", "PORT")))
+    fund.balances <- matrix(NA, ncol = 4, nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, c(colnames(tickers.gains), "CASH", "PORT")))
     fund.balances[1, ] <- c(fund1.bal, fund2.bal, cash.bal, port.bal)
 
     # Initialize vector for effective betas
     effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta
-    effective.betas <- rep(NA, nrow(gains) - window.units + 1)
+    effective.betas <- rep(NA, nrow(tickers.gains) - window.units + 1)
     names(effective.betas) <- dates
     effective.betas[1] <- effective.beta
 
     # Loop through and implement target-beta strategy
     trades <- 0
     loop.index <- 1
-    for (ii in (window.units + 1): nrow(gains)) {
+    for (ii in (window.units + 1): nrow(tickers.gains)) {
 
       # Within-loop index
       loop.index <- loop.index + 1
 
       # Apply gains on iith day
-      fund1.bal <- fund1.bal * (1 + gains[ii, 1])
-      fund2.bal <- fund2.bal * (1 + gains[ii, 2])
+      fund1.bal <- fund1.bal * (1 + fund1.gains[ii])
+      fund2.bal <- fund2.bal * (1 + fund2.gains[ii])
       port.bal <- fund1.bal + fund2.bal + cash.bal
       fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, cash.bal, port.bal)
 
@@ -4593,27 +4600,27 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     port.bal <- initial
 
     # Initialize matrix for fund balances
-    fund.balances <- matrix(NA, ncol = 3, nrow = nrow(gains) - window.units + 1,
-                            dimnames = list(dates, c(colnames(gains), "PORT")))
+    fund.balances <- matrix(NA, ncol = 3, nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, c(colnames(tickers.gains), "PORT")))
     fund.balances[1, ] <- c(fund1.bal, fund2.bal, port.bal)
 
     # Initialize vector for effective betas
     effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta
-    effective.betas <- rep(NA, nrow(gains) - window.units + 1)
+    effective.betas <- rep(NA, nrow(tickers.gains) - window.units + 1)
     names(effective.betas) <- dates
     effective.betas[1] <- effective.beta
 
     # Loop through and implement target-beta strategy
     trades <- 0
     loop.index <- 1
-    for (ii in (window.units + 1): nrow(gains)) {
+    for (ii in (window.units + 1): nrow(tickers.gains)) {
 
       # Within-loop index
       loop.index <- loop.index + 1
 
       # Apply gains on iith day
-      fund1.bal <- fund1.bal * (1 + gains[ii, 1])
-      fund2.bal <- fund2.bal * (1 + gains[ii, 2])
+      fund1.bal <- fund1.bal * (1 + fund1.gains[ii])
+      fund2.bal <- fund2.bal * (1 + fund2.gains[ii])
       port.bal <- fund1.bal + fund2.bal
       fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, port.bal)
 
@@ -4714,27 +4721,27 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     port.bal <- initial
 
     # Initialize matrix for fund balances
-    fund.balances <- matrix(NA, ncol = 3, nrow = nrow(gains) - window.units + 1,
-                            dimnames = list(dates, c(colnames(gains), "PORT")))
+    fund.balances <- matrix(NA, ncol = 3, nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, c(colnames(tickers.gains), "PORT")))
     fund.balances[1, ] <- c(fund1.bal, fund2.bal, port.bal)
 
     # Initialize vector for effective betas
     effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta
-    effective.betas <- rep(NA, nrow(gains) - window.units + 1)
+    effective.betas <- rep(NA, nrow(tickers.gains) - window.units + 1)
     names(effective.betas) <- dates
     effective.betas[1] <- effective.beta
 
     # Loop through and implement target-beta strategy
     trades <- 0
     loop.index <- 1
-    for (ii in (window.units + 1): nrow(gains)) {
+    for (ii in (window.units + 1): nrow(tickers.gains)) {
 
       # Within-loop index
       loop.index <- loop.index + 1
 
       # Apply gains on iith day
-      fund1.bal <- fund1.bal * (1 + gains[ii, 1])
-      fund2.bal <- fund2.bal * (1 + gains[ii, 2])
+      fund1.bal <- fund1.bal * (1 + fund1.gains[ii])
+      fund2.bal <- fund2.bal * (1 + fund2.gains[ii])
       port.bal <- fund1.bal + fund2.bal
       fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, port.bal)
 
@@ -4850,28 +4857,28 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     port.bal <- initial
 
     # Initialize matrix for fund balances
-    fund.balances <- matrix(NA, ncol = 5, nrow = nrow(gains) - window.units + 1,
-                            dimnames = list(dates, c(colnames(gains), paste("INVERSE", colnames(gains)[1]), "CASH", "PORT")))
+    fund.balances <- matrix(NA, ncol = 5, nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, c(colnames(tickers.gains), paste("INVERSE", colnames(tickers.gains)[1]), "CASH", "PORT")))
     fund.balances[1, ] <- c(fund1.bal, fund2.bal, inverse1.bal, cash.bal, port.bal)
 
     # Initialize vector for effective betas
     effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta - inverse1.all * fund1.beta
-    effective.betas <- rep(NA, nrow(gains) - window.units + 1)
+    effective.betas <- rep(NA, nrow(tickers.gains) - window.units + 1)
     names(effective.betas) <- dates
     effective.betas[1] <- effective.beta
     
     # Loop through and implement target-beta strategy
     trades <- 0
     loop.index <- 1
-    for (ii in (window.units + 1): nrow(gains)) {
+    for (ii in (window.units + 1): nrow(tickers.gains)) {
       
       # Within-loop index
       loop.index <- loop.index + 1
       
       # Apply gains on iith day
-      fund1.bal <- fund1.bal * (1 + gains[ii, 1])
-      fund2.bal <- fund2.bal * (1 + gains[ii, 2])
-      inverse1.bal <- inverse1.bal * (1 - gains[ii, 1])
+      fund1.bal <- fund1.bal * (1 + fund1.gains[ii])
+      fund2.bal <- fund2.bal * (1 + fund2.gains[ii])
+      inverse1.bal <- inverse1.bal * (1 - fund1.gains[ii])
       port.bal <- fund1.bal + fund2.bal + inverse1.bal + cash.bal
       fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, inverse1.bal, cash.bal, port.bal)
       
@@ -5091,28 +5098,28 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     port.bal <- initial
     
     # Initialize matrix for fund balances
-    fund.balances <- matrix(NA, ncol = 5, nrow = nrow(gains) - window.units + 1,
-                            dimnames = list(dates, c(colnames(gains), paste("INVERSE", colnames(gains)[2]), "CASH", "PORT")))
+    fund.balances <- matrix(NA, ncol = 5, nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, c(colnames(tickers.gains), paste("INVERSE", colnames(tickers.gains)[2]), "CASH", "PORT")))
     fund.balances[1, ] <- c(fund1.bal, fund2.bal, inverse2.bal, cash.bal, port.bal)
     
     # Initialize vector for effective betas
     effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta - inverse2.all * fund1.beta
-    effective.betas <- rep(NA, nrow(gains) - window.units + 1)
+    effective.betas <- rep(NA, nrow(tickers.gains) - window.units + 1)
     names(effective.betas) <- dates
     effective.betas[1] <- effective.beta
     
     # Loop through and implement target-beta strategy
     trades <- 0
     loop.index <- 1
-    for (ii in (window.units + 1): nrow(gains)) {
+    for (ii in (window.units + 1): nrow(tickers.gains)) {
       
       # Within-loop index
       loop.index <- loop.index + 1
       
       # Apply gains on iith day
-      fund1.bal <- fund1.bal * (1 + gains[ii, 1])
-      fund2.bal <- fund2.bal * (1 + gains[ii, 2])
-      inverse2.bal <- inverse2.bal * (1 - gains[ii, 2])
+      fund1.bal <- fund1.bal * (1 + fund1.gains[ii])
+      fund2.bal <- fund2.bal * (1 + fund2.gains[ii])
+      inverse2.bal <- inverse2.bal * (1 - fund2.gains[ii])
       port.bal <- fund1.bal + fund2.bal + inverse2.bal + cash.bal
       fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, inverse2.bal, cash.bal, port.bal)
       
@@ -5320,27 +5327,27 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     port.bal <- initial
     
     # Initialize matrix for fund balances
-    fund.balances <- matrix(NA, ncol = 3, nrow = nrow(gains) - window.units + 1,
-                            dimnames = list(dates, c(colnames(gains), "PORT")))
+    fund.balances <- matrix(NA, ncol = 3, nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, c(colnames(tickers.gains), "PORT")))
     fund.balances[1, ] <- c(fund1.bal, fund2.bal, port.bal)
     
     # Initialize vector for effective betas
     effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta
-    effective.betas <- rep(NA, nrow(gains) - window.units + 1)
+    effective.betas <- rep(NA, nrow(tickers.gains) - window.units + 1)
     names(effective.betas) <- dates
     effective.betas[1] <- effective.beta
     
     # Loop through and implement target-beta strategy
     trades <- 0
     loop.index <- 1
-    for (ii in (window.units + 1): nrow(gains)) {
+    for (ii in (window.units + 1): nrow(tickers.gains)) {
       
       # Within-loop index
       loop.index <- loop.index + 1
       
       # Apply gains on iith day
-      fund1.bal <- fund1.bal * (1 + gains[ii, 1])
-      fund2.bal <- fund2.bal * (1 + gains[ii, 2])
+      fund1.bal <- fund1.bal * (1 + fund1.gains[ii])
+      fund2.bal <- fund2.bal * (1 + fund2.gains[ii])
       port.bal <- fund1.bal + fund2.bal
       fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, port.bal)
       
