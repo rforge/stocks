@@ -724,6 +724,7 @@ metrics <- function(tickers = NULL, ...,
     
     # Calculate gains based on price data
     gains <- apply(prices, 2, pchanges)
+    rownames(gains) <- rownames(prices)[-1]
     
   } else if (is.null(gains)) {
     
@@ -2661,6 +2662,7 @@ growth.graph <- function(tickers = NULL, ...,
                          initial = 10000,
                          add.plot = FALSE,
                          colors = NULL,
+                         lty = NULL,
                          plot.list = NULL,
                          points.list = NULL,
                          grid.list = NULL,
@@ -2693,7 +2695,7 @@ growth.graph <- function(tickers = NULL, ...,
     dates <- 1: nrow(prices)
   }
 
-  # Create color scheme for plot
+  # Create color scheme and line types for plot
   n.tickers <- length(tickers)
   if (is.null(colors)) {
     if (n.tickers == 1) {
@@ -2708,6 +2710,9 @@ growth.graph <- function(tickers = NULL, ...,
       colors <- colorRampPalette(c("blue", "red"))(n.tickers)
     }
   }
+  if (is.null(lty)) {
+    lty <- rep(1, n.tickers)
+  }
 
   # Figure out features of graph, based on user inputs where available
   plot.list <- list.override(list1 = list(x = dates, y = prices[, 1], type = "n",
@@ -2715,7 +2720,7 @@ growth.graph <- function(tickers = NULL, ...,
                                           xlab = "Date", ylab = "Balance ($)",
                                           xlim = range(dates), ylim = c(0, max(prices) * 1.05)),
                              list2 = plot.list)
-  legend.list <- list.override(list1 = list(x = "topleft", lty = 1, col = colors, legend = tickers),
+  legend.list <- list.override(list1 = list(x = "topleft", col = colors, lty = lty, legend = tickers),
                                list2 = legend.list)
   grid.list <- list.override(list1 = list(nx = 0, ny = NULL),
                              list2 = grid.list)
@@ -2768,7 +2773,7 @@ growth.graph <- function(tickers = NULL, ...,
 
   # Add lines for each fund
   for (ii in 1: ncol(prices)) {
-    do.call(points, c(list(x = dates, y = prices[, ii], type = "l", col = colors[ii]), points.list))
+    do.call(points, c(list(x = dates, y = prices[, ii], type = "l", col = colors[ii], lty = lty[ii]), points.list), ...)
   }
   
   # Add grid lines
@@ -4360,6 +4365,7 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
                                 tickers.gains = NULL, benchmark.gains = NULL, reference.gains = NULL,
                                 target.beta = 0, tol = 0.15,
                                 window.units = 50, failure.method = c("cash", "closer"),
+                                maxall.tol = tol - 0.05,
                                 initial = 10000) {
 
   # If tickers specified, load various historical prices from Yahoo! Finance
@@ -4448,7 +4454,6 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
 
   # Initialize results.list list
   results.list <- list()
-
   
   # Implement "cash" failure method if requested
   if ("cash" %in% failure.method) {
@@ -4822,6 +4827,326 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
                                        effective.betas = effective.betas,
                                        trades = trades)
 
+  }
+  
+  # Implement "fund1.maxall" failure method if requested
+  if ("fund1.maxall" %in% failure.method) {
+    
+    # Calculate interval for starting beta when maximizing allocation to fund 1
+    maxall.beta.range <- c(target.beta - maxall.tol, target.beta + maxall.tol)
+    
+    # Calculate initial betas and initial target allocation to fund 1
+    fund1.beta <- fund.betas[1, 1]
+    fund2.beta <- fund.betas[1, 2]
+    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+    
+    # Distribute initial balance to fund 1 and fund 2
+    if (! inside(fund1.all, c(0, 1))) {
+      if (inside(fund1.beta, maxall.beta.range)) {
+        fund1.all <- 1
+      } else {
+        fund1.alls <- seq(0, 1, 0.001)
+        port.betas <- fund1.alls * fund1.beta
+        fund1.all <- fund1.alls[which.max(fund1.alls[inside(port.betas, maxall.beta.range)])]
+      }
+      fund2.all <- 0
+      cash.all <- 1 - fund1.all
+    } else {
+      fund2.all <- 1 - fund1.all
+      cash.all <- 0
+    }
+    fund1.bal <- initial * fund1.all
+    fund2.bal <- initial * fund2.all
+    cash.bal <- initial * cash.all
+    port.bal <- initial
+    
+    # Initialize matrix for fund balances
+    fund.balances <- matrix(NA, ncol = 4, nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, c(colnames(tickers.gains), "CASH", "PORT")))
+    fund.balances[1, ] <- c(fund1.bal, fund2.bal, cash.bal, port.bal)
+    
+    # Initialize vector for effective betas
+    effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta
+    effective.betas <- rep(NA, nrow(tickers.gains) - window.units + 1)
+    names(effective.betas) <- dates
+    effective.betas[1] <- effective.beta
+    
+    # Loop through and implement target-beta strategy
+    trades <- 0
+    loop.index <- 1
+    for (ii in (window.units + 1): nrow(tickers.gains)) {
+      
+      # Within-loop index
+      loop.index <- loop.index + 1
+      
+      # Apply gains on iith day
+      fund1.bal <- fund1.bal * (1 + fund1.gains[ii])
+      fund2.bal <- fund2.bal * (1 + fund2.gains[ii])
+      port.bal <- fund1.bal + fund2.bal + cash.bal
+      fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, cash.bal, port.bal)
+      
+      # Get fund 1 and fund 2 betas for time period of interest
+      fund1.beta <- fund.betas[loop.index, 1]
+      fund2.beta <- fund.betas[loop.index, 2]
+      
+      # Calculate target allocation for fund 1
+      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+      
+      # Calculate effective beta
+      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / port.bal
+      effective.betas[loop.index] <- effective.beta
+      
+      # Rebalance
+      if (cash.bal > 0 | fund1.bal == port.bal) {
+        
+        # (1) If target beta can be achieved with fund 1 / fund 2, execute that trade.
+        # (2) Otherwise, if effective beta is outside acceptable range, rebalance fund 1 / cash
+        
+        if (inside(fund1.all, c(0, 1))) {
+          
+          trades <- trades + 1
+          fund2.all <- 1 - fund1.all
+          cash.all <- 0
+          fund1.bal <- port.bal * fund1.all
+          fund2.bal <- port.bal * fund2.all
+          cash.bal <- 0
+          
+        } else {
+          
+          if (! inside(effective.beta, beta.range)) {
+            
+            trades <- trades + 1
+            if (inside(fund1.beta, maxall.beta.range)) {
+              fund1.all <- 1
+            } else {
+              fund1.alls <- seq(0, 1, 0.001)
+              port.betas <- fund1.alls * fund1.beta
+              fund1.all <- fund1.alls[which.max(fund1.alls[inside(port.betas, maxall.beta.range)])]
+            }
+            fund2.all <- 0
+            cash.all <- 1 - fund1.all
+            fund1.bal <- port.bal * fund1.all
+            fund2.bal <- 0
+            cash.bal <- port.bal * cash.all
+            
+          }
+          
+        }
+        
+      } else {
+        
+        # If effective beta is outside acceptable range, execute rebalancing trade if
+        # target beta is achievable, otherwise switch to fund 1 / cash.
+        
+        if (! inside(effective.beta, beta.range)) {
+          
+          if (inside(fund1.all, c(0, 1))) {
+            
+            trades <- trades + 1
+            fund2.all <- 1 - fund1.all
+            cash.all <- 0
+            fund1.bal <- port.bal * fund1.all
+            fund2.bal <- port.bal * fund2.all
+            cash.bal <- 0
+            
+          } else {
+            
+            trades <- trades + 1
+            if (inside(fund1.beta, maxall.beta.range)) {
+              fund1.all <- 1
+            } else {
+              fund1.alls <- seq(0, 1, 0.001)
+              port.betas <- fund1.alls * fund1.beta
+              fund1.all <- fund1.alls[which.max(fund1.alls[inside(port.betas, maxall.beta.range)])]
+            }
+            fund2.all <- 0
+            cash.all <- 1 - fund1.all
+            fund1.bal <- port.bal * fund1.all
+            fund2.bal <- 0
+            cash.bal <- port.bal * cash.all
+            
+          }
+          
+        }
+        
+      }
+      
+    }
+    
+    # If reference funds provided, add to fund.balances matrix
+    if (!is.null(reference.gains)) {
+      
+      fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x)
+        balances(ratios = x[(window.units + 1): length(x)] + 1, initial = initial)))
+      
+    }
+    
+    # Combine results into list, and add it to growing list to return to user
+    results.list$failure.fund1.maxall <- list(fund.balances = fund.balances,
+                                              fund.betas = fund.betas,
+                                              effective.betas = effective.betas,
+                                              trades = trades)
+    
+  }
+  
+  # Implement "fund2.maxall" failure method if requested
+  if ("fund2.maxall" %in% failure.method) {
+    
+    # Calculate interval for starting beta when maximizing allocation to fund 1
+    maxall.beta.range <- c(target.beta - maxall.tol, target.beta + maxall.tol)
+    
+    # Calculate initial betas and initial target allocation to fund 1
+    fund1.beta <- fund.betas[1, 1]
+    fund2.beta <- fund.betas[1, 2]
+    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+    
+    # Distribute initial balance to fund 1 and fund 2
+    if (! inside(fund1.all, c(0, 1))) {
+      if (inside(fund2.beta, maxall.beta.range)) {
+        fund2.all <- 1
+      } else {
+        fund2.alls <- seq(0, 1, 0.001)
+        port.betas <- fund2.alls * fund2.beta
+        fund2.all <- fund2.alls[which.max(fund2.alls[inside(port.betas, maxall.beta.range)])]
+      }
+      fund1.all <- 0
+      cash.all <- 1 - fund2.all
+    } else {
+      fund2.all <- 1 - fund1.all
+      cash.all <- 0
+    }
+    fund1.bal <- initial * fund1.all
+    fund2.bal <- initial * fund2.all
+    cash.bal <- initial * cash.all
+    port.bal <- initial
+    
+    # Initialize matrix for fund balances
+    fund.balances <- matrix(NA, ncol = 4, nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, c(colnames(tickers.gains), "CASH", "PORT")))
+    fund.balances[1, ] <- c(fund1.bal, fund2.bal, cash.bal, port.bal)
+    
+    # Initialize vector for effective betas
+    effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta
+    effective.betas <- rep(NA, nrow(tickers.gains) - window.units + 1)
+    names(effective.betas) <- dates
+    effective.betas[1] <- effective.beta
+    
+    # Loop through and implement target-beta strategy
+    trades <- 0
+    loop.index <- 1
+    for (ii in (window.units + 1): nrow(tickers.gains)) {
+      
+      # Within-loop index
+      loop.index <- loop.index + 1
+      
+      # Apply gains on iith day
+      fund1.bal <- fund1.bal * (1 + fund1.gains[ii])
+      fund2.bal <- fund2.bal * (1 + fund2.gains[ii])
+      port.bal <- fund1.bal + fund2.bal + cash.bal
+      fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, cash.bal, port.bal)
+      
+      # Get fund 1 and fund 2 betas for time period of interest
+      fund1.beta <- fund.betas[loop.index, 1]
+      fund2.beta <- fund.betas[loop.index, 2]
+      
+      # Calculate target allocation for fund 1
+      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+      
+      # Calculate effective beta
+      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / port.bal
+      effective.betas[loop.index] <- effective.beta
+      
+      # Rebalance
+      if (cash.bal > 0 | fund2.bal == port.bal) {
+        
+        # (1) If target beta can be achieved with fund 1 / fund 2, execute that trade.
+        # (2) Otherwise, if effective beta is outside acceptable range, rebalance fund 2 / cash
+        
+        if (inside(fund1.all, c(0, 1))) {
+          
+          trades <- trades + 1
+          fund2.all <- 1 - fund1.all
+          cash.all <- 0
+          fund1.bal <- port.bal * fund1.all
+          fund2.bal <- port.bal * fund2.all
+          cash.bal <- 0
+          
+        } else {
+          
+          if (! inside(effective.beta, beta.range)) {
+            
+            trades <- trades + 1
+            if (inside(fund2.beta, maxall.beta.range)) {
+              fund2.all <- 1
+            } else {
+              fund2.alls <- seq(0, 1, 0.001)
+              port.betas <- fund2.alls * fund2.beta
+              fund2.all <- fund2.alls[which.max(fund2.alls[inside(port.betas, maxall.beta.range)])]
+            }
+            fund1.all <- 0
+            cash.all <- 1 - fund2.all
+            fund1.bal <- 0
+            fund2.bal <- port.bal * fund2.all
+            cash.bal <- port.bal * cash.all
+            
+          }
+          
+        }
+        
+      } else {
+        
+        # If effective beta is outside acceptable range, execute rebalancing trade if
+        # target beta is achievable, otherwise switch to fund 2 / cash.
+        
+        if (! inside(effective.beta, beta.range)) {
+          
+          if (inside(fund1.all, c(0, 1))) {
+            
+            trades <- trades + 1
+            fund2.all <- 1 - fund1.all
+            cash.all <- 0
+            fund1.bal <- port.bal * fund1.all
+            fund2.bal <- port.bal * fund2.all
+            cash.bal <- 0
+            
+          } else {
+            
+            trades <- trades + 1
+            if (inside(fund2.beta, maxall.beta.range)) {
+              fund2.all <- 1
+            } else {
+              fund2.alls <- seq(0, 1, 0.001)
+              port.betas <- fund2.alls * fund2.beta
+              fund2.all <- fund2.alls[which.max(fund2.alls[inside(port.betas, maxall.beta.range)])]
+            }
+            fund1.all <- 0
+            cash.all <- 1 - fund2.all
+            fund1.bal <- 0
+            fund2.bal <- port.bal * fund2.all
+            cash.bal <- port.bal * cash.all
+            
+          }
+          
+        }
+        
+      }
+      
+    }
+    
+    # If reference funds provided, add to fund.balances matrix
+    if (!is.null(reference.gains)) {
+      
+      fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x)
+        balances(ratios = x[(window.units + 1): length(x)] + 1, initial = initial)))
+      
+    }
+    
+    # Combine results into list, and add it to growing list to return to user
+    results.list$failure.fund2.maxall <- list(fund.balances = fund.balances,
+                                              fund.betas = fund.betas,
+                                              effective.betas = effective.betas,
+                                              trades = trades)
+    
   }
   
   # Implement "inverse1" failure method if requested
@@ -5305,7 +5630,6 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
                                           trades = trades)
     
   }
-  
 
   # Implement "closer" failure method if requested
   if ("closer" %in% failure.method) {

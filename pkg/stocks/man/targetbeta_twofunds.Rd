@@ -11,8 +11,9 @@ Creates graph of investment growth for one or more investments.
 targetbeta.twofunds(tickers = NULL, intercepts = NULL, slopes = NULL, ..., 
                     benchmark.ticker = NULL, reference.tickers = NULL,
                     tickers.gains = NULL, benchmark.gains = NULL, reference.gains = NULL, 
-                    target.beta = 0, tol = 0.15,
+                    target.beta = 0, tol = 0.15, 
                     window.units = 50, failure.method = c("cash", "closer"),
+                    maxall.tol = tol - 0.05,
                     initial = 10000)
 }
 \arguments{
@@ -55,6 +56,9 @@ Numeric value indicating the width of the trailing moving window used to estimat
   \item{failure.method}{
 Character string or vector specifying method(s) to use when fund betas are such that the target portfolio beta cannot be achieved. Possible values are "cash", "fund1", "fund2", "inverse1", "inverse2", and "closer". See Details.
 }
+  \item{maxall.tol}{
+Numeric value indicating tolerance to use when implementing the "fund1.maxall" or "fund2.maxall" failure method. To illustrate, if target.beta is 0, fund 1 has a current beta of 1, fund 2 has a current beta of 0.25, failure.method is "fund2.maxall", and maxall.tol is 0.1, a trade will be triggered that results in 40\% fund 2 and 60\% cash. The portfolio beta is 0.4 * 0.25 = 0.1. The reason you might want maxall.tol to be less than tol is to avoid frequently triggering another trade on the very next day, as fund 2's beta changes a little and moves the portfolio beta outside of [target.beta - tol, target.beta + tol].
+}
   \item{initial}{
 Numeric value giving the initial value of the portfolio.
 }
@@ -71,6 +75,8 @@ When outside of a trade because the target beta could not be achieved, the funct
 When failure.method is set to "cash", the entire portfolio balance is allocated to cash when the target beta cannot be achieved. 
 
 When failure.method is set to "fund1" (or "fund2"), the entire portfolio balance is allocated to the first (or second) fund when the target beta cannot be achieved. 
+
+When failure.method is set to "fund1.maxall" (or "fund2.maxall"), when the target beta cannot be achieved, fund 1 (or fund 2) is combined with cash, with the fund 1 (fund 2) allocation as high as possible while staying within maxall.tol of target.beta.
 
 When failure.method is set to "inverse1" (or "inverse2"), an inverse version of the first (or second) fund is used when the target beta cannot be achieved. In many cases where the target beta cannot be achieved with the two funds, it can be achieved with an inverse version of one and the other. If the target beta still cannot be achieved, the entire portfolio balance is allocated to cash.
 

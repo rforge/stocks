@@ -12,6 +12,7 @@ growth.graph(tickers = NULL, ...,
              initial = 10000,
              add.plot = FALSE,
              colors = NULL, 
+             lty = NULL,
              plot.list = NULL,
              points.list = NULL,
              grid.list = NULL,
@@ -39,7 +40,10 @@ Numeric value indicating what you would like to scale the initial price of each 
 If TRUE, data is plotted on current plot frame rather than a new one.
 }
   \item{colors}{
-Character string of colors for each investment.
+Character string or vector of colors for each investment.
+}
+  \item{lty}{
+Numeric string or vector of line types for each investment.
 }
   \item{plot.list}{
 Optional list of inputs to pass to plot function.  
