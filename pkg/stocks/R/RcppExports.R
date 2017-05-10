@@ -4322,6 +4322,7 @@ onemetric.overtime.graph <- function(tickers = NULL, ...,
   }
 
   # Return matrix of y values
+  colnames(y) <- tickers
   return(y)
 
 }
