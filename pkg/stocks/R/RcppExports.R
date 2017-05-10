@@ -739,19 +739,24 @@ metrics <- function(tickers = NULL, ...,
   }
   
   # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
-  units.year <- 252
   if (hasArg(time.scale)) {
     units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
   } else {
     min.diffdates <- min(diff(as.Date(rownames(gains)[1: min(10, nrow(gains))])))
     if (! is.null(min.diffdates)) {
-      if (min.diffdates >= 2 & min.diffdates <= 30) {
+      if (min.diffdates == 1) {
+        time.scale <- "daily"
+        units.year <- 252
+      } else if (min.diffdates >= 2 & min.diffdates <= 30) {
         time.scale <- "monthly"
         units.year <- 12
       } else if (min.diffdates > 30) {
         time.scale <- "yearly"
         units.year <- 1
       }
+    } else {
+      time.scale <- "daily"
+      units.year <- 252
     }
   }
   
@@ -931,19 +936,24 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
   num.points <- length(fund1.all)
   
   # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
-  units.year <- 252
   if (hasArg(time.scale)) {
     units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
   } else {
     min.diffdates <- min(diff(as.Date(rownames(tickers.gains)[1: min(10, nrow(tickers.gains))])))
     if (! is.null(min.diffdates)) {
-      if (min.diffdates >= 2 & min.diffdates <= 30) {
+      if (min.diffdates == 1) {
+        time.scale <- "daily"
+        units.year <- 252
+      } else if (min.diffdates >= 2 & min.diffdates <= 30) {
         time.scale <- "monthly"
         units.year <- 12
       } else if (min.diffdates > 30) {
         time.scale <- "yearly"
         units.year <- 1
       }
+    } else {
+      time.scale <- "daily"
+      units.year <- 252
     }
   }
 
@@ -1751,19 +1761,24 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
   num.points <- length(fund2.all)
   
   # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
-  units.year <- 252
   if (hasArg(time.scale)) {
     units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
   } else {
     min.diffdates <- min(diff(as.Date(rownames(tickers.gains)[1: min(10, nrow(tickers.gains))])))
     if (! is.null(min.diffdates)) {
-      if (min.diffdates >= 2 & min.diffdates <= 30) {
+      if (min.diffdates == 1) {
+        time.scale <- "daily"
+        units.year <- 252
+      } else if (min.diffdates >= 2 & min.diffdates <= 30) {
         time.scale <- "monthly"
         units.year <- 12
       } else if (min.diffdates > 30) {
         time.scale <- "yearly"
         units.year <- 1
       }
+    } else {
+      time.scale <- "daily"
+      units.year <- 252
     }
   }
 
@@ -2836,19 +2851,24 @@ gains.graph <- function(tickers = NULL, ...,
   }
 
   # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
-  units.year <- 252
   if (hasArg(time.scale)) {
     units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
   } else {
     min.diffdates <- min(diff(as.Date(rownames(gains)[1: min(10, nrow(gains))])))
     if (! is.null(min.diffdates)) {
-      if (min.diffdates >= 2 & min.diffdates <= 30) {
+      if (min.diffdates == 1) {
+        time.scale <- "daily"
+        units.year <- 252
+      } else if (min.diffdates >= 2 & min.diffdates <= 30) {
         time.scale <- "monthly"
         units.year <- 12
       } else if (min.diffdates > 30) {
         time.scale <- "yearly"
         units.year <- 1
       }
+    } else {
+      time.scale <- "daily"
+      units.year <- 252
     }
   }
 
@@ -3034,19 +3054,24 @@ onemetric.graph <- function(tickers = NULL, ...,
   }
   
   # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
-  units.year <- 252
   if (hasArg(time.scale)) {
     units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
   } else {
     min.diffdates <- min(diff(as.Date(rownames(gains)[1: min(10, nrow(gains))])))
     if (! is.null(min.diffdates)) {
-      if (min.diffdates >= 2 & min.diffdates <= 30) {
+      if (min.diffdates == 1) {
+        time.scale <- "daily"
+        units.year <- 252
+      } else if (min.diffdates >= 2 & min.diffdates <= 30) {
         time.scale <- "monthly"
         units.year <- 12
       } else if (min.diffdates > 30) {
         time.scale <- "yearly"
         units.year <- 1
       }
+    } else {
+      time.scale <- "daily"
+      units.year <- 252
     }
   }
 
@@ -3262,19 +3287,24 @@ twometrics.graph <- function(tickers = NULL, ...,
   }
   
   # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
-  units.year <- 252
   if (hasArg(time.scale)) {
     units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
   } else {
     min.diffdates <- min(diff(as.Date(rownames(gains)[1: min(10, nrow(gains))])))
     if (! is.null(min.diffdates)) {
-      if (min.diffdates >= 2 & min.diffdates <= 30) {
+      if (min.diffdates == 1) {
+        time.scale <- "daily"
+        units.year <- 252
+      } else if (min.diffdates >= 2 & min.diffdates <= 30) {
         time.scale <- "monthly"
         units.year <- 12
       } else if (min.diffdates > 30) {
         time.scale <- "yearly"
         units.year <- 1
       }
+    } else {
+      time.scale <- "daily"
+      units.year <- 252
     }
   }
 
@@ -4094,19 +4124,24 @@ onemetric.overtime.graph <- function(tickers = NULL, ...,
   }
   
   # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
-  units.year <- 252
   if (hasArg(time.scale)) {
     units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
   } else {
     min.diffdates <- min(diff(as.Date(rownames(gains)[1: min(10, nrow(gains))])))
     if (! is.null(min.diffdates)) {
-      if (min.diffdates >= 2 & min.diffdates <= 30) {
+      if (min.diffdates == 1) {
+        time.scale <- "daily"
+        units.year <- 252
+      } else if (min.diffdates >= 2 & min.diffdates <= 30) {
         time.scale <- "monthly"
         units.year <- 12
       } else if (min.diffdates > 30) {
         time.scale <- "yearly"
         units.year <- 1
       }
+    } else {
+      time.scale <- "daily"
+      units.year <- 252
     }
   }
 
