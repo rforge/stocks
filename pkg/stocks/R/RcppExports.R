@@ -2788,7 +2788,7 @@ growth.graph <- function(tickers = NULL, ...,
 
   # Add lines for each fund
   for (ii in 1: ncol(prices)) {
-    do.call(points, c(list(x = dates, y = prices[, ii], type = "l", col = colors[ii], lty = lty[ii]), points.list), ...)
+    do.call(points, c(list(x = dates, y = prices[, ii], type = "l", col = colors[ii], lty = lty[ii]), points.list))
   }
   
   # Add grid lines
