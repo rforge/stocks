@@ -308,7 +308,6 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
     prices <- lapply(prices, function(x) x[(length.dates - preto.days - 1): length.dates, ])
   }
   dates <- as.Date(rownames(prices[[1]]))
-  length.dates <- length(dates)
   
   # Convert to prices on last day of month/year if requested
   if (time.scale == "monthly") {
@@ -322,7 +321,7 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
   }
   
   # Output message indicating date range
-  message(paste("Results are for ", dates[1], " to " , dates[length.dates], sep = ""))
+  message(paste("Results are for ", dates[1], " to " , dates[length(dates)], sep = ""))
   
   # Create gains matrix
   gains.mat <- matrix(unlist(lapply(prices, function(x) pchanges(x[, 6]))), byrow = F, ncol = length(tickers))
@@ -464,7 +463,6 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
     prices <- lapply(prices, function(x) x[(length.dates - preto.days): length.dates, ])
   }
   dates <- as.Date(rownames(prices[[1]]))
-  length.dates <- length(dates)
   
   # Convert to prices on last day of month/year if requested
   if (time.scale == "monthly") {
@@ -516,7 +514,7 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
   }
   
   # Output message indicating date range
-  message(paste("Results are for ", dates[1], " to " , dates[length.dates], sep = ""))
+  message(paste("Results are for ", dates[1], " to " , dates[length(dates)], sep = ""))
   
   # Return closing prices
   return(closing.prices)
