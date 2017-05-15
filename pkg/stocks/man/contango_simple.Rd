@@ -17,10 +17,10 @@ contango.simple(contango,
 Numeric vector of contango values at the end of each trading day (or week, month, etc.).
 }
   \item{xiv.gains}{
-Numeric vector of daily gains for XIV. Should be same length as contango and date-shifted one value to the right. For example, the first value of xiv.gains should be the XIV gain for the day AFTER the first contango value.
+Numeric vector of gains for XIV. Should be same length as contango and date-shifted one value to the right. For example, the first value of xiv.gains should be the XIV gain for the day AFTER the first contango value.
 }
   \item{vxx.gains}{
-Numeric vector of daily gains for VXX. Should be same length as contango and date-shifted one value to the right. For example, the first value of vxx.gains should be the VXX gain for the day AFTER the first contango value.
+Numeric vector of gains for VXX. Should be same length as contango and date-shifted one value to the right. For example, the first value of vxx.gains should be the VXX gain for the day AFTER the first contango value.
 }
   \item{xiv.cutpoint}{
 Numeric value giving the contango cutpoint for XIV. For example, if xiv.cutpoint is 5, then XIV will be held whenever contango is greater than 5.  

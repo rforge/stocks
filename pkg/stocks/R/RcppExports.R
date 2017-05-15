@@ -5847,9 +5847,6 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
   
 
 # Contango-based XIV/VXX strategy. Hold XIV when contango > c1, hold VXX when contango < c2
-# contango <- dat[, "c.m1m2.p"]
-# xiv.gains <- gains[, "XIV"]
-# vxx.gains <- gains[, "VXX"]
 contango.simple <- function(contango, 
                             xiv.gains = NULL, vxx.gains = NULL, 
                             xiv.cutpoint = 0, vxx.cutpoint = -Inf,
@@ -5887,6 +5884,86 @@ contango.simple <- function(contango,
   
 }
 
+
+# Contango-based XIV/VXX strategy. Hold XIV when contango > c1, hold VXX when contango < c2
+# contango <- dat[, "c.m1m2.p"]
+# gains <- load.gains(tickers = c("XIV", "SPXU", "VXX", "UPRO"), from = "2010-11-30", to = "2017-05-12")
+# xiv.spxu.gains <- gains[, 1: 2]
+# vxx.upro.gains <- gains[, 3: 4]
+# xiv.spxu.cutpoint <- 6.36
+# vxx.upro.cutpoint <- 5.45
+# 
+# xiv.spxu.gain <- xiv.spxu.gains[, 1] * 0.46 + xiv.spxu.gains[, 2] * 0.54
+# vxx.upro.gain <- vxx.upro.gains[, 1] * 0.46 + vxx.upro.gains[, 2] * 0.54
+# fit.xiv <- lm(xiv.spxu.gain ~ contango)
+# fit.vxx <- lm(vxx.upro.gain ~ contango)
+# polyroot(fit.xiv$coef)
+# polyroot(fit.vxx$coef)
+# 
+# abc <- contango.hedged(contango = contango, xiv.spxu.gains = xiv.spxu.gains, vxx.upro.gains = vxx.upro.gains)
+# abc$trades
+# plot(abc$port.balances)
+# sharpe.ratio(prices = abc$port.balances)
+# sharpe.ratio(gains = abc$port.gains)
+# sharpe.ratio(gains = gains[, "XIV"])
+# sharpe.ratio(gains = gains[, "VXX"])
+
+contango.hedged <- function(contango, 
+                            xiv.spxu.gains = NULL, vxx.upro.gains = NULL, 
+                            xiv.spxu.cutpoint = 6.36, vxx.upro.cutpoint = 5.45,
+                            xiv.allocation = 0.46, vxx.allocation = 0.46,
+                            xiv.beta = NULL, vxx.beta = NULL,
+                            initial = 10000) {
+  
+  # If betas specified, calculate allocations for zero-beta XIV/SPXU and VXX/UPRO
+  if (! is.null(xiv.beta)) {
+    xiv.allocation <- 3 / (xiv.beta + 3)
+  }
+  if (! is.null(vxx.beta)) {
+    vxx.allocation <- -3 / (vxx.beta - 3)
+  }
+  
+  # Calculate weighted XIV/SPXU gains and weighted VXX/UPRO gains
+  if (! is.null(xiv.spxu.gains)) {
+    xiv.spxu.weighted <- xiv.spxu.gains %*% c(xiv.allocation, 1 - xiv.allocation)
+  }
+  if (! is.null(vxx.upro.gains)) {
+    vxx.upro.weighted <- vxx.upro.gains %*% c(vxx.allocation, 1 - vxx.allocation)
+  }
+  
+  # Initialize data frame to record holding, gain, and portfolio balance for each day
+  results <- data.frame()
+  
+  # Create vector of fund held each day, and vector of portfolio gain for each day
+  holdings <- rep("cash", length(contango))
+  port.gains <- rep(0, length(contango))
+  locs.xiv.spxu <- which(contango > xiv.spxu.cutpoint)
+  if (length(locs.xiv.spxu) > 0) {
+    holdings[locs.xiv.spxu] <- "XIV.SPXU"
+    port.gains[locs.xiv.spxu] <- xiv.spxu.weighted[locs.xiv.spxu]
+  }
+  locs.vxx.upro <- which(contango < vxx.upro.cutpoint)
+  if (length(locs.vxx.upro) > 0) {
+    holdings[locs.vxx.upro] <- "VXX.UPRO"
+    port.gains[locs.vxx.upro] <- vxx.upro.weighted[locs.vxx.upro]
+  }
+  
+  # Calculate portfolio balance over time
+  port.balances <- balances(ratios = port.gains + 1, initial = initial)
+  
+  # Calculate number of trades
+  trades <- length(rle(holdings)$lengths)
+  
+  # Compile results into list and return it
+  results.list <- list(holdings = holdings,
+                       port.gains = port.gains,
+                       port.balances = port.balances,
+                       trades = trades)
+  return(results.list)
+  
+}
+
+# contango.hedged.onthefly
 
 # rollApply doesn't seem to work on matrices...
 
