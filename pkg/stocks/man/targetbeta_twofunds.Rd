@@ -83,7 +83,7 @@ When failure.method is set to "inverse1" (or "inverse2"), an inverse version of 
 When failure.method is set to "closer", the entire portfolio balance is allocated to whichever fund has a beta closer to target.beta. 
 }
 \value{
-For each method, a 4-element list of the following: (1) Matrix of fund balances over time; (2) Matrix of fund betas over time; (3) Vector of effective portfolio beta over time; (4) Number of trades. If multiple methods are requested, a list of lists is returned.
+For each method, a 4-element list of the following: (1) Numeric matrix named "fund.balances" giving fund balances over time; (2) Numeric matrix named "fund.betas" giving fund betas over time; (3) Numeric vector named "effective.betas" giving effective portfolio beta over time; and (4) Numeric value named "trades" giving the total number of trades that were executed. If multiple methods are requested, a list of lists is returned.
 }
 \note{
 NA

@@ -5846,6 +5846,46 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
 }
   
 
+# Contango-based XIV/VXX strategy. Hold XIV when contango > c1, hold VXX when contango < c2
+# contango <- dat[, "c.m1m2.p"]
+# xiv.gains <- gains[, "XIV"]
+# vxx.gains <- gains[, "VXX"]
+contango.simple <- function(contango, 
+                            xiv.gains = NULL, vxx.gains = NULL, 
+                            xiv.cutpoint = 0, vxx.cutpoint = -Inf,
+                            initial = 10000) {
+  
+  # Initialize data frame to record holding, gain, and portfolio balance for each day
+  results <- data.frame()
+  
+  # Create vector of fund held each day, and vector of portfolio gain for each day
+  holdings <- rep("cash", length(contango))
+  port.gains <- rep(0, length(contango))
+  locs.xiv <- which(contango > xiv.cutpoint)
+  if (length(locs.xiv) > 0) {
+    holdings[locs.xiv] <- "XIV"
+    port.gains[locs.xiv] <- xiv.gains[locs.xiv]
+  }
+  locs.vxx <- which(contango < vxx.cutpoint)
+  if (length(locs.vxx) > 0) {
+    holdings[locs.vxx] <- "VXX"
+    port.gains[locs.vxx] <- vxx.gains[locs.vxx]
+  }
+  
+  # Calculate portfolio balance over time
+  port.balances <- balances(ratios = port.gains + 1, initial = initial)
+  
+  # Calculate number of trades
+  trades <- length(rle(holdings)$lengths)
+  
+  # Compile results into list and return it
+  results.list <- list(holdings = holdings,
+                       port.gains = port.gains,
+                       port.balances = port.balances,
+                       trades = trades)
+  return(results.list)
+  
+}
 
 
 # rollApply doesn't seem to work on matrices...
