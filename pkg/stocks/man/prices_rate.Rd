@@ -4,7 +4,7 @@
 Calculate Growth Rate From a Vector of Stock Prices or Investment Balances
 }
 \description{
-The formula is simply: overall.rate = prices[length(prices)] / prices[1] - 1. If units.rate is specified, then it converts to x-unit growth rate.
+The formula is simply: \code{overall.rate = prices[length(prices)] / prices[1] - 1}. If \code{units.rate} is specified, then it converts to x-unit growth rate.
 }
 \usage{
 prices.rate(prices, units.rate = NULL, nas = FALSE)
@@ -14,10 +14,10 @@ prices.rate(prices, units.rate = NULL, nas = FALSE)
 Numeric vector of stock prices or investment balances.
 }
   \item{units.rate}{
-Number of units for growth rate calculation. If unspecified, function returns total growth. To get annualized growth rate, set to 252 if prices vector contains daily prices, 12 if prices vector contains monthly prices, etc.
+Number of units for growth rate calculation. If unspecified, function returns total growth. To get annualized growth rate, set to 252 if \code{prices} has daily prices, 12 if \code{prices} has monthly prices, etc.
 }
   \item{nas}{
-If TRUE, function finds and removes any missing values (NA's) in prices vector. The default is FALSE to maximize speed for the usual case where there are no missing values.
+If \code{TRUE}, function finds and removes any missing values (\code{NA}s) in \code{prices}. The default is \code{FALSE} to maximize speed for the usual case where there are no missing values.
 }
 }
 \value{

@@ -4,17 +4,17 @@
 Add/Replace Elements of First List with Elements of Second List
 }
 \description{
-Adds each element of list2 to list1, overriding any elements of the same name. Similar to modifyList function in utils package, but either list can be NULL. Useful for do.call statements, when you want to combine a list of default inputs with a list of user-specified inputs.
+Adds each element of list2 to list1, overriding any elements of the same name. Similar to \code{modifyList} function in utils package, but either list can be \code{NULL}. Useful for \code{do.call} statements, when you want to combine a list of default inputs with a list of user-specified inputs.
 }
 \usage{
 list.override(list1, list2)
 }
 \arguments{
   \item{list1}{
-Initial list that has some number of named elements. Can be NULL or an empty list.
+Initial list that has some number of named elements. Can be \code{NULL} or an empty list.
 }
   \item{list2}{
-List with named elements that will be added to list1, replacing any elements with the same name. Can be NULL or an empty list.
+List with named elements that will be added to \code{list1}, replacing any elements with the same name. Can be \code{NULL} or an empty list.
 }
 }
 \details{

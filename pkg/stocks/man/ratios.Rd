@@ -4,7 +4,7 @@
 Ratios of Subsequent Elements in a Numeric Vector
 }
 \description{
-Calculates vector of ratios of a numeric vector, i.e. ratio of x[2] to x[1], ratio of x[3] to x[2], and so forth. 
+Calculates vector of ratios of a numeric vector, i.e. ratio of \code{x[2]} to \code{x[1]}, ratio of \code{x[3]} to \code{x[2]}, and so forth. 
 }
 \usage{
 ratios(x)
@@ -24,7 +24,7 @@ Acknowledgment: This material is based upon work supported by the National Scien
 Dane R. Van Domelen
 }
 \note{
-This function uses C++ code to achieve a 1.5-2 times speed increase compared to the base R code: len <- length(prices); prices[2: len] / prices[1: (len - 1)].
+This function uses C++ code to achieve a 1.5-2 times speed increase compared to the base R code: \code{len <- length(prices); prices[2: len] / prices[1: (len - 1)]}.
 }
 \seealso{
 \code{\link{diffs}}, \code{\link{pdiffs}}, \code{\link{pchanges}}

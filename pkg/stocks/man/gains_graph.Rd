@@ -26,7 +26,7 @@ gains.graph(tickers = NULL, ...,
 Character vector of ticker symbols. Gains for the first ticker are plotted on the x-axis, and gains for all other tickers are plotted on the y-axis.
 }
   \item{...}{
-Arguments to pass along with tickers to \code{\link{load.gains}} function, if you wish to load data on the fly rather than specify gains or prices.
+Arguments to pass along with \code{tickers} to \code{\link{load.gains}} function, if you wish to load data on the fly rather than specify \code{gains} or \code{prices}.
 }
   \item{gains}{
 Numeric matrix of gains (daily or otherwise), where each column has gains for a particular investment. Gains from the first column are plotted on the x-axis, and gains for all other columns are plotted on the y-axis.
@@ -38,41 +38,41 @@ Numeric matrix of prices (daily or otherwise), where each column has prices for 
 Numeric value or vector of values specifying the order of linear regression models for each y-axis fund. Set to 1 for simple linear regression, 2 for linear regression with first-order and second-order terms, and so on.
 }
   \item{add.plot}{
-If TRUE, data is plotted on current plot frame rather than a new one.
+If \code{TRUE}, data is plotted on current plot frame rather than a new one.
 }
   \item{colors}{
 Character string of colors for each y-axis investment. 
 }
   \item{plot.list}{
-Optional list of inputs to plot function.  
+Optional list of inputs to pass to \code{\link{plot}} function.  
 }
   \item{points.list}{
-Optional list of inputs to points function.
+Optional list of inputs to pass to \code{\link{points}} function.
 }
   \item{legend.list}{
-Optional list of inputs to legend function.
+Optional list of inputs to pass to \code{\link{legend}} function.
 }
   \item{pdf.list}{
-Optional list of inputs to pdf function. If not NULL, .pdf file is created.
+Optional list of inputs to pass to \code{\link{pdf}} function. If not \code{NULL}, .pdf file is created.
 }
   \item{bmp.list}{
-Optional list of inputs to bmp function. If not NULL, .bmp file is created.
+Optional list of inputs to pass to \code{\link{bmp}} function. If not \code{NULL}, .bmp file is created.
 }
   \item{jpeg.list}{
-Optional list of inputs to pdf function. If not NULL, .jpg file is created.
+Optional list of inputs to pass to \code{\link{jpeg}} function. If not \code{NULL}, .jpg file is created.
 }
   \item{png.list}{
-Optional list of inputs to pdf function. If not NULL, .png file is created.
+Optional list of inputs to pass to \code{\link{png}} function. If not \code{NULL}, .png file is created.
 }
   \item{tiff.list}{
-Optional list of inputs to pdf function. If not NULL, .tif file is created.
+Optional list of inputs to pass to \code{\link{tiff}} function. If not \code{NULL}, .tif file is created.
 }
 }
 \details{
-If tickers input is specified, it gets passed to \code{\link{load.gains}} to load historical prices from Yahoo! Finance using the quantmod package [1]. If gains or prices is specified, the graph is based directly on that information. Either way, the first fund's gains are plotted on the x-axis, and all the others are plotted on the y-axis.
+If \code{tickers} input is specified, it gets passed to \code{\link{load.gains}} to load historical prices from Yahoo! Finance using the quantmod package [1]. If \code{gains} or \code{prices} is specified, the graph is based directly on that information. Either way, the first fund's gains are plotted on the x-axis, and all the others are plotted on the y-axis.
 }
 \value{
-In addition to the graph, a list containing fitted linear regression models returned by the lm function for each y-axis fund vs. the x-axis fund.
+In addition to the graph, a list containing fitted linear regression models returned by the \code{\link{lm}} function for each y-axis fund vs. the x-axis fund.
 }
 \note{
 NA

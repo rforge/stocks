@@ -4,7 +4,7 @@
 Return Positive Elements of a Numeric Vector
 }
 \description{
-Simply returns the positive (or non-negative) elements of some input vector x. Defined as x[which(x > 0)] or x[which(x >= 0)] depending on include.zero input.
+Simply returns the positive (or non-negative) elements of some input vector \code{x}. Defined as \code{x[which(x > 0)]} or \code{x[which(x >= 0)]} depending on \code{include.zero} input.
 }
 \usage{
 pos(x, include.zero = FALSE)
@@ -14,7 +14,7 @@ pos(x, include.zero = FALSE)
 Numeric vector.
 }
   \item{include.zero}{
-If TRUE, elements >= 0 are returned; if FALSE, elements > 0 are returned.
+If \code{TRUE}, elements >= 0 are returned; if \code{FALSE}, elements > 0 are returned.
 }
 }
 \value{

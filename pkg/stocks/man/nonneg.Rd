@@ -4,7 +4,7 @@
 Return Non-Negative Elements of a Numeric Vector
 }
 \description{
-Simply returns the non-negative elements of some input vector x. Defined as x[which(x >= 0)].
+Simply returns the non-negative elements of some input vector \code{x}. Defined as \code{x[which(x >= 0)]}.
 }
 \usage{
 nonneg(x)

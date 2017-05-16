@@ -4,14 +4,14 @@
 Calculate Final Balance Based on Initial Balance and Vector of Ratios
 }
 \description{
-Calculated as: initial * prod(ratios).
+Calculated as: \code{initial * prod(ratios)}.
 }
 \usage{
 final.balance(ratios, initial = 10000)
 }
 \arguments{
   \item{ratios}{
-Numeric vector of ratios between subsequent stock prices (i.e. proportion gains + 1). For example, if a stock gained 3\%, lost 1\%, then lost 2\%, ratios would be c(1.03, 0.99, 0.98). 
+Numeric vector of ratios between subsequent stock prices (i.e. proportion gains + 1). For example, if a stock gained 3\%, lost 1\%, then lost 2\%, ratios would be \code{c(1.03, 0.99, 0.98)}. 
 }
   \item{initial}{
 Initial balance.

@@ -4,7 +4,7 @@
 Risk-Return Ratio
 }
 \description{
-Calculate ratio of investment return to investment risk based on a vector of prices or gains. The formula is: growth rate / mdd. Here growth rate is the growth of an investment over some time period, and mdd is the maximum drawdown over that time period.
+Calculate ratio of investment return to investment risk based on a vector of prices or gains. The formula is growth rate / mdd, where growth rate is the growth of an investment over some time period and mdd is the maximum drawdown over that time period.
 }
 \usage{
 rrr(prices = NULL, gains = NULL, highs = NULL, lows = NULL, nas = FALSE)
@@ -23,7 +23,7 @@ Numeric vector of daily highs.
 Numeric vector of daily lows.
 }
   \item{nas}{
-If TRUE, function finds and removes any missing values (NA's) in prices vector. The default is FALSE to maximize speed for the usual case where there are no missing values.
+If \code{TRUE}, function finds and removes any missing values (\code{NA}s) in \code{prices}. The default is \code{FALSE} to maximize speed for the usual case where there are no missing values.
 }  
 }
 \value{

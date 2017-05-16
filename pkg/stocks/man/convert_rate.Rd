@@ -11,17 +11,17 @@ convert.rate(rate, units.in = 1, units.out = 1)
 }
 \arguments{
   \item{rate}{
-Numeric value (or vector) representing the growth rate of an investment over a period of units.in time units. Units could be days, months, years, etc.
+Numeric value (or vector) representing the growth rate of an investment over a period of \code{units.in} time units. Units could be days, months, years, etc.
 }
   \item{units.in}{
-Number of time units over which the investment had a growth rate of rate.
+Number of time units over which the investment had a growth rate of \code{rate}.
 }
   \item{units.out}{
 Number of time units you would like to calculate a growth rate for.
 }
 }
 \value{
-Numeric value (or vector) indicating the proportion gain over units.out time units.
+Numeric value (or vector) indicating the proportion gain over \code{units.out} time units.
 }
 \references{
 Acknowledgment: This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE-0940903.

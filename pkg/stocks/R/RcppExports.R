@@ -1617,7 +1617,7 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
     # Loop through and add data points for each reference fund
     for (ii in 1: ncol(reference.gains)) {
 
-      if (x.metric != "allocation") {
+      if (x.metric != "allocation" & y.metric != "allocation") {
 
         do.call(points, c(list(x = reference.x[ii], y = reference.y[ii], type = "p", col = "black"), points.list))
         if (! reference.tickers[ii] %in% tickers) {
@@ -1625,13 +1625,27 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
                                y = reference.y[ii] + reflabel.offsets[ii, 2],
                                label = reference.tickers[ii]),
                           text.list))
+          
         }
       } else {
-        abline(h = reference.y[ii], lty = 2, col = "black")
-        do.call(text, c(list = c(list(x = 20,
-                                      y = reference.y[ii] + reflabel.offsets[ii, 2],
-                                      label = reference.tickers[ii]),
-                                 text.list)))
+        
+        if (y.metric == "allocation") {
+          
+          abline(v = reference.x[ii], lty = 2, col = "black")
+          do.call(text, c(list(x = reference.x[ii] + reflabel.offsets[ii, 1],
+                               y = 20,
+                               label = reference.tickers[ii]),
+                          text.list))
+          
+        } else {
+          
+          abline(h = reference.y[ii], lty = 2, col = "black")
+          do.call(text, c(list(x = 20,
+                               y = reference.y[ii] + reflabel.offsets[ii, 2],
+                               label = reference.tickers[ii]),
+                          text.list))
+          
+        }
       }
     }
 
@@ -2635,7 +2649,7 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
     # Loop through and add data points for each reference fund
     for (ii in 1: ncol(reference.gains)) {
 
-      if (x.metric != "allocation") {
+      if (x.metric != "allocation" & y.metric != "allocation") {
 
         do.call(points, c(list(x = reference.x[ii], y = reference.y[ii], type = "p", col = "black"), points.list))
         if (! reference.tickers[ii] %in% tickers) {
@@ -2643,16 +2657,30 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
                                y = reference.y[ii] + reflabel.offsets[ii, 2],
                                label = reference.tickers[ii]),
                           text.list))
+          
         }
       } else {
-        abline(h = reference.y[ii], lty = 2, col = "black")
-        do.call(text, c(list(x = 20,
-                             y = reference.y[ii] + reflabel.offsets[ii, 2],
-                             label = reference.tickers[ii]),
-                        text.list))
+          
+          if (y.metric == "allocation") {
+            
+            abline(v = reference.x[ii], lty = 2, col = "black")
+            do.call(text, c(list(x = reference.x[ii] + reflabel.offsets[ii, 1],
+                                 y = 20,
+                                 label = reference.tickers[ii]),
+                            text.list))
+            
+          } else {
+            
+            abline(h = reference.y[ii], lty = 2, col = "black")
+            do.call(text, c(list(x = 20,
+                                 y = reference.y[ii] + reflabel.offsets[ii, 2],
+                                 label = reference.tickers[ii]),
+                            text.list))
+            
+          }
+        }
       }
     }
-
   }
 
   # Close graphics device if necessary

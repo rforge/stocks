@@ -18,7 +18,7 @@ metrics(tickers = NULL, ...,
 Character vector of ticker symbols.  
 }
   \item{...}{
-Arguments to pass along with tickers to \code{\link{load.gains}} function, if you wish to load data on the fly rather than specify gains or prices.
+Arguments to pass along with tickers to \code{\link{load.gains}} function, if you wish to load data on the fly rather than specify \code{gains} or \code{prices}.
 }
   \item{gains}{
 Numeric matrix of gains (daily or otherwise), where each column has gains for a particular investment.
@@ -27,11 +27,11 @@ Numeric matrix of gains (daily or otherwise), where each column has gains for a 
 Numeric matrix of prices (daily or otherwise), where each column has prices for a particular investment.
 }
   \item{perf.metrics}{
-Character vector indicating what metrics should be calculated. If it includes "alpha", "beta", "r.squared", "pearson", or "spearman", the first investment is used as the benchmark.
+Character vector indicating what metrics should be calculated. If it includes \code{"alpha"}, \code{"beta"}, \code{"r.squared"}, \code{"pearson"}, or \code{"spearman"}, the first investment is used as the benchmark.
 }
 }
 \details{
-If tickers input is specified, it gets passed to \code{\link{load.gains}} to load historical prices from Yahoo! Finance using the quantmod package [1]. If gains or prices are specified, performance metrics are calculated directly from that information.
+If tickers input is specified, it gets passed to \code{\link{load.gains}} to load historical prices from Yahoo! Finance using the quantmod package [1]. If \code{gains} or \code{prices} are specified, performance metrics are calculated directly from that information.
 }
 \value{
 A list containing a data frame with the performance metrics and a correlation matrix for gains for the various investments.

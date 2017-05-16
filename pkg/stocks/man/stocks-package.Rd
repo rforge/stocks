@@ -51,6 +51,7 @@ The following functions are included:
 \code{\link{onemetric.overtime.graph}}
 \code{\link{targetbeta.twofunds}}
 \code{\link{contango.simple}}
+\code{\link{contango.hedged}}
 }
 \author{
 Dane R. Van Domelen

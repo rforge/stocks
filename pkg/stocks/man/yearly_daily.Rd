@@ -4,7 +4,7 @@
 Convert X-year Gain to Average Daily Gain
 }
 \description{
-Converts a proportion gain over one or several years to an average daily gain. For example, an investment that gains 15\% over 3 years has an average daily gain of approximately 0.0186\%. The formula is: daily.gain = (total.gain + 1)^(1 / (252 * years)) - 1. Here total.gain and daily.gain are proportions, e.g. 0.15 for 15\%.
+Converts a proportion gain over one or several years to an average daily gain. For example, an investment that gains 15\% over 3 years has an average daily gain of approximately 0.0186\%. The formula is: \code{daily.gain = (total.gain + 1) ^ (1 / (252 * years)) - 1}. Here \code{total.gain} and \code{daily.gain} are proportions, e.g. 0.15 for 15\%.
 }
 \usage{
 yearly.daily(total.gain, years = 1)

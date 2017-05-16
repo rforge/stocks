@@ -14,10 +14,10 @@ ticker.dates(tickers, from = "1900-01-01", to = Sys.Date())
 Character string or vector of character strings with ticker symbols that Yahoo! Finance recognizes.
 }
   \item{from}{
-Date or character string in form of date (e.g. '1950-01-03' for January 3, 1950), indicating the starting date for the period of interest.
+Date or character string in form of date (e.g. \code{"1950-01-03"} for January 3, 1950), indicating the starting date for the period of interest.
 }
   \item{to}{
-Date or character string in form of date (e.g. '2015-03-09' for March 9, 2015), indicating the ending date for the period of interest.
+Date or character string in form of date (e.g. \code{"2015-03-09"} for March 9, 2015), indicating the ending date for the period of interest.
 }
 }
 \value{

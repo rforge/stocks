@@ -24,59 +24,59 @@ twometrics.graph(tickers = NULL, ...,
 }
 \arguments{
   \item{tickers}{
-Character vector of ticker symbols. If x.metric or y.metric requires one benchmark index (i.e. one or the other is "alpha", "beta", "r.squared", "pearson", or "spearman"), the first ticker is taken to be the benchmark; if x.metric and y.metric require different benchmark indexes (i.e. one is "alpha", "beta", "r.squared", "pearson", or "spearman", and the other is "alpha2", "beta2", r.squared2", "pearson2", or "spearman2"), the first ticker is taken to be the first benchmark, and the second ticker is taken to be the second benchmark.
+Character vector of ticker symbols. If \code{x.metric} or \code{y.metric} requires one benchmark index (i.e. one or the other is \code{"alpha"}, \code{"beta"}, \code{"r.squared"}, \code{"pearson"}, or \code{"spearman"}), the first ticker is taken to be the benchmark; if \code{x.metric} and \code{y.metric} require different benchmark indexes (i.e. one is \code{"alpha"}, \code{"beta"}, \code{"r.squared"}, \code{"pearson"}, or \code{"spearman"}, and the other is \code{"alpha2"}, \code{"beta2"}, \code{"r.squared2"}, \code{"pearson2"}, or \code{"spearman2"}), the first ticker is taken to be the first benchmark, and the second ticker is taken to be the second benchmark.
 }
   \item{...}{
-Arguments to pass along with tickers to \code{\link{load.gains}} function, if you wish to load data on the fly rather than specify gains or prices.
+Arguments to pass along with \code{tickers} to \code{\link{load.gains}} function, if you wish to load data on the fly rather than specify \code{gains} or \code{prices}.
 }
   \item{gains}{
-Numeric matrix of gains (daily or otherwise), where each column has gains for a particular investment. If x.metric or y.metric requires one benchmark index (i.e. one or the other is "alpha", "beta", "r.squared", "pearson", or "spearman"), the first column is taken to be the benchmark; if x.metric and y.metric require different benchmark indexes (i.e. one is "alpha", "beta", "r.squared", "pearson", or "spearman", and the other is "alpha2", "beta2", r.squared2", "pearson2", or "spearman2"), the first column is taken to be the first benchmark, and the second column is taken to be the second benchmark.
+Numeric matrix of gains (daily or otherwise), where each column has gains for a particular investment. If \code{x.metric} or \code{y.metric} requires one benchmark index (i.e. one or the other is \code{"alpha"}, \code{"beta"}, \code{"r.squared"}, \code{"pearson"}, or \code{"spearman"}), the first column is taken to be the benchmark; if \code{x.metric} and \code{y.metric} require different benchmark indexes (i.e. one is \code{"alpha"}, \code{"beta"}, \code{"r.squared"}, \code{"pearson"}, or \code{"spearman"}, and the other is \code{"alpha2"}, \code{"beta2"}, \code{"r.squared2"}, \code{"pearson2"}, or \code{"spearman2"}), the first column is taken to be the first benchmark, and the second column is taken to be the second benchmark.
 }
   \item{prices}{
-Numeric matrix of prices (daily or otherwise), where each column has prices for a particular investment. If x.metric or y.metric requires one benchmark index (i.e. one or the other is "alpha", "beta", "r.squared", "pearson", or "spearman"), the first column is taken to be the benchmark; if x.metric and y.metric require different benchmark indexes (i.e. one is "alpha", "beta", "r.squared", "pearson", or "spearman", and the other is "alpha2", "beta2", r.squared2", "pearson2", or "spearman2"), the first column is taken to be the first benchmark, and the second column is taken to be the second benchmark.
+Numeric matrix of prices (daily or otherwise), where each column has prices for a particular investment. If \code{x.metric} or \code{y.metric} requires one benchmark index (i.e. one or the other is \code{"alpha"}, \code{"beta"}, \code{"r.squared"}, \code{"pearson"}, or \code{"spearman"}), the first column is taken to be the benchmark; if \code{x.metric} and \code{y.metric} require different benchmark indexes (i.e. one is \code{"alpha"}, \code{"beta"}, \code{"r.squared"}, \code{"pearson"}, or \code{"spearman"}, and the other is \code{"alpha2"}, \code{"beta2"}, \code{"r.squared2"}, \code{"pearson2"}, or \code{"spearman2"}), the first column is taken to be the first benchmark, and the second column is taken to be the second benchmark.
 }
   \item{x.metric}{
-Character string specifying what performance metric should be plotted on x-axis. Possible values are as follows: "mean" for mean of gains; "sd" for standard deviation of gains; "growth" for total growth; "cagr" for compound annualized growth rate; "mdd" for maximum drawdown; "sharpe" for Sharpe ratio; "sortino" for Sortino ratio; "alpha" or "beta" for alpha and beta from capital assets pricing model theory; "r.squared" for R-squared from regression on benchmark fund; "pearson" or "spearman" for Pearson or Spearman correlation with benchmark fund; "alpha2", "beta2", r.squared2", "pearson2", or "spearman2" for same as previously described, but using the second benchmark index; or "auto.pearson" or "auto.spearman" for Pearson or Spearman autocorrelation, defined as the correlation between subsequent gains.
+Character string specifying what performance metric should be plotted on x-axis. Possible values are as follows: \code{"mean"} for mean of gains; \code{"sd"} for standard deviation of gains; \code{"growth"} for total growth; \code{"cagr"} for compound annualized growth rate; \code{"mdd"} for maximum drawdown; \code{"sharpe"} for Sharpe ratio; \code{"sortino"} for Sortino ratio; \code{"alpha"} or \code{"beta"} for alpha and beta from capital assets pricing model theory; \code{"r.squared"} for R-squared from regression on benchmark fund; \code{"pearson"} or \code{"spearman"} for Pearson or Spearman correlation with benchmark fund; \code{"alpha2"}, \code{"beta2"}, \code{"r.squared2"}, \code{"pearson2"}, or \code{"spearman2"} for same as previously described, but using the second benchmark index; or \code{"auto.pearson"} or \code{"auto.spearman"} for Pearson or Spearman autocorrelation, defined as the correlation between subsequent gains.
 }
 \item{y.metric}{
-Character string specifying what performance metric should be plotted on y-axis. Possible values are as follows: "mean" for mean of gains; "sd" for standard deviation of gains; "growth" for total growth; "cagr" for compound annualized growth rate; "mdd" for maximum drawdown; "sharpe" for Sharpe ratio; "sortino" for Sortino ratio; "alpha" or "beta" for alpha and beta from capital assets pricing model theory; "r.squared" for R-squared from regression on benchmark fund; "pearson" or "spearman" for Pearson or Spearman correlation with benchmark fund; "alpha2", "beta2", r.squared2", "pearson2", or "spearman2" for same as previously described, but using the second benchmark index; or "auto.pearson" or "auto.spearman" for Pearson or Spearman autocorrelation, defined as the correlation between subsequent gains.
+Same as \code{x.metric}, but for y-axis variable.
 }
   \item{tickerlabel.offsets}{
-Can be any of the following: numeric vector of length 2 giving x-axis and y-axis offsets for ticker labels on all data points; 2-column matrix where each row gives x-axis offset and y-axis offset for a particular ticker, following same order of tickers as in tickers vector; or a 3-column data frame where each row contains a ticker symbol, an x-axis offset, and a y-axis offset.
+Can be any of the following: numeric vector of length 2 giving x-axis and y-axis offsets for ticker labels on all data points; 2-column matrix where each row gives x-axis offset and y-axis offset for a particular ticker, following same order of tickers as in \code{tickers} vector; or a 3-column data frame where each row contains a ticker symbol, an x-axis offset, and a y-axis offset.
 }
   \item{add.plot}{
-If TRUE, data is plotted on current plot frame rather than a new one.
+If \code{TRUE}, data is plotted on current plot frame rather than a new one.
 }
   \item{colors}{
 Character string of colors for each fund.
 }
   \item{plot.list}{
-Optional list of inputs to pass to plot function.  
+Optional list of inputs to pass to \code{\link{plot}} function.  
 }
   \item{points.list}{
-Optional list of inputs to pass to points function.
+Optional list of inputs to pass to \code{\link{points}} function.
 }
   \item{text.list}{
-Optional list of inputs to pass to text function.
+Optional list of inputs to pass to \code{\link{text}} function.
 }
   \item{pdf.list}{
-Optional list of inputs to pdf function. If not NULL, .pdf file is created.
+Optional list of inputs to pass to \code{\link{pdf}} function. If not \code{NULL}, .pdf file is created.
 }
   \item{bmp.list}{
-Optional list of inputs to bmp function. If not NULL, .bmp file is created.
+Optional list of inputs to pass to \code{\link{bmp}} function. If not \code{NULL}, .bmp file is created.
 }
   \item{jpeg.list}{
-Optional list of inputs to pdf function. If not NULL, .jpg file is created.
+Optional list of inputs to pass to \code{\link{pdf}} function. If not \code{NULL}, .jpg file is created.
 }
   \item{png.list}{
-Optional list of inputs to pdf function. If not NULL, .png file is created.
+Optional list of inputs to pass to \code{\link{png}} function. If not \code{NULL}, .png file is created.
 }
   \item{tiff.list}{
-Optional list of inputs to pdf function. If not NULL, .tif file is created.
+Optional list of inputs to pass to \code{\link{tiff}} function. If not \code{NULL}, .tif file is created.
 }
 }
 \details{
-If tickers input is specified, it gets passed to \code{\link{load.gains}} to load historical prices from Yahoo! Finance using the quantmod package [1]. If gains or prices is specified, the performance metrics are calculated directly from that information.
+If \code{tickers} is specified, it gets passed to \code{\link{load.gains}} to load historical prices from Yahoo! Finance using the quantmod package [1]. If \code{gains} or \code{prices} is specified, the performance metrics are calculated directly from that information.
 }
 \value{
 In addition to the graph, a data frame containing the tickers and the performance metrics for each ticker.

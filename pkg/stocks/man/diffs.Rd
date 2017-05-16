@@ -4,7 +4,7 @@
 Lagged Differences (Alternate Implementation)
 }
 \description{
-Calculates differences between subsequent (or lagged) elements of a numeric vector. Very similar to base function diff, but written in C++ to run faster.
+Calculates differences between subsequent (or lagged) elements of a numeric vector. Very similar to base function \code{\link{diff}}, but written in C++ to run faster.
 }
 \usage{
 diffs(x, lag = 1)
@@ -27,7 +27,7 @@ Acknowledgment: This material is based upon work supported by the National Scien
 Dane R. Van Domelen
 }
 \note{
-This function uses C++ code to achieve an approximate 4 times speed increase compared to the base R function diff.
+This function uses C++ code to achieve an approximate 4 times speed increase compared to the base R function \code{\link{diff}}.
 }
 \seealso{
 \code{\link{pdiffs}}, \code{\link{pchanges}}, \code{\link{ratios}}

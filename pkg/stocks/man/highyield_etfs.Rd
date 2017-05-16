@@ -8,7 +8,7 @@ High-Yield ETFs from ETFdb.com and Inception Dates as of April 7, 2017
 Data frame where first column is ticker symbol and second column is inception date.
 }
 \format{
-  A 46-row data frame with 2 variables: ticker (character string) and start.date (date).
+  A 46-row data frame with 2 variables: \code{ticker} (character string) and \code{start.date} (date).
 }
 \source{
 \url{http://etfdb.com/etfdb-category/high-yield-bonds/#etfs&sort_name=assets_under_management&sort_order=desc&page=2}

@@ -30,16 +30,16 @@ twofunds.graph(tickers = NULL, intercepts = NULL, slopes = NULL, ...,
 Character vector or matrix of ticker symbols. If a vector, first and second elements are assumed to be first pair, third and fourth are assumed to be the second pair, and so on. If a matrix, should have two rows, and each column should represent a different pair.
 }
   \item{intercepts}{
-Numeric vector or matrix of values to add to daily gains for each ticker. For example, if you have two tickers and want to simulate a 1\% annual expense ratio for only the second fund, you would set intercepts to c(0, convert.rate(-0.01, units.in = 252, units.out = 1)). Like the tickers input, can be an even length vector or a two-row matrix.
+Numeric vector or matrix of values to add to daily gains for each ticker. For example, if you have two tickers and want to simulate a 1\% annual expense ratio for only the second fund, you would set \code{intercepts = c(0, convert.rate(-0.01, units.in = 252, units.out = 1))}. Like the \code{tickers} input, can be an even length vector or a two-row matrix.
 }
   \item{slopes}{
-Numeric vector or matrix to multiply daily gains for each ticker by. For example, if you have two tickers and want to simulate a 2x leveraged version of the second fund, you would set slopes to c(1, 2). The slopes are multiplied prior to adding the intercepts. Like the tickers input, can be an even length vector or a two-row matrix.
+Numeric vector or matrix to multiply daily gains for each ticker by. For example, if you have two tickers and want to simulate a 2x leveraged version of the second fund, you would set \code{slopes = c(1, 2)}. The slopes are multiplied prior to adding the intercepts. Like the \code{tickers} input, can be an even length vector or a two-row matrix.
 }
   \item{...}{
-Arguments to pass along with tickers, intercepts, and slopes to \code{\link{load.gains}} function, if you wish to load data on the fly rather than specify tickers.gains.
+Arguments to pass along with \code{tickers}, \code{intercepts}, and \code{slopes} to \code{\link{load.gains}} function, if you wish to load data on the fly rather than specify \code{tickers.gains}.
 }
   \item{benchmark.tickers}{
-Character vector of length 1 or 2 indicating ticker symbols for benchmark indexes, to be used if x.metric or y.metric is set to "alpha", "beta", "r.squared", "pearson", "spearman", or "alpha2", "beta2", and so on. For example, if you wish to plot correlation with SPY on the x-axis and correlation with TLT on the y-axis, you would set x.metric to "pearson" and y.metric to "pearson2", and set benchmark.tickers to c("SPY", "TLT").
+Character vector of length 1 or 2 indicating ticker symbols for benchmark indexes, to be used if \code{x.metric} or \code{y.metric} is set to \code{"alpha"}, \code{"beta"}, \code{"r.squared"}, \code{"pearson"}, \code{"spearman"}, or \code{"alpha2"}, \code{"beta2"}, and so on. For example, if you wish to plot correlation with SPY on the x-axis and correlation with TLT on the y-axis, you would set \code{x.metric = "pearson"}, \code{y.metric = "pearson2"}, and \code{benchmark.tickers = c("SPY", "TLT")}.
 }
   \item{reference.tickers}{
 Character string or vector of ticker symbols to include on the graph as a data point for comparative purposes.
@@ -48,7 +48,7 @@ Character string or vector of ticker symbols to include on the graph as a data p
 Numeric matrix of gains (daily or otherwise), where each column has gains for a particular fund. First and second column are assumed to be first pair, third and fourth are assumed to be second pair, and so on.
 }
   \item{benchmark.gains}{
-Numeric vector or matrix of gains for benchmark indexes. Only relevant if either x.metric or y.metric input is set to "alpha", "beta", "r.squared", "pearson", "spearman", or "alpha2", "beta2", and so on. For example, if you wish to plot correlation with SPY on the x-axis and correlation with TLT on the y-axis, you would set x.metric to "pearson" and y.metric to "pearson2", and benchmark.gains should be a 2-column matrix where the first column has SPY gains and the second column has TLT gains.
+Numeric vector or matrix of gains for benchmark indexes. Only relevant if either \code{x.metric} or \code{y.metric} is set to \code{"alpha"}, \code{"beta"}, \code{"r.squared"}, \code{"pearson"}, \code{"spearman"}, or \code{"alpha2"}, \code{"beta2"}, and so on. For example, if you wish to plot correlation with SPY on the x-axis and correlation with TLT on the y-axis, you would set \code{x.metric = "pearson"} and \code{y.metric = "pearson2"}, and \code{benchmark.gains} should be a 2-column matrix where the first column has SPY gains and the second column has TLT gains.
 }
   \item{reference.gains}{
 Numeric vector or matrix of gains for reference funds.
@@ -57,56 +57,56 @@ Numeric vector or matrix of gains for reference funds.
 Allocation increments for data used to fit curves.
 }
   \item{step.points}{
-Allocation increments for data points plotted on top of curves. Set to NULL to suppress data points.
+Allocation increments for data points plotted on top of curves. Set to \code{NULL} to suppress data points.
 }
   \item{x.metric}{
-Character string specifying what performance metric should be plotted on x-axis. Possible values are as follows: "mean" for mean of gains; "sd" for standard deviation of gains; "growth" for total growth; "cagr" for compound annualized growth rate; "mdd" for maximum drawdown; "sharpe" for Sharpe ratio; "sortino" for Sortino ratio; "alpha" or "beta" for alpha and beta from capital assets pricing model theory; "r.squared" for R-squared from regression on benchmark fund; "pearson" or "spearman" for Pearson or Spearman correlation with benchmark fund; "alpha2", "beta2", r.squared2", "pearson2", or "spearman2" for same as previously described, but using the second benchmark index; "auto.pearson" or "auto.spearman" for Pearson or Spearman autocorrelation, defined as the correlation between subsequent gains; or "allocation" for allocation to first fund in each pair.
+Character string specifying what performance metric should be plotted on x-axis. Possible values are as follows: \code{"mean"} for mean of gains; \code{"sd"} for standard deviation of gains; \code{"growth"} for total growth; \code{"cagr"} for compound annualized growth rate; \code{"mdd"} for maximum drawdown; \code{"sharpe"} for Sharpe ratio; \code{"sortino"} for Sortino ratio; \code{"alpha"} or \code{"beta"} for alpha and beta from capital assets pricing model theory; \code{"r.squared"} for R-squared from regression on benchmark fund; \code{"pearson"} or \code{"spearman"} for Pearson or Spearman correlation with benchmark fund; \code{"alpha2"}, \code{"beta2"}, \code{"r.squared2"}, \code{"pearson2"}, or \code{"spearman2"} for same as previously described, but using the second benchmark index; \code{"auto.pearson"} or \code{"auto.spearman"} for Pearson or Spearman autocorrelation, defined as the correlation between subsequent gains; or \code{"allocation"} for allocation to first fund in each pair.
 }
   \item{y.metric}{
-Same as x.metric, but for y-axis variable.
+Same as \code{x.metric}, but for y-axis variable.
 }
   \item{tickerlabel.offsets}{
-Either a numeric vector of length 2 giving the x-axis and y-axis offsets for ticker labels, or a 2-column matrix where each row gives the x-axis offset and y-axis offset for a particular ticker, following the same order of tickers as in the tickers matrix (going down each column, then to the next row) or across the ticker.gains matrix.
+Either a numeric vector of length 2 giving the x-axis and y-axis offsets for ticker labels, or a 2-column matrix where each row gives the x-axis offset and y-axis offset for a particular ticker, following the same order of tickers as in the \code{tickers} matrix (going down each column, then to the next row) or across the \code{ticker.gains} matrix.
 }
   \item{reflabel.offsets}{
-Either a numeric vector of length 2 giving the x-axis and y-axis offsets for reference ticker labels, or a 2-column matrix where each row gives the x-axis offset and y-axis offset for a particular reference ticker, following the same order of tickers as in the reference.tickers vector or across the reference.gains matrix.
+Either a numeric vector of length 2 giving the x-axis and y-axis offsets for reference ticker labels, or a 2-column matrix where each row gives the x-axis offset and y-axis offset for a particular reference ticker, following the same order of tickers as in the \code{reference.tickers} vector or across the \code{reference.gains} matrix.
 }
   \item{add.plot}{
-If TRUE, data is plotted on current plot frame rather than a new one.
+If \code{TRUE}, data is plotted on current plot frame rather than a new one.
 }
   \item{colors}{
 Character string of colors for each fund pair.  
 }
   \item{plot.list}{
-Optional list of inputs to pass to plot function.  
+Optional list of inputs to pass to \code{\link{plot}} function.  
 }
   \item{points.list}{
-Optional list of inputs to pass to points function.
+Optional list of inputs to pass to \code{\link{points}} function.
 }
   \item{text.list}{
-Optional list of inputs to pass to text function.
+Optional list of inputs to pass to \code{\link{text}} function.
 }
   \item{pdf.list}{
-Optional list of inputs to pdf function. If not NULL, .pdf file is created.
+Optional list of inputs to pass to \code{\link{pdf}} function. If not \code{NULL}, .pdf file is created.
 }
   \item{bmp.list}{
-Optional list of inputs to bmp function. If not NULL, .bmp file is created.
+Optional list of inputs to pass to \code{\link{bmp}} function. If not \code{NULL}, .bmp file is created.
 }
   \item{jpeg.list}{
-Optional list of inputs to pdf function. If not NULL, .jpg file is created.
+Optional list of inputs to pass to \code{\link{jpeg}} function. If not \code{NULL}, .jpg file is created.
 }
   \item{png.list}{
-Optional list of inputs to pdf function. If not NULL, .png file is created.
+Optional list of inputs to pass to \code{\link{png}} function. If not \code{NULL}, .png file is created.
 }
   \item{tiff.list}{
-Optional list of inputs to pdf function. If not NULL, .tif file is created.
+Optional list of inputs to pass to \code{\link{tiff}} function. If not \code{NULL}, .tif file is created.
 }
 }
 \details{
-If tickers input is specified, it gets passed to \code{\link{load.gains}} to load historical prices from Yahoo! Finance using the quantmod package [1]. If tickers.gains is specified, performance metrics are calculated directly from that matrix.
+If \code{tickers} is specified, it gets passed to \code{\link{load.gains}} to load historical prices from Yahoo! Finance using the quantmod package [1]. If \code{tickers.gains} is specified, performance metrics are calculated directly from that matrix.
 }
 \value{
-In addition to the graph, a list containing the following items: (1) A list where each element is a two-column matrix of x- and y-axis values for a fund pair; (2) a numeric vector of mean gains for each ticker; and (3) a numeric matrix containing a correlation matrix for gains of each ticker.
+In addition to the graph, a list containing the following items: (1) A list named \code{portfolio.xy} where each element is a two-column matrix of x- and y-axis values for a fund pair; (2) a numeric vector named \code{means} of mean gains for each ticker; and (3) a numeric matrix named \code{corr.matrix} containing a correlation matrix for gains of each ticker.
 }
 \note{
 NA

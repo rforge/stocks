@@ -8,7 +8,7 @@ Largest 100 Market Cap ETFs and Inception Dates as of April 9, 2017
 Data frame where first column is ticker symbol and second column is inception date.
 }
 \format{
-  A 100-row data frame with 2 variables: ticker (character string) and start.date (date).
+  A 100-row data frame with 2 variables: \code{ticker} (character string) and \code{start.date} (date).
 }
 \source{
 \url{http://etfdb.com/compare/market-cap/}

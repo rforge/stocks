@@ -4,7 +4,7 @@
 Sortino Ratio
 }
 \description{
-Calculate Sortino ratio based on a vector of gains or prices. The formula is: (mean(gains) - rf) / sd(negatives(gains)). Here rf is some risk-free rate of return, gains is a vector of gains (usually daily, but could be any time interval), and negatives(gains) gets the subset of gains that are negative.
+Calculate Sortino ratio based on a vector of gains or prices. The formula is: \code{(mean(gains) - rf) / sd(negatives(gains))}. Here \code{rf} is some risk-free rate of return, \code{gains} is a vector of gains (usually daily, but could be any time interval), and \code{negatives(gains)} gets the subset of gains that are negative.
 }
 \usage{
 sortino.ratio(gains = NULL, prices = NULL, rf = 0, nas = FALSE)
@@ -20,7 +20,7 @@ Numeric vector of investment prices (typically daily closing prices).
 Risk-free rate of return hypothetically available to the investor.
 }
   \item{nas}{
-If TRUE, function finds and removes any missing values (NA's) in prices vector. The default is FALSE to maximize speed for the usual case where there are no missing values.
+If \code{TRUE}, function finds and removes any missing values (\code{NA}s) in \code{prices}. The default is \code{FALSE} to maximize speed for the usual case where there are no missing values.
 }
 }
 \value{

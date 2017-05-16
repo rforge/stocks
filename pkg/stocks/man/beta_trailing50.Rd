@@ -27,7 +27,7 @@ Acknowledgment: This material is based upon work supported by the National Scien
 Dane R. Van Domelen
 }
 \note{
-This function prints warnings which are typically nothing to worry about.
+NA
 }
 \examples{
 # Calculate TLT's beta based on the previous 50 daily gains

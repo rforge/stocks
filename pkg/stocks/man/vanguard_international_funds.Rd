@@ -8,7 +8,7 @@ List of Vanguard International Mutual Funds and Inception Dates as of April 2, 2
 Data frame where first column is ticker symbol and second column is inception date.
 }
 \format{
-  A 19-row data frame with 2 variables: ticker (character string) and start.date (date).
+  A 19-row data frame with 2 variables: \code{ticker} (character string) and \code{start.date} (date).
 }
 \source{
 \url{https://investor.vanguard.com/mutual-funds/list#/mutual-funds/asset-class/month-end-returns}
