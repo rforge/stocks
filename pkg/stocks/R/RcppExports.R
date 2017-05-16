@@ -2640,17 +2640,17 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
                            y = fund3.xy[2] + tickerlabel.offsets[ii * 3, 2],
                            label = paste("100% ", tickers[3, ii], sep = "")), text.list))
     }
-
+    
   }
-
+  
   # Add data point for reference funds (if given)
   if (!is.null(reference.tickers)) {
-
+    
     # Loop through and add data points for each reference fund
     for (ii in 1: ncol(reference.gains)) {
-
+      
       if (x.metric != "allocation" & y.metric != "allocation") {
-
+        
         do.call(points, c(list(x = reference.x[ii], y = reference.y[ii], type = "p", col = "black"), points.list))
         if (! reference.tickers[ii] %in% tickers) {
           do.call(text, c(list(x = reference.x[ii] + reflabel.offsets[ii, 1],
@@ -2660,24 +2660,23 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
           
         }
       } else {
+        
+        if (y.metric == "allocation") {
           
-          if (y.metric == "allocation") {
-            
-            abline(v = reference.x[ii], lty = 2, col = "black")
-            do.call(text, c(list(x = reference.x[ii] + reflabel.offsets[ii, 1],
-                                 y = 20,
-                                 label = reference.tickers[ii]),
-                            text.list))
-            
-          } else {
-            
-            abline(h = reference.y[ii], lty = 2, col = "black")
-            do.call(text, c(list(x = 20,
-                                 y = reference.y[ii] + reflabel.offsets[ii, 2],
-                                 label = reference.tickers[ii]),
-                            text.list))
-            
-          }
+          abline(v = reference.x[ii], lty = 2, col = "black")
+          do.call(text, c(list(x = reference.x[ii] + reflabel.offsets[ii, 1],
+                               y = 20,
+                               label = reference.tickers[ii]),
+                          text.list))
+          
+        } else {
+          
+          abline(h = reference.y[ii], lty = 2, col = "black")
+          do.call(text, c(list(x = 20,
+                               y = reference.y[ii] + reflabel.offsets[ii, 2],
+                               label = reference.tickers[ii]),
+                          text.list))
+          
         }
       }
     }
