@@ -7,7 +7,7 @@ Get Yahoo! Finance Start/End Dates for One or More Tickers
 This function just returns the start/end dates of tickers on Yahoo! Finance, so you can see what range of dates are available for one or more funds.
 }
 \usage{
-ticker.dates(tickers, from = "1900-01-01", to = Sys.Date())
+ticker.dates(tickers, from = "1950-01-01", to = Sys.Date())
 }
 \arguments{
   \item{tickers}{

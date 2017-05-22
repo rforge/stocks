@@ -31,5 +31,5 @@ NA
 }
 \examples{
 # Calculate TLT's beta based on the previous 50 daily gains
-beta.trailing50("TLT")
+# beta.trailing50("TLT")
 }

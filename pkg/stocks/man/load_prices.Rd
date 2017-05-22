@@ -8,7 +8,7 @@ Downloads and aligns historical prices for specified tickers from Yahoo! Finance
 }
 \usage{
 load.prices(tickers, intercepts = NULL, slopes = NULL,
-            from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
+            from = "1950-01-01", to = Sys.Date(), time.scale = "daily",
             preto.days = NULL, prefrom.days = NULL,
             initial = NULL,
             earliest.subset = FALSE)

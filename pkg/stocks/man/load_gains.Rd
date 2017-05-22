@@ -8,7 +8,7 @@ Downloads and aligns historical investment gains for specified tickers from Yaho
 }
 \usage{
 load.gains(tickers, intercepts = NULL, slopes = NULL, 
-           from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
+           from = "1950-01-01", to = Sys.Date(), time.scale = "daily",
            preto.days = NULL, prefrom.days = NULL,
            earliest.subset = FALSE)
 }
