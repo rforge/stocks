@@ -136,7 +136,7 @@ final.balance <- function(ratios, initial = 10000) {
 }
 
 
-ticker.dates <- function(tickers, from = "1900-01-01", to = Sys.Date()) {
+ticker.dates <- function(tickers, from = "1950-01-01", to = Sys.Date()) {
   
   # Download stock prices for tickers from Yahoo! Finance, using the quantmod package
   prices <- list()
@@ -156,7 +156,7 @@ ticker.dates <- function(tickers, from = "1900-01-01", to = Sys.Date()) {
 
 
 load.gains <- function(tickers, intercepts = NULL, slopes = NULL, 
-                       from = "1900-01-01", to = Sys.Date(), time.scale = "daily",
+                       from = "1950-01-01", to = Sys.Date(), time.scale = "daily",
                        preto.days = NULL, prefrom.days = NULL, 
                        earliest.subset = FALSE) {
   
@@ -191,6 +191,65 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
     prices <- prices[locs]
     intercepts <- intercepts[locs]
     slopes <- slopes[locs]
+  }
+  
+  # Remove NAs - added after Yahoo! Finance change / quantmod patch.
+  for (ii in 1: length(prices)) {
+    prices.fund <- prices[[ii]]
+    locs.na <- which(is.na(prices.fund[, 6]))
+    if (length(locs.na) > 0) {
+      prices[[ii]] <- prices.fund[-locs.na, ]
+    }
+  }
+  
+  # Adjust for dividends - added after Yahoo! Finance change / quantmod patch. Not 100% confident in it.
+  for (ii in 1: length(prices)) {
+    
+    prices.fund <- prices[[ii]]
+    prices.dates <- as.Date(rownames(prices.fund))
+    prices.adjusted <- prices.fund[, 4]
+    
+    dividends.fund <- getDividends(tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE)
+    splits.fund <- getSplits(tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE)
+    
+    if (! all(is.na(dividends.fund))) {
+      
+      dividends.fund <- as.data.frame(dividends.fund)
+      dividend.amounts <- dividends.fund[, 1]
+      dividend.dates <- as.Date(rownames(dividends.fund))
+      
+      for (jj in length(dividend.dates): 1) {
+        
+        div.date <- dividend.dates[jj]
+        div.amount <- dividend.amounts[jj]
+        close.price <- prices.fund[which(prices.dates == div.date), 4]
+        ratio <- 1 - div.amount / (close.price + div.amount)
+        locs.adjust <- which(prices.dates < div.date)
+        prices.adjusted[locs.adjust] <- prices.adjusted[locs.adjust] * ratio    
+        
+      }
+      
+    }
+    
+    if (! all(is.na(splits.fund))) {
+      
+      splits.fund <- as.data.frame(splits.fund)
+      split.ratios <- splits.fund[, 1]
+      split.dates <- as.Date(rownames(splits.fund))
+      
+      for (jj in length(split.dates): 1) {
+        
+        split.date <- split.dates[jj]
+        split.ratio <- split.ratios[jj]
+        locs.adjust <- which(prices.dates < split.date)
+        prices.adjusted[locs.adjust] <- prices.adjusted[locs.adjust] * split.ratio
+        
+      }
+      
+    }
+    
+    prices[[ii]][, 6] <- prices.adjusted
+    
   }
   
   # If more than 1 fund, align prices
@@ -335,7 +394,7 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
 
 
 load.prices <- function(tickers, intercepts = NULL, slopes = NULL, 
-                        from = "1900-01-01", to = Sys.Date(), time.scale = "daily", 
+                        from = "1950-01-01", to = Sys.Date(), time.scale = "daily", 
                         preto.days = NULL, prefrom.days = NULL,
                         initial = NULL, 
                         earliest.subset = FALSE) {
@@ -366,11 +425,70 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
   
   # Drop tickers that could not be loaded
   locs <- sapply(prices, function(x) !is.null(x))
-  if (!all(locs)) {
+  if (! all(locs)) {
     tickers <- tickers[locs]
     prices <- prices[locs]
     intercepts <- intercepts[locs]
     slopes <- slopes[locs]
+  }
+  
+  # Remove NAs - added after Yahoo! Finance change / quantmod patch.
+  for (ii in 1: length(prices)) {
+    prices.fund <- prices[[ii]]
+    locs.na <- which(is.na(prices.fund[, 6]))
+    if (length(locs.na) > 0) {
+      prices[[ii]] <- prices.fund[-locs.na, ]
+    }
+  }
+  
+  # Adjust for dividends - added after Yahoo! Finance change / quantmod patch. Not 100% confident in it.
+  for (ii in 1: length(prices)) {
+    
+    prices.fund <- prices[[ii]]
+    prices.dates <- as.Date(rownames(prices.fund))
+    prices.adjusted <- prices.fund[, 4]
+    
+    dividends.fund <- getDividends(tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE)
+    splits.fund <- getSplits(tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE)
+    
+    if (! all(is.na(dividends.fund))) {
+      
+      dividends.fund <- as.data.frame(dividends.fund)
+      dividend.amounts <- dividends.fund[, 1]
+      dividend.dates <- as.Date(rownames(dividends.fund))
+      
+      for (jj in length(dividend.dates): 1) {
+        
+        div.date <- dividend.dates[jj]
+        div.amount <- dividend.amounts[jj]
+        close.price <- prices.fund[which(prices.dates == div.date), 4]
+        ratio <- 1 - div.amount / (close.price + div.amount)
+        locs.adjust <- which(prices.dates < div.date)
+        prices.adjusted[locs.adjust] <- prices.adjusted[locs.adjust] * ratio    
+        
+      }
+      
+    }
+    
+    if (! all(is.na(splits.fund))) {
+      
+      splits.fund <- as.data.frame(splits.fund)
+      split.ratios <- splits.fund[, 1]
+      split.dates <- as.Date(rownames(splits.fund))
+      
+      for (jj in length(split.dates): 1) {
+        
+        split.date <- split.dates[jj]
+        split.ratio <- split.ratios[jj]
+        locs.adjust <- which(prices.dates < split.date)
+        prices.adjusted[locs.adjust] <- prices.adjusted[locs.adjust] * split.ratio
+            
+      }
+      
+    }
+    
+    prices[[ii]][, 6] <- prices.adjusted
+    
   }
   
   # If more than 1 fund, align prices
@@ -4139,7 +4257,7 @@ onemetric.overtime.graph <- function(tickers = NULL, ...,
 
   # Get dates
   rows <- rownames(gains)[-c(1: (window.units - 1))]
-  if (!is.null(rows)) {
+  if (! is.null(rows)) {
     dates <- as.Date(rows)
   } else {
     dates <- 1: (nrow(gains) - window.units + 1)
@@ -4456,11 +4574,10 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     tickers.gains <- gains[, 1: length(tickers), drop = F]
     extra.gains <- gains[, -c(1: length(tickers)), drop = F]
     if (! is.null(benchmark.ticker)) {
-      benchmark.gains <- extra.gains[, 1, drop = F]
-      extra.gains <- extra.gains[, -1, drop = F]
+      benchmark.gains <- extra.gains[, benchmark.ticker, drop = F]
     }
     if (! is.null(reference.tickers)) {
-      reference.gains <- extra.gains
+      reference.gains <- extra.gains[, reference.tickers, drop = F]
     }
 
   } else {
