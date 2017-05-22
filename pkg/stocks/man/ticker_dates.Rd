@@ -31,5 +31,5 @@ Dane R. Van Domelen
 }
 \examples{
 # See what dates are available for Apple and Amazon
-ticker.dates(c("AAPL", "AMZN"))
+#ticker.dates(c("AAPL", "AMZN"))
 }
