@@ -53,12 +53,12 @@ Dane R. Van Domelen
 \examples{
 # Calculate performance metrics for leveraged ETFs SSO and UPRO, using SPY 
 # as benchmark for alpha and beta - "on the fly" method
-metrics1 <- metrics(tickers = c("SPY", "SSO", "UPRO"))
+#metrics1 <- metrics(tickers = c("SPY", "SSO", "UPRO"))
 
 # Calculate same performance metrics, but specify gains input
-gains <- load.gains(tickers = c("SPY", "SSO", "UPRO"))
-metrics2 <- metrics(gains = gains)
+#gains <- load.gains(tickers = c("SPY", "SSO", "UPRO"))
+#metrics2 <- metrics(gains = gains)
 
 # Results are identical
-all(metrics1$perf.metrics == metrics2$perf.metrics)
+#all(metrics1$perf.metrics == metrics2$perf.metrics)
 }
