@@ -173,10 +173,12 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
   # Download stock prices for tickers from Yahoo! Finance, using the quantmod package
   prices <- list()
   for (ii in 1: length(tickers)) {
-    prices.fund <- try(as.matrix(getSymbols(Symbols = tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE)), silent = TRUE)
-    if (class(prices.fund) == "try-error") {
+    prices.fund <- try(getSymbols(Symbols = tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE), silent = TRUE)
+    if (class(prices.fund)[1] == "try-error") {
       prices[[ii]] <- NULL
     } else {
+      prices.fund <- as.matrix(adjustOHLC(prices.fund, symbol.name = tickers[ii]))
+      prices.fund[, 6] <- prices.fund[, 4]
       prices[[ii]] <- prices.fund
       if (! earliest.subset) {
         from <- max(as.Date(from), as.Date(rownames(prices.fund[1, , drop = F])))
@@ -202,55 +204,55 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
     }
   }
   
-  # Adjust for dividends - added after Yahoo! Finance change / quantmod patch. Not 100% confident in it.
-  for (ii in 1: length(prices)) {
-    
-    prices.fund <- prices[[ii]]
-    prices.dates <- as.Date(rownames(prices.fund))
-    prices.adjusted <- prices.fund[, 4]
-    
-    dividends.fund <- getDividends(tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE)
-    splits.fund <- getSplits(tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE)
-    
-    if (! all(is.na(dividends.fund))) {
-      
-      dividends.fund <- as.data.frame(dividends.fund)
-      dividend.amounts <- dividends.fund[, 1]
-      dividend.dates <- as.Date(rownames(dividends.fund))
-      
-      for (jj in length(dividend.dates): 1) {
-        
-        div.date <- dividend.dates[jj]
-        div.amount <- dividend.amounts[jj]
-        close.price <- prices.fund[which(prices.dates == div.date), 4]
-        ratio <- 1 - div.amount / (close.price + div.amount)
-        locs.adjust <- which(prices.dates < div.date)
-        prices.adjusted[locs.adjust] <- prices.adjusted[locs.adjust] * ratio    
-        
-      }
-      
-    }
-    
-    if (! all(is.na(splits.fund))) {
-      
-      splits.fund <- as.data.frame(splits.fund)
-      split.ratios <- splits.fund[, 1]
-      split.dates <- as.Date(rownames(splits.fund))
-      
-      for (jj in length(split.dates): 1) {
-        
-        split.date <- split.dates[jj]
-        split.ratio <- split.ratios[jj]
-        locs.adjust <- which(prices.dates < split.date)
-        prices.adjusted[locs.adjust] <- prices.adjusted[locs.adjust] * split.ratio
-        
-      }
-      
-    }
-    
-    prices[[ii]][, 6] <- prices.adjusted
-    
-  }
+  # # Adjust for dividends - added after Yahoo! Finance change / quantmod patch. Not 100% confident in it.
+  # for (ii in 1: length(prices)) {
+  #   
+  #   prices.fund <- prices[[ii]]
+  #   prices.dates <- as.Date(rownames(prices.fund))
+  #   prices.adjusted <- prices.fund[, 4]
+  #   
+  #   dividends.fund <- getDividends(tickers[ii], from = from.initial, to = to, auto.assign = FALSE, warnings = FALSE)
+  #   splits.fund <- getSplits(tickers[ii], from = from.initial, to = to, auto.assign = FALSE, warnings = FALSE)
+  #   
+  #   if (! all(is.na(dividends.fund))) {
+  #     
+  #     dividends.fund <- as.data.frame(dividends.fund)
+  #     dividend.amounts <- dividends.fund[, 1]
+  #     dividend.dates <- as.Date(rownames(dividends.fund))
+  #     
+  #     for (jj in length(dividend.dates): 1) {
+  #       
+  #       div.date <- dividend.dates[jj]
+  #       div.amount <- dividend.amounts[jj]
+  #       close.price <- prices.fund[which(prices.dates == div.date), 4]
+  #       ratio <- 1 - div.amount / (close.price + div.amount)
+  #       locs.adjust <- which(prices.dates < div.date)
+  #       prices.adjusted[locs.adjust] <- prices.adjusted[locs.adjust] * ratio    
+  #       
+  #     }
+  #     
+  #   }
+  #   
+  #   if (! all(is.na(splits.fund))) {
+  #     
+  #     splits.fund <- as.data.frame(splits.fund)
+  #     split.ratios <- splits.fund[, 1]
+  #     split.dates <- as.Date(rownames(splits.fund))
+  #     
+  #     for (jj in length(split.dates): 1) {
+  #       
+  #       split.date <- split.dates[jj]
+  #       split.ratio <- split.ratios[jj]
+  #       locs.adjust <- which(prices.dates < split.date)
+  #       prices.adjusted[locs.adjust] <- prices.adjusted[locs.adjust] * split.ratio
+  #       
+  #     }
+  #     
+  #   }
+  #   
+  #   prices[[ii]][, 6] <- prices.adjusted
+  #   
+  # }
   
   # If more than 1 fund, align prices
   if (length(tickers) > 1) {
@@ -412,10 +414,12 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
   # Download stock prices for tickers from Yahoo! Finance, using the quantmod package
   prices <- list()
   for (ii in 1:length(tickers)) {
-    prices.fund <- try(as.matrix(getSymbols(Symbols = tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE)), silent = TRUE)
-    if (class(prices.fund) == "try-error") {
+    prices.fund <- try(getSymbols(Symbols = tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE), silent = TRUE)
+    if (class(prices.fund)[1] == "try-error") {
       prices[[ii]] <- NULL
     } else {
+      prices.fund <- as.matrix(adjustOHLC(prices.fund, symbol.name = tickers[ii]))
+      prices.fund[, 6] <- prices.fund[, 4]
       prices[[ii]] <- prices.fund
       if (! earliest.subset) {
         from <- max(as.Date(from), as.Date(rownames(prices.fund[1, , drop = F])))
@@ -441,55 +445,57 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
     }
   }
   
-  # Adjust for dividends - added after Yahoo! Finance change / quantmod patch. Not 100% confident in it.
-  for (ii in 1: length(prices)) {
-    
-    prices.fund <- prices[[ii]]
-    prices.dates <- as.Date(rownames(prices.fund))
-    prices.adjusted <- prices.fund[, 4]
-    
-    dividends.fund <- getDividends(tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE)
-    splits.fund <- getSplits(tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE)
-    
-    if (! all(is.na(dividends.fund))) {
-      
-      dividends.fund <- as.data.frame(dividends.fund)
-      dividend.amounts <- dividends.fund[, 1]
-      dividend.dates <- as.Date(rownames(dividends.fund))
-      
-      for (jj in length(dividend.dates): 1) {
-        
-        div.date <- dividend.dates[jj]
-        div.amount <- dividend.amounts[jj]
-        close.price <- prices.fund[which(prices.dates == div.date), 4]
-        ratio <- 1 - div.amount / (close.price + div.amount)
-        locs.adjust <- which(prices.dates < div.date)
-        prices.adjusted[locs.adjust] <- prices.adjusted[locs.adjust] * ratio    
-        
-      }
-      
-    }
-    
-    if (! all(is.na(splits.fund))) {
-      
-      splits.fund <- as.data.frame(splits.fund)
-      split.ratios <- splits.fund[, 1]
-      split.dates <- as.Date(rownames(splits.fund))
-      
-      for (jj in length(split.dates): 1) {
-        
-        split.date <- split.dates[jj]
-        split.ratio <- split.ratios[jj]
-        locs.adjust <- which(prices.dates < split.date)
-        prices.adjusted[locs.adjust] <- prices.adjusted[locs.adjust] * split.ratio
-            
-      }
-      
-    }
-    
-    prices[[ii]][, 6] <- prices.adjusted
-    
-  }
+  # # Adjust for dividends - added after Yahoo! Finance change / quantmod patch. Not 100% confident in it.
+  # for (ii in 1: length(prices)) {
+  #   
+  #   prices.fund <- prices[[ii]]
+  #   prices.dates <- as.Date(rownames(prices.fund))
+  #   prices.adjusted <- prices.fund[, 4]
+  #   
+  #   dividends.fund <- getDividends(tickers[ii], from = from.initial, to = to, auto.assign = FALSE, warnings = FALSE)
+  #   splits.fund <- getSplits(tickers[ii], from = from.initial, to = to, auto.assign = FALSE, warnings = FALSE)
+  #   
+  #   if (! all(is.na(dividends.fund))) {
+  #     
+  #     dividends.fund <- as.data.frame(dividends.fund)
+  #     dividend.amounts <- dividends.fund[, 1]
+  #     dividend.dates <- as.Date(rownames(dividends.fund))
+  #     
+  #     for (jj in length(dividend.dates): 1) {
+  #       
+  #       div.date <- dividend.dates[jj]
+  #       div.amount <- dividend.amounts[jj]
+  #       #close.price <- prices.fund[which(prices.dates == div.date), 4]
+  #       #ratio <- 1 - div.amount / (close.price + div.amount)
+  #       close.price <- prices.fund[which(prices.dates == div.date) - 1, 4]
+  #       ratio <- 1 - div.amount / close.price
+  #       locs.adjust <- which(prices.dates < div.date)
+  #       prices.adjusted[locs.adjust] <- prices.adjusted[locs.adjust] * ratio    
+  #       
+  #     }
+  #     
+  #   }
+  #   
+  #   if (! all(is.na(splits.fund))) {
+  #     
+  #     splits.fund <- as.data.frame(splits.fund)
+  #     split.ratios <- splits.fund[, 1]
+  #     split.dates <- as.Date(rownames(splits.fund))
+  #     
+  #     for (jj in length(split.dates): 1) {
+  #       
+  #       split.date <- split.dates[jj]
+  #       split.ratio <- split.ratios[jj]
+  #       locs.adjust <- which(prices.dates < split.date)
+  #       prices.adjusted[locs.adjust] <- prices.adjusted[locs.adjust] * split.ratio
+  #           
+  #     }
+  #     
+  #   }
+  #   
+  #   prices[[ii]][, 6] <- prices.adjusted
+  #   
+  # }
   
   # If more than 1 fund, align prices
   if (length(tickers) > 1) {
