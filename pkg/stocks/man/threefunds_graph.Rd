@@ -7,11 +7,18 @@ Graph One Performance Metric vs. Another for Three-Fund Portfolio(s) with Varyin
 Creates graph of one performance metric vs. another as allocation for three-fund portfolio(s) varies. Each curve shows data for a fixed allocation to fund 1 of a set, while the remaining allocation ranges from 100\% fund 2 to 100\% fund 3.
 }
 \usage{
-threefunds.graph(tickers = NULL, intercepts = NULL, slopes = NULL, ...,
-                 benchmark.tickers = NULL, reference.tickers = NULL,
-                 tickers.gains = NULL, benchmark.gains = NULL, reference.gains = NULL,
-                 step.data = 0.0025, step.points = 0.1, step.curves = 0.2,
-                 x.metric = "sd", y.metric = "mean",
+threefunds.graph(tickers = NULL, intercepts = NULL, slopes = NULL, 
+                 ...,
+                 benchmark.tickers = NULL, 
+                 reference.tickers = NULL,
+                 tickers.gains = NULL, 
+                 benchmark.gains = NULL, 
+                 reference.gains = NULL,
+                 step.data = 0.0025, 
+                 step.points = 0.1, 
+                 step.curves = 0.2,
+                 x.metric = "sd", 
+                 y.metric = "mean",
                  tickerlabel.offsets = NULL,
                  reflabel.offsets = NULL,
                  add.plot = FALSE,

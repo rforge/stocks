@@ -7,7 +7,10 @@ Risk-Return Ratio
 Calculate ratio of investment return to investment risk based on a vector of prices or gains. The formula is growth rate / mdd, where growth rate is the growth of an investment over some time period and mdd is the maximum drawdown over that time period.
 }
 \usage{
-rrr(prices = NULL, gains = NULL, highs = NULL, lows = NULL, nas = FALSE)
+rrr(prices = NULL, 
+    gains = NULL, 
+    highs = NULL, lows = NULL, 
+    nas = FALSE)
 }
 \arguments{
   \item{prices}{

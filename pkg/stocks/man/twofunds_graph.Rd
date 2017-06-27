@@ -7,11 +7,17 @@ Graph One Performance Metric vs. Another for Two-Fund Portfolio(s) with Varying 
 Creates graph of one performance metric vs. another as allocation for two-fund portfolio(s) ranges from 0\% to 100\%. A common application would be plotting mean vs. standard deviation of daily or monthly investment gains.
 }
 \usage{
-twofunds.graph(tickers = NULL, intercepts = NULL, slopes = NULL, ..., 
-               benchmark.tickers = NULL, reference.tickers = NULL,
-               tickers.gains = NULL, benchmark.gains = NULL, reference.gains = NULL,
-               step.data = 0.0025, step.points = 0.1,
-               x.metric = "sd", y.metric = "mean",
+twofunds.graph(tickers = NULL, intercepts = NULL, slopes = NULL, 
+               ..., 
+               benchmark.tickers = NULL, 
+               reference.tickers = NULL,
+               tickers.gains = NULL, 
+               benchmark.gains = NULL, 
+               reference.gains = NULL,
+               step.data = 0.0025, 
+               step.points = 0.1,
+               x.metric = "sd", 
+               y.metric = "mean",
                tickerlabel.offsets = NULL,
                reflabel.offsets = NULL,
                add.plot = FALSE,

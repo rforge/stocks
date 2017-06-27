@@ -7,7 +7,11 @@ Maximum Drawdown
 Calculates maximum drawdown for a numeric vector.
 }
 \usage{
-mdd(prices = NULL, gains = NULL, highs = NULL, lows = NULL, indices = FALSE, nas = FALSE)
+mdd(prices = NULL, 
+    gains = NULL, 
+    highs = NULL, lows = NULL, 
+    indices = FALSE, 
+    nas = FALSE)
 }
 \arguments{
   \item{prices}{

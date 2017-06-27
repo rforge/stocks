@@ -8,8 +8,10 @@ Implements the following volatility strategy: Each day, hold XIV if contango is 
 }
 \usage{
 contango.simple(contango, 
-                xiv.gains = NULL, vxx.gains = NULL, 
-                xiv.cutpoint = 0, vxx.cutpoint = -Inf,
+                xiv.gains = NULL, 
+                vxx.gains = NULL, 
+                xiv.cutpoint = 0, 
+                vxx.cutpoint = -Inf,
                 initial = 10000)
 }
 \arguments{

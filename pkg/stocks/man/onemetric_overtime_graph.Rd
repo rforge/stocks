@@ -8,7 +8,8 @@ Create plot comparing a performance metric across several investments over a per
 }
 \usage{
 onemetric.overtime.graph(tickers = NULL, ...,
-                         gains = NULL, prices = NULL,
+                         gains = NULL, 
+                         prices = NULL,
                          y.metric = "cagr", 
                          window.units = 50,
                          add.plot = FALSE, 

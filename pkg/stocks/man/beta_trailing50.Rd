@@ -7,7 +7,7 @@ Beta for Last 50 Daily Gains
 Calculate beta for a ticker symbol based on the previous 50 daily gains. The function loads historical prices from Yahoo! Finance and calculates beta by regressing the fund's gains vs. the benchmark's gains and extracting the slope.
 }
 \usage{
-beta.trailing50(ticker, benchmark.ticker = "SPY")
+beta.trailing50(ticker, benchmark.ticker = "SPY", ...)
 }
 \arguments{
   \item{ticker}{
@@ -15,6 +15,9 @@ Ticker symbol for fund that you want to calculate beta for.
 }
   \item{benchmark.ticker}{
 Ticker symbol for benchmark fund.
+}
+  \item{...}{
+Arguments to pass to \code{\link{load.gains}} function, which is called internally by this function.
 }
 }
 \value{

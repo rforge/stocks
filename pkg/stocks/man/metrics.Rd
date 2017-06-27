@@ -8,10 +8,12 @@ Calculates any or all of the following: mean and standard deviation of gains; to
 }
 \usage{
 metrics(tickers = NULL, ...,
-        gains = NULL, prices = NULL,
-        perf.metrics = c("mean", "sd", "growth", "cagr", "mdd", "sharpe",
-                         "sortino", "alpha", "beta", "r.squared", "pearson",
-                         "spearman", "auto.pearson", "auto.spearman"))
+        gains = NULL, 
+        prices = NULL,
+        perf.metrics = c("mean", "sd", "growth", "cagr", "mdd", 
+                         "sharpe", "sortino", "alpha", "beta", 
+                         "r.squared", "pearson", "spearman", 
+                         "auto.pearson", "auto.spearman"))
 }
 \arguments{
   \item{tickers}{

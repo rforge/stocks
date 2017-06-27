@@ -7,11 +7,17 @@ Implement a Two-Fund Strategy that Targets a Particular Beta
 Implements a two-fund strategy where allocations to each fund are adjusted to maintain some user-specified portfolio beta. For example, you could back-test a zero-beta (i.e. market neutral) VFINX/VBLTX strategy using this function.
 }
 \usage{
-targetbeta.twofunds(tickers = NULL, intercepts = NULL, slopes = NULL, ..., 
-                    benchmark.ticker = NULL, reference.tickers = NULL,
-                    tickers.gains = NULL, benchmark.gains = NULL, reference.gains = NULL, 
-                    target.beta = 0, tol = 0.15, 
-                    window.units = 50, failure.method = c("cash", "closer"),
+targetbeta.twofunds(tickers = NULL, 
+                    intercepts = NULL, slopes = NULL, ..., 
+                    benchmark.ticker = NULL, 
+                    reference.tickers = NULL,
+                    tickers.gains = NULL, 
+                    benchmark.gains = NULL, 
+                    reference.gains = NULL, 
+                    target.beta = 0, 
+                    tol = 0.15, 
+                    window.units = 50, 
+                    failure.method = c("cash", "closer"),
                     maxall.tol = tol - 0.05,
                     initial = 10000)
 }

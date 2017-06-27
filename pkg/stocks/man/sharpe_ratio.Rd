@@ -7,7 +7,10 @@ Sharpe Ratio
 Calculate Sharpe ratio based on a vector of investment gains or prices. The formula is: \code{(mean(gains) - rf) / sd(gains)}. Here \code{rf} is some risk-free rate of return, and \code{gains} is a vector of gains (usually daily, but could be any time interval).
 }
 \usage{
-sharpe.ratio(gains = NULL, prices = NULL, rf = 0, nas = FALSE)
+sharpe.ratio(gains = NULL, 
+             prices = NULL, 
+             rf = 0, 
+             nas = FALSE)
 }
 \arguments{
   \item{gains}{

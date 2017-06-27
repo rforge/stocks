@@ -8,7 +8,8 @@ Creates scatterplot of gains (daily or otherwise) for one or more investments vs
 }
 \usage{
 gains.graph(tickers = NULL, ...,
-            gains = NULL, prices = NULL, 
+            gains = NULL, 
+            prices = NULL, 
             orders = 1, 
             add.plot = FALSE, 
             colors = NULL,

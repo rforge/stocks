@@ -8,7 +8,8 @@ Create plot comparing a performance metric across several investments.
 }
 \usage{
 onemetric.graph(tickers = NULL, ...,
-                gains = NULL, prices = NULL,
+                gains = NULL, 
+                prices = NULL,
                 y.metric = "cagr", 
                 add.plot = FALSE, 
                 sort.tickers = TRUE,

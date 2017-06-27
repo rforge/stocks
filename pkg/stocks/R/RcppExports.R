@@ -4,7 +4,8 @@ list.override <- function(list1, list2) {
   names.list1 <- names(list1)
   names.list2 <- names(list2)
   
-  # Loop through elements of list 2. If in list 1, remove, then add; if not in list 1, add.
+  # Loop through elements of list 2. If in list 1, remove, then add; if not in 
+  # list 1, add.
   for (ii in 1: length(list2)) {
     
     element.name <- names.list2[ii]
@@ -17,7 +18,8 @@ list.override <- function(list1, list2) {
     
   }
   
-  # Return list1, which has its original elements plus any extras/overrides from list2
+  # Return list1, which has its original elements plus any extras/overrides from 
+  # list2
   return(list1)
   
 }
@@ -136,18 +138,23 @@ final.balance <- function(ratios, initial = 10000) {
 }
 
 
-ticker.dates <- function(tickers, from = "1950-01-01", to = Sys.Date()) {
+ticker.dates <- function(tickers, from = "1950-01-01", to = Sys.Date(), ...) {
   
-  # Download stock prices for tickers from Yahoo! Finance, using the quantmod package
+  # Download stock prices for tickers from Yahoo! Finance, using the quantmod 
+  # package
   prices <- list()
   for (ii in 1:length(tickers)) {
-    prices[[ii]] <- as.matrix(getSymbols(Symbols = tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE))
+    prices[[ii]] <- as.matrix(getSymbols(Symbols = tickers[ii], 
+                                         from = from, to = to, 
+                                         auto.assign = FALSE, ...))
   }
   
   # Create object to return
   ret <- data.frame(ticker = tickers,
-                    start.date = as.Date(unlist(lapply(prices, function(x) rownames(x)[1]))),
-                    end.date = as.Date(unlist(lapply(prices, function(x) rev(rownames(x))[1]))),
+                    start.date = as.Date(unlist(lapply(prices, function(x) 
+                      rownames(x)[1]))),
+                    end.date = as.Date(unlist(lapply(prices, function(x) 
+                      rev(rownames(x))[1]))),
                     days = unlist(lapply(prices, function(x) nrow(x))),
                     stringsAsFactors = FALSE)
   return(ret)
@@ -155,8 +162,9 @@ ticker.dates <- function(tickers, from = "1950-01-01", to = Sys.Date()) {
 }
 
 
-load.gains <- function(tickers, intercepts = NULL, slopes = NULL, 
-                       from = "1950-01-01", to = Sys.Date(), time.scale = "daily",
+load.gains <- function(tickers, intercepts = NULL, slopes = NULL, ...,
+                       from = "1950-01-01", to = Sys.Date(), 
+                       time.scale = "daily",
                        preto.days = NULL, prefrom.days = NULL, 
                        earliest.subset = FALSE) {
   
@@ -170,14 +178,22 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
     from <- from - ifelse(prefrom.days <= 10, 20, ceiling(prefrom.days * 1.65))
   }
   
-  # Download stock prices for tickers from Yahoo! Finance, using the quantmod package
+  # Download stock prices for tickers from Yahoo! Finance, using the quantmod 
+  # package
   prices <- list()
   for (ii in 1: length(tickers)) {
-    prices.fund <- try(getSymbols(Symbols = tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE), silent = TRUE)
+    prices.fund <- try(getSymbols(Symbols = tickers[ii], from = from, to = to, 
+                                  auto.assign = FALSE, ...), silent = TRUE)
     if (class(prices.fund)[1] == "try-error") {
       prices[[ii]] <- NULL
     } else {
-      prices.fund <- as.matrix(adjustOHLC(prices.fund, symbol.name = tickers[ii]))
+      locs.0 <- which(prices.fund[, 4] == 0)
+      if (length(locs.0) > 0) {
+        prices.fund <- prices.fund[-locs.0, , drop = F]
+      }
+      prices.fund <- as.matrix(adjustOHLC(x = prices.fund, 
+                                          symbol.name = tickers[ii], 
+                                          ...))
       prices.fund[, 6] <- prices.fund[, 4]
       prices[[ii]] <- prices.fund
       if (! earliest.subset) {
@@ -195,14 +211,14 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
     slopes <- slopes[locs]
   }
   
-  # Remove NAs - added after Yahoo! Finance change / quantmod patch.
-  for (ii in 1: length(prices)) {
-    prices.fund <- prices[[ii]]
-    locs.na <- which(is.na(prices.fund[, 6]))
-    if (length(locs.na) > 0) {
-      prices[[ii]] <- prices.fund[-locs.na, ]
-    }
-  }
+  # # Remove NAs - added after Yahoo! Finance change / quantmod patch.
+  # for (ii in 1: length(prices)) {
+  #   prices.fund <- prices[[ii]]
+  #   locs.na <- which(is.na(prices.fund[, 6]))
+  #   if (length(locs.na) > 0) {
+  #     prices[[ii]] <- prices.fund[-locs.na, ]
+  #   }
+  # }
   
   # # Adjust for dividends - added after Yahoo! Finance change / quantmod patch. Not 100% confident in it.
   # for (ii in 1: length(prices)) {
@@ -258,7 +274,8 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
   if (length(tickers) > 1) {
     
     # Align start dates
-    start.dates <- as.Date(unlist(lapply(prices, function(x) rownames(x[1, , drop = F]))))
+    start.dates <- as.Date(unlist(lapply(prices, function(x) 
+      rownames(x[1, , drop = F]))))
     if (earliest.subset) {
       earliest.startdate <- min(start.dates)
       locs.earliest <- which(start.dates == earliest.startdate)
@@ -281,7 +298,8 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
     }
     
     # Align end dates
-    end.dates <- as.Date(unlist(lapply(prices, function(x) rownames(x[nrow(x), , drop = F]))))
+    end.dates <- as.Date(unlist(lapply(prices, function(x) 
+      rownames(x[nrow(x), , drop = F]))))
     if (length(unique(end.dates)) > 1) {
       earliest.enddate <- min(end.dates)
       for (ii in 1: length(tickers)) {
@@ -311,12 +329,14 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
         
         loc <- suppressWarnings(which(dates.fund1 != dates.fund2))[1]
         if (dates.fund1[loc] < dates.fund2[loc]) {
-          message(paste("Dropped", dates.fund1[loc], "from", tickers[1], sep = " "))
+          message(paste("Dropped", dates.fund1[loc], "from", tickers[1], 
+                        sep = " "))
           prices.fund1 <- prices.fund1[-loc, ]
           dates.fund1 <- dates.fund1[-loc]
           prices[[1]] <- prices.fund1
         } else {
-          message(paste("Dropped", dates.fund2[loc], "from", tickers[ii], sep = " "))
+          message(paste("Dropped", dates.fund2[loc], "from", tickers[ii], 
+                        sep = " "))
           prices.fund2 <- prices.fund2[-loc, ]
           dates.fund2 <- dates.fund2[-loc]
           prices[[ii]] <- prices.fund2
@@ -331,7 +351,8 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
   }
   
   # If specified, apply intercepts and slopes and convert back to prices
-  if ((!is.null(intercepts) & !all(intercepts == 0)) | (!is.null(slopes) & !all(slopes == 1))) {
+  if ((!is.null(intercepts) & !all(intercepts == 0)) | 
+      (!is.null(slopes) & !all(slopes == 1))) {
     
     # Set default values for intercepts/slopes if only the other is specified
     if (is.null(intercepts)) {
@@ -344,7 +365,9 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
       
       if (! (intercepts[ii] == 0 & slopes[ii] == 1)) {
         closing.prices <- prices[[ii]][, 6]
-        prices[[ii]][, 6] <- balances(ratios = 1 + intercepts[ii] + slopes[ii] * pchanges(closing.prices), initial = closing.prices[1])
+        prices[[ii]][, 6] <- balances(ratios = 1 + intercepts[ii] + 
+                                        slopes[ii] * pchanges(closing.prices), 
+                                      initial = closing.prices[1])
         if (slopes[ii] != 1) {
           tickers[ii] <- paste(slopes[ii], "x ", tickers[ii], sep = "")
         }
@@ -359,14 +382,18 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
   dates <- as.Date(rownames(prices[[1]]))
   length.dates <- length(dates)
   
-  # If preto.days and/or prefrom.days specified, get just the date range of interest
+  # If preto.days and/or prefrom.days specified, get just the date range of 
+  # interest
   if (! is.null(prefrom.days) & ! is.null(preto.days)) {
-    prices <- lapply(prices, function(x) x[(length.dates - prefrom.days - preto.days - 1): length.dates, ])
+    prices <- lapply(prices, function(x) 
+      x[(length.dates - prefrom.days - preto.days - 1): length.dates, ])
   } else if (! is.null(prefrom.days) & is.null(preto.days)) {
     loc.from <- which(dates == from.initial)
-    prices <- lapply(prices, function(x) x[(loc.from - prefrom.days - 1): length.dates, ])
+    prices <- lapply(prices, function(x) 
+      x[(loc.from - prefrom.days - 1): length.dates, ])
   } else if (is.null(prefrom.days) & ! is.null(preto.days)) {
-    prices <- lapply(prices, function(x) x[(length.dates - preto.days - 1): length.dates, ])
+    prices <- lapply(prices, function(x) 
+      x[(length.dates - preto.days - 1): length.dates, ])
   }
   dates <- as.Date(rownames(prices[[1]]))
   
@@ -382,10 +409,12 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
   }
   
   # Output message indicating date range
-  message(paste("Results are for ", dates[1], " to " , dates[length(dates)], sep = ""))
+  message(paste("Results are for ", dates[1], " to " , dates[length(dates)], 
+                sep = ""))
   
   # Create gains matrix
-  gains.mat <- matrix(unlist(lapply(prices, function(x) pchanges(x[, 6]))), byrow = F, ncol = length(tickers))
+  gains.mat <- matrix(unlist(lapply(prices, function(x) 
+    pchanges(x[, 6]))), byrow = F, ncol = length(tickers))
   colnames(gains.mat) <- tickers
   rownames(gains.mat) <- as.character(dates)[-1]
   
@@ -395,8 +424,9 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL,
 }
 
 
-load.prices <- function(tickers, intercepts = NULL, slopes = NULL, 
-                        from = "1950-01-01", to = Sys.Date(), time.scale = "daily", 
+load.prices <- function(tickers, intercepts = NULL, slopes = NULL, ...,
+                        from = "1950-01-01", to = Sys.Date(), 
+                        time.scale = "daily", 
                         preto.days = NULL, prefrom.days = NULL,
                         initial = NULL, 
                         earliest.subset = FALSE) {
@@ -411,14 +441,21 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
     from <- from - ifelse(prefrom.days <= 10, 20, ceiling(prefrom.days * 1.65))
   }
   
-  # Download stock prices for tickers from Yahoo! Finance, using the quantmod package
+  # Download stock prices for tickers from Yahoo! Finance, using the quantmod 
+  # package
   prices <- list()
   for (ii in 1:length(tickers)) {
-    prices.fund <- try(getSymbols(Symbols = tickers[ii], from = from, to = to, auto.assign = FALSE, warnings = FALSE), silent = TRUE)
+    prices.fund <- try(getSymbols(Symbols = tickers[ii], from = from, to = to, 
+                                  auto.assign = FALSE, ...), silent = TRUE)
     if (class(prices.fund)[1] == "try-error") {
       prices[[ii]] <- NULL
     } else {
-      prices.fund <- as.matrix(adjustOHLC(prices.fund, symbol.name = tickers[ii]))
+      locs.0 <- which(prices.fund[, 4] == 0)
+      if (length(locs.0) > 0) {
+        prices.fund <- prices.fund[-locs.0, , drop = F]
+      }
+      prices.fund <- as.matrix(adjustOHLC(x = prices.fund, 
+                                          symbol.name = tickers[ii], ...))
       prices.fund[, 6] <- prices.fund[, 4]
       prices[[ii]] <- prices.fund
       if (! earliest.subset) {
@@ -436,14 +473,14 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
     slopes <- slopes[locs]
   }
   
-  # Remove NAs - added after Yahoo! Finance change / quantmod patch.
-  for (ii in 1: length(prices)) {
-    prices.fund <- prices[[ii]]
-    locs.na <- which(is.na(prices.fund[, 6]))
-    if (length(locs.na) > 0) {
-      prices[[ii]] <- prices.fund[-locs.na, ]
-    }
-  }
+  # # Remove NAs - added after Yahoo! Finance change / quantmod patch.
+  # for (ii in 1: length(prices)) {
+  #   prices.fund <- prices[[ii]]
+  #   locs.na <- which(is.na(prices.fund[, 6]))
+  #   if (length(locs.na) > 0) {
+  #     prices[[ii]] <- prices.fund[-locs.na, ]
+  #   }
+  # }
   
   # # Adjust for dividends - added after Yahoo! Finance change / quantmod patch. Not 100% confident in it.
   # for (ii in 1: length(prices)) {
@@ -501,7 +538,8 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
   if (length(tickers) > 1) {
     
     # Align start dates
-    start.dates <- as.Date(unlist(lapply(prices, function(x) rownames(x[1, , drop = F]))))
+    start.dates <- as.Date(unlist(lapply(prices, function(x) 
+      rownames(x[1, , drop = F]))))
     if (earliest.subset) {
       earliest.startdate <- min(start.dates)
       locs.earliest <- which(start.dates == earliest.startdate)
@@ -524,7 +562,8 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
     }
     
     # Align end dates
-    end.dates <- as.Date(unlist(lapply(prices, function(x) rownames(x[nrow(x), , drop = F]))))
+    end.dates <- as.Date(unlist(lapply(prices, function(x) 
+      rownames(x[nrow(x), , drop = F]))))
     if (length(unique(end.dates)) > 1) {
       earliest.enddate <- min(end.dates)
       for (ii in 1: length(tickers)) {
@@ -554,12 +593,14 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
         
         loc <- suppressWarnings(which(dates.fund1 != dates.fund2))[1]
         if (dates.fund1[loc] < dates.fund2[loc]) {
-          message(paste("Dropped", dates.fund1[loc], "from", tickers[1], sep = " "))
+          message(paste("Dropped", dates.fund1[loc], "from", tickers[1], 
+                        sep = " "))
           prices.fund1 <- prices.fund1[-loc, ]
           dates.fund1 <- dates.fund1[-loc]
           prices[[1]] <- prices.fund1
         } else {
-          message(paste("Dropped", dates.fund2[loc], "from", tickers[ii], sep = " "))
+          message(paste("Dropped", dates.fund2[loc], "from", tickers[ii], 
+                        sep = " "))
           prices.fund2 <- prices.fund2[-loc, ]
           dates.fund2 <- dates.fund2[-loc]
           prices[[ii]] <- prices.fund2
@@ -577,14 +618,18 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
   dates <- as.Date(rownames(prices[[1]]))
   length.dates <- length(dates)
   
-  # If preto.days and/or prefrom.days specified, get just the date range of interest
+  # If preto.days and/or prefrom.days specified, get just the date range of 
+  # interest
   if (! is.null(prefrom.days) & ! is.null(preto.days)) {
-    prices <- lapply(prices, function(x) x[(length.dates - prefrom.days - preto.days): length.dates, ])
+    prices <- lapply(prices, function(x) 
+      x[(length.dates - prefrom.days - preto.days): length.dates, ])
   } else if (! is.null(prefrom.days) & is.null(preto.days)) {
     loc.from <- which(dates == from.initial)
-    prices <- lapply(prices, function(x) x[(loc.from - prefrom.days): length.dates, ])
+    prices <- lapply(prices, function(x) 
+      x[(loc.from - prefrom.days): length.dates, ])
   } else if (is.null(prefrom.days) & ! is.null(preto.days)) {
-    prices <- lapply(prices, function(x) x[(length.dates - preto.days): length.dates, ])
+    prices <- lapply(prices, function(x) 
+      x[(length.dates - preto.days): length.dates, ])
   }
   dates <- as.Date(rownames(prices[[1]]))
   
@@ -601,12 +646,15 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
   }
   
   # Create matrix of closing prices
-  closing.prices <- matrix(unlist(lapply(prices, function(x) x[, 6])), byrow = F, ncol = length(tickers))
+  closing.prices <- matrix(unlist(lapply(prices, function(x) 
+    x[, 6])), byrow = F, ncol = length(tickers))
   colnames(closing.prices) <- tickers
   rownames(closing.prices) <- as.character(dates)
   
-  # If intercepts and slopes specified, convert to gains, scale gains, and convert back to prices
-  if ((!is.null(intercepts) & !all(intercepts == 0)) | (!is.null(slopes) & !all(slopes == 1))) {
+  # If intercepts and slopes specified, convert to gains, scale gains, and 
+  # convert back to prices
+  if ((!is.null(intercepts) & !all(intercepts == 0)) | 
+      (!is.null(slopes) & !all(slopes == 1))) {
     
     # If intercepts or slopes NULL, set to matrix of 0's and 1's, respectively
     if (is.null(intercepts)) {
@@ -619,7 +667,9 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
     # Scale each column of closing prices
     for (ii in 1: length(tickers)) {
       if (intercepts[ii] != 0 | slopes[ii] != 1) {
-        closing.prices[, ii] <- balances(ratios = 1 + intercepts[ii] + slopes[ii] * pchanges(closing.prices[, ii]),
+        closing.prices[, ii] <- balances(ratios = 1 + intercepts[ii] + 
+                                           slopes[ii] * 
+                                           pchanges(closing.prices[, ii]),
                                          initial = closing.prices[1, ii])
         if (slopes[ii] != 1) {
           tickers[ii] <- paste(slopes[ii], "x ", tickers[ii], sep = "")
@@ -638,7 +688,8 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL,
   }
   
   # Output message indicating date range
-  message(paste("Results are for ", dates[1], " to " , dates[length(dates)], sep = ""))
+  message(paste("Results are for ", dates[1], " to " , dates[length(dates)], 
+                sep = ""))
   
   # Return closing prices
   return(closing.prices)
@@ -659,7 +710,8 @@ prices.rate <- function(prices, units.rate = NULL, nas = FALSE) {
   
   # Convert to x-unit growth rate if units.rate is specified
   if (! is.null(units.rate) && units.rate != prices.length - 1) {
-    rate1 <- convert.rate(rate = rate1, units.in = prices.length - 1, units.out = units.rate)
+    rate1 <- convert.rate(rate = rate1, 
+                          units.in = prices.length - 1, units.out = units.rate)
   }
   
   # Return the rate
@@ -681,7 +733,8 @@ gains.rate <- function(gains, units.rate = NULL, nas = FALSE) {
   
   # Convert to x-unit growth rate if xunit.rate is specified
   if (! is.null(units.rate) && ! (units.rate == gains.length)) {
-    rate1 <- convert.rate(rate = rate1, units.in = gains.length, units.out = units.rate)
+    rate1 <- convert.rate(rate = rate1, 
+                          units.in = gains.length, units.out = units.rate)
   }
   
   # Return the rate
@@ -690,7 +743,11 @@ gains.rate <- function(gains, units.rate = NULL, nas = FALSE) {
 }
 
 
-mdd <- function(prices = NULL, gains = NULL, highs = NULL, lows = NULL, indices = FALSE, nas = FALSE) {
+mdd <- function(prices = NULL, 
+                gains = NULL, 
+                highs = NULL, lows = NULL, 
+                indices = FALSE, 
+                nas = FALSE) {
   
   # Check that indices is a logical
   if (!is.logical(indices)) {
@@ -716,10 +773,12 @@ mdd <- function(prices = NULL, gains = NULL, highs = NULL, lows = NULL, indices 
     prices <- balances(ratios = gains + 1, initial = 1)
   }
   
-  # Call C++ function depending on indices and whether prices or highs and lows specified
+  # Call C++ function depending on indices and whether prices or highs and lows 
+  # specified
   if (!is.null(prices)) {
     if (!is.null(highs) | !is.null(lows)) {
-      stop("Please input prices OR highs and lows, but not both. If both are available, use prices.")
+      stop("Please input prices OR highs and lows, but not both. If both are 
+           available, use prices.")
     }
     if (nas & is.null(gains)) {
       prices <- prices[!is.na(prices)]
@@ -732,7 +791,8 @@ mdd <- function(prices = NULL, gains = NULL, highs = NULL, lows = NULL, indices 
     }
   } else {
     if (!is.null(prices)) {
-      stop("Please input prices OR highs and lows, but not both. If both are available, use prices.")
+      stop("Please input prices OR highs and lows, but not both. If both are 
+           available, use prices.")
     }
     if (nas) {
       highs <- highs[!is.na(highs)]
@@ -752,7 +812,10 @@ mdd <- function(prices = NULL, gains = NULL, highs = NULL, lows = NULL, indices 
 }
 
 
-sharpe.ratio <- function(gains = NULL, prices = NULL, rf = 0, nas = FALSE) {
+sharpe.ratio <- function(gains = NULL, 
+                         prices = NULL, 
+                         rf = 0, 
+                         nas = FALSE) {
   
   # Check that either gains or prices is specified
   if (is.null(gains) & is.null(prices)) {
@@ -777,7 +840,10 @@ sharpe.ratio <- function(gains = NULL, prices = NULL, rf = 0, nas = FALSE) {
 }
 
 
-sortino.ratio <- function(gains = NULL, prices = NULL, rf = 0, nas = FALSE) {
+sortino.ratio <- function(gains = NULL, 
+                          prices = NULL, 
+                          rf = 0, 
+                          nas = FALSE) {
   
   # Check that either gains or prices is specified
   if (is.null(gains) & is.null(prices)) {
@@ -802,7 +868,10 @@ sortino.ratio <- function(gains = NULL, prices = NULL, rf = 0, nas = FALSE) {
 }
 
 
-rrr <- function(prices = NULL, gains = NULL, highs = NULL, lows = NULL, nas = FALSE) {
+rrr <- function(prices = NULL, 
+                gains = NULL, 
+                highs = NULL, lows = NULL, 
+                nas = FALSE) {
   
   # Check that either prices or gains is specified
   if (is.null(prices) & is.null(gains)) {
@@ -831,10 +900,12 @@ rrr <- function(prices = NULL, gains = NULL, highs = NULL, lows = NULL, nas = FA
 
 
 metrics <- function(tickers = NULL, ..., 
-                    gains = NULL, prices = NULL,
-                    perf.metrics = c("mean", "sd", "growth", "cagr", "mdd", "sharpe",
-                                     "sortino", "alpha", "beta", "r.squared", 
-                                     "pearson", "spearman", "auto.pearson", "auto.spearman")) {
+                    gains = NULL, 
+                    prices = NULL,
+                    perf.metrics = c("mean", "sd", "growth", "cagr", "mdd", 
+                                     "sharpe", "sortino", "alpha", "beta", 
+                                     "r.squared", "pearson", "spearman", 
+                                     "auto.pearson", "auto.spearman")) {
   
   # If tickers specified, load various historical prices from Yahoo! Finance
   if (! is.null(tickers)) {
@@ -850,19 +921,24 @@ metrics <- function(tickers = NULL, ...,
     
   } else if (is.null(gains)) {
     
-    stop("You must specify one of the following inputs: tickers, gains, or prices")
+    stop("You must specify one of the following inputs: tickers, gains, or 
+         prices")
     
   }
   
-  # Set tickers to column names of gains matrix; if NULL, use Fund 1, Fund 2, ...
+  # Set tickers to column names of gains matrix; if NULL, use Fund 1, Fund 2, 
+  # ...
   tickers <- colnames(gains)
   if (is.null(tickers)) {
     tickers <- paste("Fund", 1: ncol(gains))
   }
   
-  # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
+  # Figure out how many units are in a year, for CAGR and axis labels. If 
+  # unknown, assume daily.
   if (hasArg(time.scale)) {
-    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+    units.year <- ifelse(time.scale == "daily", 252, 
+                         ifelse(time.scale == "monthly", 12, 
+                                1))
   } else {
     min.diffdates <- min(diff(as.Date(rownames(gains)[1: min(10, nrow(gains))])))
     if (! is.null(min.diffdates)) {
@@ -894,7 +970,8 @@ metrics <- function(tickers = NULL, ...,
     p.metrics$growth <- apply(gains, 2, function(x) gains.rate(gains = x))
   }
   if ("cagr" %in% perf.metrics) {
-    p.metrics$cagr <- apply(gains, 2, function(x) gains.rate(gains = x, units.rate = units.year))
+    p.metrics$cagr <- apply(gains, 2, function(x) 
+      gains.rate(gains = x, units.rate = units.year))
   }
   if ("mdd" %in% perf.metrics) {
     p.metrics$mdd <- apply(gains, 2, function(x) mdd(gains = x))
@@ -906,25 +983,31 @@ metrics <- function(tickers = NULL, ...,
     p.metrics$sortino <- apply(gains, 2, function(x) sortino.ratio(gains = x))
   }
   if ("alpha" %in% perf.metrics) {
-    p.metrics$alpha <- c(0, apply(gains[, -1, drop = F], 2, function(x) lm(x ~ gains[, 1])$coef[1]))
+    p.metrics$alpha <- c(0, apply(gains[, -1, drop = F], 2, function(x) 
+      lm(x ~ gains[, 1])$coef[1]))
   }
   if ("beta" %in% perf.metrics) {
-    p.metrics$beta <- c(1, apply(gains[, -1, drop = F], 2, function(x) lm(x ~ gains[, 1])$coef[2]))
+    p.metrics$beta <- c(1, apply(gains[, -1, drop = F], 2, function(x) 
+      lm(x ~ gains[, 1])$coef[2]))
   }
   if ("r.squared" %in% perf.metrics) {
-    p.metrics$r.squared <- c(1, apply(gains[, -1, drop = F], 2, function(x) summary(lm(x ~ gains[, 1]))$r.squared))
+    p.metrics$r.squared <- c(1, apply(gains[, -1, drop = F], 2, function(x) 
+      summary(lm(x ~ gains[, 1]))$r.squared))
   }
   if ("pearson" %in% perf.metrics) {
     p.metrics$pearson <- apply(gains, 2, function(x) cor(x, gains[, 1]))
   }
   if ("spearman" %in% perf.metrics) {
-    p.metrics$spearman <- apply(gains, 2, function(x) cor(x, gains[, 1], method = "spearman"))
+    p.metrics$spearman <- apply(gains, 2, function(x) 
+      cor(x, gains[, 1], method = "spearman"))
   }
   if ("auto.pearson" %in% perf.metrics) {
-    p.metrics$auto.pearson <- apply(gains, 2, function(x) cor(x[-length(x)], x[-1]))
+    p.metrics$auto.pearson <- apply(gains, 2, function(x) 
+      cor(x[-length(x)], x[-1]))
   }
   if ("auto.spearman" %in% perf.metrics) {
-    p.metrics$auto.spearman <- apply(gains, 2, function(x) cor(x[-length(x)], x[-1], method = "spearman"))
+    p.metrics$auto.spearman <- apply(gains, 2, function(x) 
+      cor(x[-length(x)], x[-1], method = "spearman"))
   }
   
   # Calculate correlation matrix
@@ -937,10 +1020,11 @@ metrics <- function(tickers = NULL, ...,
 }
 
 
-beta.trailing50 <- function(ticker, benchmark.ticker = "SPY") {
+beta.trailing50 <- function(ticker, benchmark.ticker = "SPY", ...) {
   
   # Load gains for last 90 calendar days
-  gains <- load.gains(tickers = c(benchmark.ticker, ticker), from = Sys.Date() - 90)
+  gains <- load.gains(tickers = c(benchmark.ticker, ticker), 
+                      from = Sys.Date() - 90, ...)
   
   # Get subset of most recent 50 gains
   gains.last50 <- gains[(nrow(gains) - 49): nrow(gains), ]
@@ -952,11 +1036,17 @@ beta.trailing50 <- function(ticker, benchmark.ticker = "SPY") {
 }
 
 
-twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ..., 
-                           benchmark.tickers = NULL, reference.tickers = NULL,
-                           tickers.gains = NULL, benchmark.gains = NULL, reference.gains = NULL,
-                           step.data = 0.0025, step.points = 0.1,
-                           x.metric = "sd", y.metric = "mean",
+twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, 
+                           ..., 
+                           benchmark.tickers = NULL, 
+                           reference.tickers = NULL,
+                           tickers.gains = NULL, 
+                           benchmark.gains = NULL, 
+                           reference.gains = NULL,
+                           step.data = 0.0025, 
+                           step.points = 0.1,
+                           x.metric = "sd", 
+                           y.metric = "mean",
                            tickerlabel.offsets = NULL,
                            reflabel.offsets = NULL,
                            add.plot = FALSE,
@@ -973,7 +1063,8 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
   # If tickers specified, load various historical prices from Yahoo! Finance
   if (! is.null(tickers)) {
 
-    # If vectors rather than matrices are provided for tickers, intercepts, or slopes, convert to 2-row matrices
+    # If vectors rather than matrices are provided for tickers, intercepts, or 
+    # slopes, convert to 2-row matrices
     if (is.vector(tickers)) {
       tickers <- matrix(tickers, nrow = 2)
     }
@@ -992,14 +1083,16 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
       slopes <- matrix(1, nrow = 2, ncol = ncol(tickers))
     }
 
-    # Create vector of "extra" tickers comprised of benchmark and reference tickers
+    # Create vector of "extra" tickers comprised of benchmark and reference 
+    # tickers
     extra.tickers <- unique(c(benchmark.tickers, reference.tickers))
 
     # Calculate gains matrix
     tickers.vec <- c(as.vector(tickers), extra.tickers)
     intercepts.vec <- c(as.vector(intercepts), rep(0, length(extra.tickers)))
     slopes.vec <- c(as.vector(slopes), rep(1, length(extra.tickers)))
-    gains <- load.gains(tickers = tickers.vec, intercepts = intercepts.vec, slopes = slopes.vec, ...)
+    gains <- load.gains(tickers = tickers.vec, intercepts = intercepts.vec, 
+                        slopes = slopes.vec, ...)
 
     # Update ticker names to show intercept/slope
     tickers <- matrix(colnames(gains)[1: length(tickers)], nrow = 2)
@@ -1024,7 +1117,8 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
     }
     tickers <- matrix(tickers, nrow = 2)
     
-    # Convert reference.gains to matrix if necessary, and figure out reference.tickers
+    # Convert reference.gains to matrix if necessary, and figure out 
+    # reference.tickers
     if (is.vector(reference.gains)) {
       reference.gains <- matrix(reference.gains, ncol = 1)
       reference.tickers <- "REF"
@@ -1035,7 +1129,8 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
       }
     }
     
-    # Convert benchmark.gains to matrix if necessary, and figure out benchmark.tickers
+    # Convert benchmark.gains to matrix if necessary, and figure out 
+    # benchmark.tickers
     if (is.vector(benchmark.gains)) {
       benchmark.gains <- matrix(benchmark.gains, ncol = 1)
       benchmark.tickers <- "BENCH"
@@ -1057,11 +1152,15 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
   fund.all <- cbind(fund1.all, fund2.all)
   num.points <- length(fund1.all)
   
-  # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
+  # Figure out how many units are in a year, for CAGR and axis labels. If 
+  # unknown, assume daily.
   if (hasArg(time.scale)) {
-    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+    units.year <- ifelse(time.scale == "daily", 252, 
+                         ifelse(time.scale == "monthly", 12, 
+                                1))
   } else {
-    min.diffdates <- min(diff(as.Date(rownames(tickers.gains)[1: min(10, nrow(tickers.gains))])))
+    min.diffdates <- min(diff(as.Date(rownames(tickers.gains)
+                                      [1: min(10, nrow(tickers.gains))])))
     if (! is.null(min.diffdates)) {
       if (min.diffdates == 1) {
         time.scale <- "daily"
@@ -1094,31 +1193,38 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
     } else if (x.metric == "sd") {
 
       vars <- var(tickers.gains.sub)
-      x[[ii]] <- sqrt(fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + fund1.all * fund2.all * vars[1, 2]) * 100
+      x[[ii]] <- sqrt(fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 
+                        fund1.all * fund2.all * vars[1, 2]) * 100
 
     } else if (x.metric == "growth") {
 
-      x[[ii]] <- apply(fund.all, 1, function(x) gains.rate(gains = tickers.gains.sub %*% x)) * 100
+      x[[ii]] <- apply(fund.all, 1, function(x) 
+        gains.rate(gains = tickers.gains.sub %*% x)) * 100
 
     } else if (x.metric == "cagr") {
 
-      x[[ii]] <- apply(fund.all, 1, function(x) gains.rate(gains = tickers.gains.sub %*% x, units.rate = units.year)) * 100
+      x[[ii]] <- apply(fund.all, 1, function(x) 
+        gains.rate(gains = tickers.gains.sub %*% x, 
+                   units.rate = units.year)) * 100
 
     } else if (x.metric == "mdd") {
 
-      x[[ii]] <- apply(fund.all, 1, function(x) mdd(gains = tickers.gains.sub %*% x)) * 100
+      x[[ii]] <- apply(fund.all, 1, function(x) 
+        mdd(gains = tickers.gains.sub %*% x)) * 100
 
     } else if (x.metric == "sharpe") {
 
       means <- apply(tickers.gains.sub, 2, mean)
       x1 <- fund.all %*% means
       vars <- var(tickers.gains.sub)
-      x2 <- sqrt(fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 2 * fund1.all * fund2.all * vars[1, 2])
+      x2 <- sqrt(fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 
+                   2 * fund1.all * fund2.all * vars[1, 2])
       x[[ii]] <- x1 / x2
 
     } else if (x.metric == "sortino") {
 
-      x[[ii]] <- apply(fund.all, 1, function(x) sortino.ratio(gains = tickers.gains.sub %*% x))
+      x[[ii]] <- apply(fund.all, 1, function(x) 
+        sortino.ratio(gains = tickers.gains.sub %*% x))
 
     } else if (x.metric == "alpha") {
 
@@ -1148,45 +1254,60 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
 
       vars <- var(cbind(tickers.gains.sub, benchmark.gains[, 1]))
       x[[ii]] <- ((fund1.all * vars[1, 3] + fund2.all * vars[2, 3]) /
-        sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 2 * fund1.all * fund2.all * vars[1, 2]) * vars[3, 3]))^2
+        sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 
+                2 * fund1.all * fund2.all * vars[1, 2]) * vars[3, 3]))^2
 
     } else if (x.metric == "r.squared2") {
 
       vars <- var(cbind(tickers.gains.sub, benchmark.gains[, 2]))
       x[[ii]] <- ((fund1.all * vars[1, 3] + fund2.all * vars[2, 3]) /
-                    sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 2 * fund1.all * fund2.all * vars[1, 2]) * vars[3, 3]))^2
+                    sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 
+                            2 * fund1.all * fund2.all * vars[1, 2]) * 
+                           vars[3, 3]))^2
 
     } else if (x.metric == "pearson") {
 
       vars <- var(cbind(tickers.gains.sub, benchmark.gains[, 1]))
       x[[ii]] <- (fund1.all * vars[1, 3] + fund2.all * vars[2, 3]) /
-        sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 2 * fund1.all * fund2.all * vars[1, 2]) * vars[3, 3])
+        sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 
+                2 * fund1.all * fund2.all * vars[1, 2]) * vars[3, 3])
 
     } else if (x.metric == "pearson2") {
 
       vars <- var(cbind(tickers.gains.sub, benchmark.gains[, 2]))
       x[[ii]] <- (fund1.all * vars[1, 3] + fund2.all * vars[2, 3]) /
-        sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 2 * fund1.all * fund2.all * vars[1, 2]) * vars[3, 3])
+        sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 
+                2 * fund1.all * fund2.all * vars[1, 2]) * vars[3, 3])
 
     } else if (x.metric == "spearman") {
 
-      x[[ii]] <- apply(fund.all, 1, function(x) cor(tickers.gains.sub %*% x, benchmark.gains[, 1], method = "spearman"))
+      x[[ii]] <- apply(fund.all, 1, function(x) 
+        cor(tickers.gains.sub %*% x, benchmark.gains[, 1], method = "spearman"))
 
     } else if (x.metric == "spearman2") {
 
-      x[[ii]] <- apply(fund.all, 1, function(x) cor(tickers.gains.sub %*% x, benchmark.gains[, 2], method = "spearman"))
+      x[[ii]] <- apply(fund.all, 1, function(x) 
+        cor(tickers.gains.sub %*% x, benchmark.gains[, 2], method = "spearman"))
 
     } else if (x.metric == "auto.pearson") {
 
-      vars <- var(cbind(tickers.gains.sub[1: (nrow(tickers.gains.sub) - 1), ], tickers.gains.sub[2: nrow(tickers.gains.sub), ]))
-      x[[ii]] <- (fund1.all^2 * vars[1, 3] + fund1.all * fund2.all * vars[1, 4] + fund1.all * fund2.all * vars[2, 3] + fund2.all^2 * vars[2, 4]) /
-        sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 2 * fund1.all * fund2.all * vars[1, 2]) *
-               (fund1.all^2 * vars[3, 3] + fund2.all^2 * vars[4, 4] + 2 * fund1.all * fund2.all * vars[3, 4]))
+      vars <- var(cbind(tickers.gains.sub[1: (nrow(tickers.gains.sub) - 1), ], 
+                        tickers.gains.sub[2: nrow(tickers.gains.sub), ]))
+      x[[ii]] <- (fund1.all^2 * vars[1, 3] + 
+                    fund1.all * fund2.all * vars[1, 4] + 
+                    fund1.all * fund2.all * vars[2, 3] + 
+                    fund2.all^2 * vars[2, 4]) /
+        sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 
+                2 * fund1.all * fund2.all * vars[1, 2]) *
+               (fund1.all^2 * vars[3, 3] + fund2.all^2 * vars[4, 4] + 
+                  2 * fund1.all * fund2.all * vars[3, 4]))
 
     } else if (x.metric == "auto.spearman") {
 
       num.gains <- nrow(tickers.gains.sub)
-      x[[ii]] <- apply(fund.all, 1, function(x) cor((tickers.gains.sub %*% x)[-num.gains], (tickers.gains.sub %*% x)[-1], method = "spearman"))
+      x[[ii]] <- apply(fund.all, 1, function(x) 
+        cor((tickers.gains.sub %*% x)[-num.gains], 
+            (tickers.gains.sub %*% x)[-1], method = "spearman"))
 
     } else if (x.metric == "allocation") {
 
@@ -1203,31 +1324,38 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
     } else if (y.metric == "sd") {
 
       vars <- var(tickers.gains.sub)
-      y[[ii]] <- sqrt(fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 2 * fund1.all * fund2.all * vars[1, 2]) * 100
+      y[[ii]] <- sqrt(fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 
+                        2 * fund1.all * fund2.all * vars[1, 2]) * 100
 
     } else if (y.metric == "growth") {
 
-      y[[ii]] <- apply(fund.all, 1, function(x) gains.rate(gains = tickers.gains.sub %*% x)) * 100
+      y[[ii]] <- apply(fund.all, 1, function(x) 
+        gains.rate(gains = tickers.gains.sub %*% x)) * 100
 
     } else if (y.metric == "cagr") {
 
-      y[[ii]] <- apply(fund.all, 1, function(x) gains.rate(gains = tickers.gains.sub %*% x, units.rate = units.year)) * 100
+      y[[ii]] <- apply(fund.all, 1, function(x) 
+        gains.rate(gains = tickers.gains.sub %*% x, 
+                   units.rate = units.year)) * 100
 
     } else if (y.metric == "mdd") {
 
-      y[[ii]] <- apply(fund.all, 1, function(x) mdd(gains = tickers.gains.sub %*% x)) * 100
+      y[[ii]] <- apply(fund.all, 1, function(x) 
+        mdd(gains = tickers.gains.sub %*% x)) * 100
 
     } else if (y.metric == "sharpe") {
 
       means <- apply(tickers.gains.sub, 2, mean)
       y1 <- fund1.all * means[1] + fund2.all * means[2]
       vars <- var(tickers.gains.sub)
-      y2 <- sqrt(fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 2 * fund1.all * fund2.all * vars[1, 2])
+      y2 <- sqrt(fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 
+                   2 * fund1.all * fund2.all * vars[1, 2])
       y[[ii]] <- y1 / y2
 
     } else if (y.metric == "sortino") {
 
-      y[[ii]] <- apply(fund.all, 1, function(x) sortino.ratio(gains = tickers.gains.sub %*% x))
+      y[[ii]] <- apply(fund.all, 1, function(x) 
+        sortino.ratio(gains = tickers.gains.sub %*% x))
 
     } else if (y.metric == "alpha") {
 
@@ -1257,45 +1385,61 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
 
       vars <- var(cbind(tickers.gains.sub, benchmark.gains[, 1]))
       y[[ii]] <- ((fund1.all * vars[1, 3] + fund2.all * vars[2, 3]) /
-                    sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 2 * fund1.all * fund2.all * vars[1, 2]) * vars[3, 3]))^2
+                    sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 
+                            2 * fund1.all * fund2.all * vars[1, 2]) * 
+                           vars[3, 3]))^2
 
     } else if (y.metric == "r.squared2") {
 
       vars <- var(cbind(tickers.gains.sub, benchmark.gains[, 2]))
       y[[ii]] <- ((fund1.all * vars[1, 3] + fund2.all * vars[2, 3]) /
-                    sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 2 * fund1.all * fund2.all * vars[1, 2]) * vars[3, 3]))^2
+                    sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 
+                            2 * fund1.all * fund2.all * vars[1, 2]) * 
+                           vars[3, 3]))^2
 
     } else if (y.metric == "pearson") {
 
       vars <- var(cbind(tickers.gains.sub, benchmark.gains[, 1]))
       y[[ii]] <- (fund1.all * vars[1, 3] + fund2.all * vars[2, 3]) /
-        sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 2 * fund1.all * fund2.all * vars[1, 2]) * vars[3, 3])
+        sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 
+                2 * fund1.all * fund2.all * vars[1, 2]) * vars[3, 3])
 
     } else if (y.metric == "pearson2") {
 
       vars <- var(cbind(tickers.gains.sub, benchmark.gains[, 2]))
       y[[ii]] <- (fund1.all * vars[1, 3] + fund2.all * vars[2, 3]) /
-        sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 2 * fund1.all * fund2.all * vars[1, 2]) * vars[3, 3])
+        sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 
+                2 * fund1.all * fund2.all * vars[1, 2]) * vars[3, 3])
 
     } else if (y.metric == "spearman") {
 
-      y[[ii]] <- apply(fund.all, 1, function(x) cor(tickers.gains.sub %*% x, benchmark.gains[, 1], method = "spearman"))
+      y[[ii]] <- apply(fund.all, 1, function(x) 
+        cor(tickers.gains.sub %*% x, benchmark.gains[, 1], method = "spearman"))
 
     } else if (y.metric == "spearman2") {
 
-      y[[ii]] <- apply(fund.all, 1, function(x) cor(tickers.gains.sub %*% x, benchmark.gains[, 2], method = "spearman"))
+      y[[ii]] <- apply(fund.all, 1, function(x) 
+        cor(tickers.gains.sub %*% x, benchmark.gains[, 2], method = "spearman"))
 
     } else if (y.metric == "auto.pearson") {
 
-      vars <- var(cbind(tickers.gains.sub[1: (nrow(tickers.gains.sub) - 1), ], tickers.gains.sub[2: nrow(tickers.gains.sub), ]))
-      y[[ii]] <- (fund1.all^2 * vars[1, 3] + fund1.all * fund2.all * vars[1, 4] + fund1.all * fund2.all * vars[2, 3] + fund2.all^2 * vars[2, 4]) /
-        sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 2 * fund1.all * fund2.all * vars[1, 2]) *
-               (fund1.all^2 * vars[3, 3] + fund2.all^2 * vars[4, 4] + 2 * fund1.all * fund2.all * vars[3, 4]))
+      vars <- var(cbind(tickers.gains.sub[1: (nrow(tickers.gains.sub) - 1), ], 
+                        tickers.gains.sub[2: nrow(tickers.gains.sub), ]))
+      y[[ii]] <- (fund1.all^2 * vars[1, 3] + 
+                    fund1.all * fund2.all * vars[1, 4] + 
+                    fund1.all * fund2.all * vars[2, 3] + 
+                    fund2.all^2 * vars[2, 4]) /
+        sqrt((fund1.all^2 * vars[1, 1] + fund2.all^2 * vars[2, 2] + 
+                2 * fund1.all * fund2.all * vars[1, 2]) *
+               (fund1.all^2 * vars[3, 3] + fund2.all^2 * vars[4, 4] + 
+                  2 * fund1.all * fund2.all * vars[3, 4]))
 
     } else if (y.metric == "auto.spearman") {
 
       num.gains <- nrow(tickers.gains.sub)
-      y[[ii]] <- apply(fund.all, 1, function(x) cor((tickers.gains.sub %*% x)[-num.gains], (tickers.gains.sub %*% x)[-1], method = "spearman"))
+      y[[ii]] <- apply(fund.all, 1, function(x) 
+        cor((tickers.gains.sub %*% x)[-num.gains], 
+            (tickers.gains.sub %*% x)[-1], method = "spearman"))
 
     } else if (y.metric == "allocation") {
 
@@ -1312,13 +1456,15 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
   x1 <- x2 <- y1 <- y2 <- NULL
   reference.y <- NULL
   if (y.metric == "mean") {
-    plot.title <- paste("Mean of ", capitalize(time.scale), " Gains vs. ", sep = "")
+    plot.title <- paste("Mean of ", capitalize(time.scale), " Gains vs. ", 
+                        sep = "")
     y.label <- paste("Mean of ", time.scale, " gains (%)", sep = "")
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, mean) * 100
     }
   } else if (y.metric == "sd") {
-    plot.title <- paste("SD of ", capitalize(time.scale), " Gains vs. ", sep = "")
+    plot.title <- paste("SD of ", capitalize(time.scale), " Gains vs. ", 
+                        sep = "")
     y.label <- paste("SD of ", time.scale, " gains (%)", sep = "")
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, sd) * 100
@@ -1328,106 +1474,123 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
     plot.title <- "Total Growth vs. "
     y.label <- "Growth (%)"
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) gains.rate(gains = x)) * 100
+      reference.y <- apply(reference.gains, 2, function(x) 
+        gains.rate(gains = x)) * 100
     }
   } else if (y.metric == "cagr") {
     plot.title <- "CAGR vs. "
     y.label <- "CAGR (%)"
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) gains.rate(gains = x, units.rate = units.year)) * 100
+      reference.y <- apply(reference.gains, 2, function(x) 
+        gains.rate(gains = x, units.rate = units.year)) * 100
     }
   } else if (y.metric == "mdd") {
     plot.title <- "MDD vs. "
     y.label <- "MDD (%)"
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) mdd(gains = x)) * 100
+      reference.y <- apply(reference.gains, 2, function(x) 
+        mdd(gains = x)) * 100
     }
     y1 <- 0
   } else if (y.metric == "sharpe") {
     plot.title <- "Sharpe Ratio vs. "
     y.label <- "Sharpe ratio"
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) sharpe.ratio(gains = x))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        sharpe.ratio(gains = x))
     }
   } else if (y.metric == "sortino") {
     plot.title <- "Sharpe Ratio vs. "
     y.label <- "Sortino ratio"
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) sortino.ratio(gains = x))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        sortino.ratio(gains = x))
     }
   } else if (y.metric == "alpha") {
     plot.title <- "Alpha vs. "
     y.label <- paste("Alpha w/ ", benchmark.tickers[1], " (%)", sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 1])$coef[1]) * 100
+      reference.y <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains[, 1])$coef[1]) * 100
     }
   } else if (y.metric == "alpha2") {
     plot.title <- "Alpha vs. "
     y.label <- paste("Alpha w/ ", benchmark.tickers[2], " (%)", sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 2])$coef[1]) * 100
+      reference.y <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains[, 2])$coef[1]) * 100
     }
   } else if (y.metric == "beta") {
     plot.title <- "Beta vs. "
     y.label <- paste("Beta w/ ", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 1])$coef[2])
+      reference.y <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains[, 1])$coef[2])
     }
   } else if (y.metric == "beta2") {
     plot.title <- "Beta vs. "
     y.label <- paste("Beta w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 2])$coef[2])
+      reference.y <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains[, 2])$coef[2])
     }
   } else if (y.metric == "r.squared") {
     plot.title <- "R-squared vs. "
     y.label <- paste("R-squared w/", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains[, 1]))$r.squared)
+      reference.y <- apply(reference.gains, 2, function(x) 
+        summary(lm(x ~ benchmark.gains[, 1]))$r.squared)
     }
     y1 <- 0
   } else if (y.metric == "r.squared2") {
     plot.title <- "R-squared vs. "
     y.label <- paste("R-squared w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains[, 2]))$r.squared)
+      reference.y <- apply(reference.gains, 2, function(x) 
+        summary(lm(x ~ benchmark.gains[, 2]))$r.squared)
     }
     y1 <- 0
   } else if (y.metric == "pearson") {
     plot.title <- "Pearson Cor. vs. "
     y.label <- paste("Pearson cor. w/ ", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 1]))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains[, 1]))
     }
   } else if (y.metric == "pearson2") {
     plot.title <- "Pearson Cor. vs. "
     y.label <- paste("Pearson cor. w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 2]))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains[, 2]))
     }
   } else if (y.metric == "spearman") {
     plot.title <- "Spearman Cor. vs. "
     y.label <- paste("Spearman cor. w/ ", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 1], method = "spearman"))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains[, 1], method = "spearman"))
     }
   } else if (y.metric == "spearman2") {
     plot.title <- "Spearman Cor. vs. "
     y.label <- paste("Spearman cor. w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 2], method = "spearman"))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains[, 2], method = "spearman"))
     }
   } else if (y.metric == "auto.pearson") {
     plot.title <- "Autocorrelation vs. "
     y.label <- "Pearson autocorrelation"
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1]))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        cor(x[-length(x)], x[-1]))
     }
   } else if (y.metric == "auto.spearman") {
     plot.title <- "Autocorrelation vs. "
     y.label <- "Spearman autocorrelation"
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1], method = "spearman"))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        cor(x[-length(x)], x[-1], method = "spearman"))
     }
   } else if (y.metric == "allocation") {
     plot.title <- "Allocation vs. "
@@ -1438,13 +1601,15 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
 
   reference.x <- NULL
   if (x.metric == "mean") {
-    plot.title <- paste(plot.title, "Mean of ", capitalize(time.scale), " Gains", sep = "")
+    plot.title <- paste(plot.title, "Mean of ", capitalize(time.scale), 
+                        " Gains", sep = "")
     x.label <- paste("Mean of ", time.scale, " gains (%)", sep = "")
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, mean) * 100
     }
   } else if (x.metric == "sd") {
-    plot.title <- paste(plot.title, "SD of ", capitalize(time.scale), " Gains", sep = "")
+    plot.title <- paste(plot.title, "SD of ", capitalize(time.scale), 
+                        " Gains", sep = "")
     x.label <- paste("SD of ", time.scale, " gains (%)", sep = "")
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, sd) * 100
@@ -1454,106 +1619,123 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
     plot.title <- paste(plot.title, "Total Growth", sep = "")
     x.label <- "Growth (%)"
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) gains.rate(gains = x)) * 100
+      reference.x <- apply(reference.gains, 2, function(x) 
+        gains.rate(gains = x)) * 100
     }
   } else if (x.metric == "cagr") {
     plot.title <- paste(plot.title, "CAGR", sep = "")
     x.label <- "CAGR (%)"
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) gains.rate(gains = x, units.rate = units.year)) * 100
+      reference.x <- apply(reference.gains, 2, function(x) 
+        gains.rate(gains = x, units.rate = units.year)) * 100
     }
   } else if (x.metric == "mdd") {
     plot.title <- paste(plot.title, "MDD", sep = "")
     x.label <- "MDD (%)"
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) mdd(gains = x)) * 100
+      reference.x <- apply(reference.gains, 2, function(x) 
+        mdd(gains = x)) * 100
     }
     x1 <- 0
   } else if (x.metric == "sharpe") {
     plot.title <- paste(plot.title, "Sharpe Ratio", sep = "")
     x.label <- "Sharpe ratio"
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) sharpe.ratio(gains = x))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        sharpe.ratio(gains = x))
     }
   } else if (x.metric == "sortino") {
     plot.title <- paste(plot.title, "Sortino Ratio", sep = "")
     x.label <- "Sortino ratio"
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) sharpe.ratio(gains = x))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        sharpe.ratio(gains = x))
     }
   } else if (x.metric == "alpha") {
     plot.title <- paste(plot.title, "Alpha")
     x.label <- paste("Alpha w/ ", benchmark.tickers[1], " (%)", sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains)$coef[1]) * 100
+      reference.x <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains)$coef[1]) * 100
     }
   } else if (x.metric == "alpha2") {
     plot.title <- paste(plot.title, "Alpha")
     x.label <- paste("Alpha w/ ", benchmark.tickers[2], " (%)", sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains)$coef[1]) * 100
+      reference.x <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains)$coef[1]) * 100
     }
   } else if (x.metric == "beta") {
     plot.title <- paste(plot.title, "Beta")
     x.label <- paste("Beta w/ ", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains)$coef[2])
+      reference.x <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains)$coef[2])
     }
   } else if (x.metric == "beta2") {
     plot.title <- paste(plot.title, "Beta")
     x.label <- paste("Beta w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains)$coef[2])
+      reference.x <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains)$coef[2])
     }
   } else if (x.metric == "r.squared") {
     plot.title <- paste(plot.title, "R-squared", sep = "")
     x.label <- paste("R-squared w/ ", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains))$r.squared)
+      reference.x <- apply(reference.gains, 2, function(x) 
+        summary(lm(x ~ benchmark.gains))$r.squared)
     }
     x1 <- 0
   } else if (x.metric == "r.squared2") {
     plot.title <- paste(plot.title, "R-squared", sep = "")
     x.label <- paste("R-squared w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains))$r.squared)
+      reference.x <- apply(reference.gains, 2, function(x) 
+        summary(lm(x ~ benchmark.gains))$r.squared)
     }
     x1 <- 0
   } else if (x.metric == "pearson") {
     plot.title <- paste(plot.title, "Pearson Cor.", sep = "")
     x.label <- paste("Pearson cor. w/ ", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains))
     }
   } else if (x.metric == "pearson2") {
     plot.title <- paste(plot.title, "Pearson Cor.", sep = "")
     x.label <- paste("Pearson cor. w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains))
     }
   } else if (x.metric == "spearman") {
     plot.title <- paste(plot.title, "Spearman Cor.", sep = "")
     x.label <- paste("Spearman cor. w/ ", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains, method = "spearman"))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains, method = "spearman"))
     }
   } else if (x.metric == "spearman") {
     plot.title <- paste(plot.title, "Spearman Cor.", sep = "")
     x.label <- paste("Spearman cor. w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains, method = "spearman"))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains, method = "spearman"))
     }
   } else if (x.metric == "auto.pearson") {
     plot.title <- paste(plot.title, "Autocorrelation", "")
     x.label <- "Pearson autocorrelation"
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1]))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        cor(x[-length(x)], x[-1]))
     }
   } else if (x.metric == "auto.spearman") {
     plot.title <- paste(plot.title, "Autocorrelation", sep = "")
     x.label <- "Spearman autocorrelation"
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1], method = "spearman"))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        cor(x[-length(x)], x[-1], method = "spearman"))
     }
   } else if (x.metric == "allocation") {
     plot.title <- paste(plot.title, "Allocation")
@@ -1617,7 +1799,8 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
     y.offset.mag <- (y2 - y1) / 40
     for (ii in 1: ncol(tickers)) {
 
-      # Put label for ticker with higher y-value above its data point, and label for other ticker below its data point
+      # Put label for ticker with higher y-value above its data point, and 
+      # label for other ticker below its data point
       fund1.xy <- c(x[[ii]][num.points], y[[ii]][num.points])
       fund2.xy <- c(x[[ii]][1], y[[ii]][1])
       whichmax.y <- which.max(c(fund1.xy[2], fund2.xy[2]))
@@ -1631,12 +1814,15 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
     }
 
   } else if (length(tickerlabel.offsets) == 2) {
-    tickerlabel.offsets <- cbind(rep(tickerlabel.offsets[1], n.pairs * 2), rep(tickerlabel.offsets[2], n.pairs * 2))
+    tickerlabel.offsets <- cbind(rep(tickerlabel.offsets[1], n.pairs * 2), 
+                                 rep(tickerlabel.offsets[2], n.pairs * 2))
   }
   if (is.null(reflabel.offsets) & !is.null(reference.tickers)) {
-    reflabel.offsets <- cbind(rep(0, length(reference.tickers)), rep((y2 - y1) / 40, length(reference.tickers)))
+    reflabel.offsets <- cbind(rep(0, length(reference.tickers)), 
+                              rep((y2 - y1) / 40, length(reference.tickers)))
   } else if (length(tickerlabel.offsets) == 2) {
-    tickerlabel.offsets <- cbind(rep(tickerlabel.offsets[1], n.pairs * 2), rep(tickerlabel.offsets[2], n.pairs * 2))
+    tickerlabel.offsets <- cbind(rep(tickerlabel.offsets[1], n.pairs * 2), 
+                                 rep(tickerlabel.offsets[2], n.pairs * 2))
   }
 
   # If pdf.list is not NULL, call pdf
@@ -1685,14 +1871,18 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
   }
 
   # Add horizontal/vertical lines if useful for requested metrics
-  if (y.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "beta", "beta2", "pearson", "pearson2",
-                      "spearman", "spearman2", "auto.pearson", "auto.spearman", "growth", "cagr")) {
+  if (y.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", 
+                      "beta", "beta2", "pearson", "pearson2", "spearman", 
+                      "spearman2", "auto.pearson", "auto.spearman", "growth", 
+                      "cagr")) {
     abline(h = 0, lty = 2)
   } else if (y.metric %in% c("r.squared", "r.squared2")) {
     abline(h = 1, lty = 2)
   }
-  if (x.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "beta", "beta2", "pearson", "pearson2",
-                      "spearman", "spearman2", "auto.pearson", "auto.spearman", "growth", "cagr")) {
+  if (x.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", 
+                      "beta", "beta2", "pearson", "pearson2", "spearman", 
+                      "spearman2", "auto.pearson", "auto.spearman", "growth", 
+                      "cagr")) {
     abline(v = 0, lty = 2)
   } else if (x.metric %in% c("r.squared", "r.squared2")) {
     abline(v = 1, lty = 2)
@@ -1705,13 +1895,14 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
     locs.points <- c(1, num.points)
   }
 
-  # Change scaled thing! Make it 2x VFINX, for example. Also add input for user override.
   # Add curves for each pair
   for (ii in 1: n.pairs) {
 
     # Add colored curves and data points
-    do.call(points, c(list(x = x[[ii]], y = y[[ii]], type = "l", col = colors[ii]), points.list))
-    do.call(points, c(list(x = x[[ii]][locs.points], y = y[[ii]][locs.points], col = colors[ii]), points.list))
+    do.call(points, c(list(x = x[[ii]], y = y[[ii]], type = "l", 
+                           col = colors[ii]), points.list))
+    do.call(points, c(list(x = x[[ii]][locs.points], y = y[[ii]][locs.points], 
+                           col = colors[ii]), points.list))
 
     # Figure out (x, y) coordinates for 100% fund 1 and 100% fund 2
     fund1.xy <- c(x[[ii]][num.points], y[[ii]][num.points])
@@ -1723,14 +1914,18 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
 
     # Add text labels if not already on plot
     if (ii == 1 | ! tickers[1, ii] %in% tickers[, 1: (ii - 1)]) {
-      do.call(text, c(list(x = fund1.xy[1] + tickerlabel.offsets[(ii * 2 - 1), 1],
-                           y = fund1.xy[2] + tickerlabel.offsets[(ii * 2 - 1), 2],
-                           label = paste("100% ", tickers[1, ii], sep = "")), text.list))
+      do.call(text, c(list(x = fund1.xy[1] + 
+                             tickerlabel.offsets[(ii * 2 - 1), 1],
+                           y = fund1.xy[2] + 
+                             tickerlabel.offsets[(ii * 2 - 1), 2],
+                           label = paste("100% ", tickers[1, ii], sep = "")), 
+                      text.list))
     }
     if (ii == 1 | ! tickers[2, ii] %in% tickers[, 1: (ii - 1)]) {
       do.call(text, c(list(x = fund2.xy[1] + tickerlabel.offsets[ii * 2, 1],
                            y = fund2.xy[2] + tickerlabel.offsets[ii * 2, 2],
-                           label = paste("100% ", tickers[2, ii], sep = "")), text.list))
+                           label = paste("100% ", tickers[2, ii], sep = "")), 
+                      text.list))
     }
 
   }
@@ -1743,7 +1938,8 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
 
       if (x.metric != "allocation" & y.metric != "allocation") {
 
-        do.call(points, c(list(x = reference.x[ii], y = reference.y[ii], type = "p", col = "black"), points.list))
+        do.call(points, c(list(x = reference.x[ii], y = reference.y[ii], 
+                               type = "p", col = "black"), points.list))
         if (! reference.tickers[ii] %in% tickers) {
           do.call(text, c(list(x = reference.x[ii] + reflabel.offsets[ii, 1],
                                y = reference.y[ii] + reflabel.offsets[ii, 2],
@@ -1784,17 +1980,25 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...
   # Return portfolio.xy, mean for each fund and correlation matrix
   means <- apply(gains, 2, mean)
   corr.matrix <- cor(gains)
-  return.list <- list(portfolio.xy = portfolio.xy, means = means, corr.matrix = corr.matrix)
+  return.list <- list(portfolio.xy = portfolio.xy, means = means, 
+                      corr.matrix = corr.matrix)
   return(return.list)
 
 }
 
 
-threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ...,
-                             benchmark.tickers = NULL, reference.tickers = NULL,
-                             tickers.gains = NULL, benchmark.gains = NULL, reference.gains = NULL,
-                             step.data = 0.0025, step.points = 0.1, step.curves = 0.2,
-                             x.metric = "sd", y.metric = "mean",
+threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, 
+                             ...,
+                             benchmark.tickers = NULL, 
+                             reference.tickers = NULL,
+                             tickers.gains = NULL, 
+                             benchmark.gains = NULL, 
+                             reference.gains = NULL,
+                             step.data = 0.0025, 
+                             step.points = 0.1, 
+                             step.curves = 0.2,
+                             x.metric = "sd", 
+                             y.metric = "mean",
                              tickerlabel.offsets = NULL,
                              reflabel.offsets = NULL,
                              add.plot = FALSE,
@@ -1811,7 +2015,8 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
   # If tickers specified, load various historical prices from Yahoo! Finance
   if (! is.null(tickers)) {
 
-    # If vectors rather than matrices are provided for tickers, intercepts, or slopes, convert to 2-row matrices
+    # If vectors rather than matrices are provided for tickers, intercepts, or 
+    # slopes, convert to 2-row matrices
     if (is.vector(tickers)) {
       tickers <- matrix(tickers, nrow = 3)
     }
@@ -1830,14 +2035,16 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
       slopes <- matrix(1, nrow = 3, ncol = ncol(tickers))
     }
 
-    # Create vector of "extra" tickers comprised of benchmark and reference tickers
+    # Create vector of "extra" tickers comprised of benchmark and reference 
+    # tickers
     extra.tickers <- unique(c(benchmark.tickers, reference.tickers))
 
     # Calculate gains matrix
     tickers.vec <- c(as.vector(tickers), extra.tickers)
     intercepts.vec <- c(as.vector(intercepts), rep(0, length(extra.tickers)))
     slopes.vec <- c(as.vector(slopes), rep(1, length(extra.tickers)))
-    gains <- load.gains(tickers = tickers.vec, intercepts = intercepts.vec, slopes = slopes.vec, ...)
+    gains <- load.gains(tickers = tickers.vec, intercepts = intercepts.vec, 
+                        slopes = slopes.vec, ...)
 
     # Update ticker names to show intercept/slope
     tickers <- matrix(colnames(gains)[1: length(tickers)], nrow = 3)
@@ -1862,7 +2069,8 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
     }
     tickers <- matrix(tickers, nrow = 3)
 
-    # Convert reference.gains to matrix if necessary, and figure out reference.tickers
+    # Convert reference.gains to matrix if necessary, and figure out 
+    # reference.tickers
     if (is.vector(reference.gains)) {
       reference.gains <- matrix(reference.gains, ncol = 1)
       reference.tickers <- "REF"
@@ -1873,7 +2081,8 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
       }
     }
 
-    # Convert benchmark.gains to matrix if necessary, and figure out benchmark.tickers
+    # Convert benchmark.gains to matrix if necessary, and figure out 
+    # benchmark.tickers
     if (is.vector(benchmark.gains)) {
       benchmark.gains <- matrix(benchmark.gains, ncol = 1)
       benchmark.tickers <- "BENCH"
@@ -1896,11 +2105,15 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
   num.curves <- length(fund1.all)
   num.points <- length(fund2.all)
   
-  # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
+  # Figure out how many units are in a year, for CAGR and axis labels. If 
+  # unknown, assume daily.
   if (hasArg(time.scale)) {
-    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+    units.year <- ifelse(time.scale == "daily", 252, 
+                         ifelse(time.scale == "monthly", 12, 
+                                1))
   } else {
-    min.diffdates <- min(diff(as.Date(rownames(tickers.gains)[1: min(10, nrow(tickers.gains))])))
+    min.diffdates <- min(diff(as.Date(rownames(tickers.gains)
+                                      [1: min(10, nrow(tickers.gains))])))
     if (! is.null(min.diffdates)) {
       if (min.diffdates == 1) {
         time.scale <- "daily"
@@ -1918,10 +2131,12 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
     }
   }
 
-  # Going in different direction. If doesn't work, revert back to version in exports file
+  # Going in different direction. If doesn't work, revert back to version in 
+  # exports file
   for (ii in 1: ncol(tickers)) {
 
-    # Initialize list to store x-axis values and y-axis values for current three-fund set
+    # Initialize list to store x-axis values and y-axis values for current 
+    # three-fund set
     x <- y <- list()
 
     # Get subset of tickers.gains matrix for tickers of interest
@@ -1932,16 +2147,19 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
     if (x.metric == "mean") {
 
       means <- apply(tickers.gains.sub, 2, mean) * 100
-      x <- lapply(fund1.all, function(x) x * means[1] + (1 - x) * fund2.all * means[2] + (1 - x) * fund3.all * means[3])
+      x <- lapply(fund1.all, function(x) 
+        x * means[1] + (1 - x) * fund2.all * means[2] + 
+          (1 - x) * fund3.all * means[3])
 
     } else if (x.metric == "sd") {
 
       vars <- var(tickers.gains.sub * 100)
-      x <- lapply(fund1.all, function(x) {
-        sqrt(x^2 * vars[1, 1] + ((1 - x) * fund2.all)^2 * vars[2, 2] + ((1 - x) * fund3.all)^2 * vars[3, 3] +
-               2 * x * (1 - x) * fund2.all * vars[1, 2] + 2 * x * (1 - x) * fund3.all * vars[1, 3] +
-               2 * (1 - x) * fund2.all * (1 - x) * fund3.all * vars[2, 3])
-      })
+      x <- lapply(fund1.all, function(x)
+        sqrt(x^2 * vars[1, 1] + ((1 - x) * fund2.all)^2 * vars[2, 2] + 
+               ((1 - x) * fund3.all)^2 * vars[3, 3] +
+               2 * x * (1 - x) * fund2.all * vars[1, 2] + 
+               2 * x * (1 - x) * fund3.all * vars[1, 3] +
+               2 * (1 - x) * fund2.all * (1 - x) * fund3.all * vars[2, 3]))
 
     } else if (x.metric == "growth") {
 
@@ -1960,7 +2178,8 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
                                              (1 - x) * fund2.all,
                                              (1 - x) * fund3.all),
                                            nrow = 3, byrow = TRUE),
-              2, function(x) gains.rate(gains = x, units.rate = units.year) * 100)
+              2, function(x) 
+                gains.rate(gains = x, units.rate = units.year) * 100)
       })
 
     } else if (x.metric == "mdd") {
@@ -2123,16 +2342,19 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
     if (y.metric == "mean") {
 
       means <- apply(tickers.gains.sub, 2, mean) * 100
-      y <- lapply(fund1.all, function(x) x * means[1] + (1 - x) * fund2.all * means[2] + (1 - x) * fund3.all * means[3])
+      y <- lapply(fund1.all, function(x) 
+        x * means[1] + (1 - x) * fund2.all * means[2] + 
+          (1 - x) * fund3.all * means[3])
 
     } else if (y.metric == "sd") {
 
       vars <- var(tickers.gains.sub * 100)
-      y <- lapply(fund1.all, function(x) {
-        sqrt(x^2 * vars[1, 1] + ((1 - x) * fund2.all)^2 * vars[2, 2] + ((1 - x) * fund3.all)^2 * vars[3, 3] +
-               2 * x * (1 - x) * fund2.all * vars[1, 2] + 2 * x * (1 - x) * fund3.all * vars[1, 3] +
-               2 * (1 - x) * fund2.all * (1 - x) * fund3.all * vars[2, 3])
-      })
+      y <- lapply(fund1.all, function(x)
+        sqrt(x^2 * vars[1, 1] + ((1 - x) * fund2.all)^2 * vars[2, 2] + 
+               ((1 - x) * fund3.all)^2 * vars[3, 3] +
+               2 * x * (1 - x) * fund2.all * vars[1, 2] + 
+               2 * x * (1 - x) * fund3.all * vars[1, 3] +
+               2 * (1 - x) * fund2.all * (1 - x) * fund3.all * vars[2, 3]))
 
     } else if (y.metric == "growth") {
 
@@ -2151,7 +2373,8 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
                                              (1 - x) * fund2.all,
                                              (1 - x) * fund3.all),
                                            nrow = 3, byrow = TRUE),
-              2, function(x) gains.rate(gains = x, units.rate = units.year) * 100)
+              2, function(x) 
+                gains.rate(gains = x, units.rate = units.year) * 100)
       })
 
     } else if (y.metric == "mdd") {
@@ -2310,8 +2533,10 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
 
     }
 
-    # Create list where each element is a two-column matrix of x and y values for a particular fund-1 allocation
-    set.list <- mapply(function(x, y) list(cbind(unlist(x), unlist(y))), x, y, SIMPLIFY = TRUE)
+    # Create list where each element is a two-column matrix of x and y values 
+    # for a particular fund-1 allocation
+    set.list <- mapply(function(x, y) 
+      list(cbind(unlist(x), unlist(y))), x, y, SIMPLIFY = TRUE)
     names(set.list) <- paste(fund1.all * 100, "% ", tickers[1, ii], sep = "")
 
     # Add set.list to portfolio.xy
@@ -2320,7 +2545,8 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
   }
 
   # Create labels for 3-fund sets
-  set.labels <- apply(tickers, 2, function(x) paste(x[1], "-", x[2], "-", x[3], sep = ""))
+  set.labels <- apply(tickers, 2, function(x) 
+    paste(x[1], "-", x[2], "-", x[3], sep = ""))
 
   # Extract all x and y values from portfolio.xy
   x <- lapply(portfolio.xy, function(x) lapply(x, function(x) x[, 1]))
@@ -2330,13 +2556,15 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
   x1 <- x2 <- y1 <- y2 <- NULL
   reference.y <- NULL
   if (y.metric == "mean") {
-    plot.title <- paste("Mean of ", capitalize(time.scale), " Gains vs. ", sep = "")
+    plot.title <- paste("Mean of ", capitalize(time.scale), " Gains vs. ", 
+                        sep = "")
     y.label <- paste("Mean of ", time.scale, " gains (%)", sep = "")
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, mean) * 100
     }
   } else if (y.metric == "sd") {
-    plot.title <- paste("SD of ", capitalize(time.scale), " Gains vs. ", sep = "")
+    plot.title <- paste("SD of ", capitalize(time.scale), " Gains vs. ", 
+                        sep = "")
     y.label <- paste("SD of ", time.scale, " gains (%)", sep = "")
     if (!is.null(reference.tickers)) {
       reference.y <- apply(reference.gains, 2, sd) * 100
@@ -2346,106 +2574,123 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
     plot.title <- "Total Growth vs. "
     y.label <- "Growth (%)"
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) gains.rate(gains = x)) * 100
+      reference.y <- apply(reference.gains, 2, function(x) 
+        gains.rate(gains = x)) * 100
     }
   } else if (y.metric == "cagr") {
     plot.title <- "CAGR vs. "
     y.label <- "CAGR (%)"
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) gains.rate(gains = x, units.rate = units.year)) * 100
+      reference.y <- apply(reference.gains, 2, function(x) 
+        gains.rate(gains = x, units.rate = units.year)) * 100
     }
   } else if (y.metric == "mdd") {
     plot.title <- "MDD vs. "
     y.label <- "MDD (%)"
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) mdd(gains = x)) * 100
+      reference.y <- apply(reference.gains, 2, function(x) 
+        mdd(gains = x)) * 100
     }
     y1 <- 0
   } else if (y.metric == "sharpe") {
     plot.title <- "Sharpe Ratio vs. "
     y.label <- "Sharpe ratio"
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) sharpe.ratio(gains = x))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        sharpe.ratio(gains = x))
     }
   } else if (y.metric == "sortino") {
     plot.title <- "Sortino Ratio vs. "
     y.label <- "Sortino ratio"
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) sortino.ratio(gains = x))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        sortino.ratio(gains = x))
     }
   } else if (y.metric == "alpha") {
     plot.title <- "Alpha vs. "
     y.label <- paste("Alpha w/ ", benchmark.tickers[1], " (%)", sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 1])$coef[1]) * 100
+      reference.y <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains[, 1])$coef[1]) * 100
     }
   } else if (y.metric == "alpha2") {
     plot.title <- "Alpha vs. "
     y.label <- paste("Alpha w/ ", benchmark.tickers[2], " (%)", sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 2])$coef[1]) * 100
+      reference.y <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains[, 2])$coef[1]) * 100
     }
   } else if (y.metric == "beta") {
     plot.title <- "Beta vs. "
     y.label <- paste("Beta w/ ", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 1])$coef[2])
+      reference.y <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains[, 1])$coef[2])
     }
   } else if (y.metric == "beta2") {
     plot.title <- "Beta vs. "
     y.label <- paste("Beta w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 2])$coef[2])
+      reference.y <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains[, 2])$coef[2])
     }
   } else if (y.metric == "r.squared") {
     plot.title <- "R-squared vs. "
     y.label <- paste("R-squared w/ ", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains[, 1]))$r.squared)
+      reference.y <- apply(reference.gains, 2, function(x) 
+        summary(lm(x ~ benchmark.gains[, 1]))$r.squared)
     }
     y1 <- 0
   } else if (y.metric == "r.squared2") {
     plot.title <- "R-squared vs. "
     y.label <- paste("R-squared w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains[, 2]))$r.squared)
+      reference.y <- apply(reference.gains, 2, function(x) 
+        summary(lm(x ~ benchmark.gains[, 2]))$r.squared)
     }
     y1 <- 0
   } else if (y.metric == "pearson") {
     plot.title <- "Pearson Cor. vs. "
     y.label <- paste("Pearson cor. w/ ", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 1]))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains[, 1]))
     }
   } else if (y.metric == "pearson2") {
     plot.title <- "Pearson Cor. vs. "
     y.label <- paste("Pearson cor. w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 2]))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains[, 2]))
     }
   } else if (y.metric == "spearman") {
     plot.title <- "Spearman Cor. vs. "
     y.label <- paste("Spearman cor. w/ ", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 1], method = "spearman"))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains[, 1], method = "spearman"))
     }
   } else if (y.metric == "spearman2") {
     plot.title <- "Spearman Cor. vs. "
     y.label <- paste("Spearman cor. w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 2], method = "spearman"))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains[, 2], method = "spearman"))
     }
   } else if (y.metric == "auto.pearson") {
     plot.title <- "Autocorrelation vs. "
     y.label <- "Pearson autocorrelation"
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1]))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        cor(x[-length(x)], x[-1]))
     }
   } else if (y.metric == "auto.spearman") {
     plot.title <- "Autocorrelation vs. "
     y.label <- "Spearman autocorrelation"
     if (!is.null(reference.tickers)) {
-      reference.y <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1], method = "spearman"))
+      reference.y <- apply(reference.gains, 2, function(x) 
+        cor(x[-length(x)], x[-1], method = "spearman"))
     }
   } else if (y.metric == "allocation") {
     plot.title <- "Allocation vs. "
@@ -2456,13 +2701,15 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
 
   reference.x <- NULL
   if (x.metric == "mean") {
-    plot.title <- paste(plot.title, "Mean of ", capitalize(time.scale), " Gains", sep = "")
+    plot.title <- paste(plot.title, "Mean of ", capitalize(time.scale), 
+                        " Gains", sep = "")
     x.label <- paste("Mean of ", time.scale, " gains (%)", sep = "")
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, mean) * 100
     }
   } else if (x.metric == "sd") {
-    plot.title <- paste(plot.title, "SD of ", capitalize(time.scale), " Gains", sep = "")
+    plot.title <- paste(plot.title, "SD of ", capitalize(time.scale), " Gains", 
+                        sep = "")
     x.label <- paste("SD of ", time.scale, " gains (%)", sep = "")
     if (!is.null(reference.tickers)) {
       reference.x <- apply(reference.gains, 2, sd) * 100
@@ -2472,106 +2719,123 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
     plot.title <- paste(plot.title, "Total Growth", sep = "")
     x.label <- "Growth (%)"
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) gains.rate(gains = x)) * 100
+      reference.x <- apply(reference.gains, 2, function(x) 
+        gains.rate(gains = x)) * 100
     }
   } else if (x.metric == "cagr") {
     plot.title <- paste(plot.title, "CAGR", sep = "")
     x.label <- "CAGR (%)"
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) gains.rate(gains = x, units.rate = units.year)) * 100
+      reference.x <- apply(reference.gains, 2, function(x) 
+        gains.rate(gains = x, units.rate = units.year)) * 100
     }
   } else if (x.metric == "mdd") {
     plot.title <- paste(plot.title, "MDD", sep = "")
     x.label <- "MDD (%)"
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) mdd(gains = x)) * 100
+      reference.x <- apply(reference.gains, 2, function(x) 
+        mdd(gains = x)) * 100
     }
     x1 <- 0
   } else if (x.metric == "sharpe") {
     plot.title <- paste(plot.title, "Sharpe Ratio", sep = "")
     x.label <- "Sharpe ratio"
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) sharpe.ratio(gains = x))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        sharpe.ratio(gains = x))
     }
   } else if (x.metric == "sortino") {
     plot.title <- paste(plot.title, "Sortino Ratio", sep = "")
     x.label <- "Sortino ratio"
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) sharpe.ratio(gains = x))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        sharpe.ratio(gains = x))
     }
   } else if (x.metric == "alpha") {
     plot.title <- paste(plot.title, "Alpha", sep = "")
     x.label <- paste("Alpha w/ ", benchmark.tickers[1], " (%)", sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 1])$coef[1]) * 100
+      reference.x <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains[, 1])$coef[1]) * 100
     }
   } else if (x.metric == "alpha2") {
     plot.title <- paste(plot.title, "Alpha", sep = "")
     x.label <- paste("Alpha w/ ", benchmark.tickers[2], " (%)", sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 2])$coef[1]) * 100
+      reference.x <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains[, 2])$coef[1]) * 100
     }
   } else if (x.metric == "beta") {
     plot.title <- paste(plot.title, "Beta", sep = "")
     x.label <- paste("Beta w/ ", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 1])$coef[2])
+      reference.x <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains[, 1])$coef[2])
     }
   } else if (x.metric == "beta2") {
     plot.title <- paste(plot.title, "Beta", sep = "")
     x.label <- paste("Beta w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) lm(x ~ benchmark.gains[, 2])$coef[2])
+      reference.x <- apply(reference.gains, 2, function(x) 
+        lm(x ~ benchmark.gains[, 2])$coef[2])
     }
   } else if (x.metric == "r.squared") {
     plot.title <- paste(plot.title, "R-squared", sep = "")
     x.label <- paste("R-squared w/ ", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains[, 1]))$r.squared)
+      reference.x <- apply(reference.gains, 2, function(x) 
+        summary(lm(x ~ benchmark.gains[, 1]))$r.squared)
     }
     x1 <- 0
   } else if (x.metric == "r.squared2") {
     plot.title <- paste(plot.title, "R-squared", sep = "")
     x.label <- paste("R-squared w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) summary(lm(x ~ benchmark.gains[, 2]))$r.squared)
+      reference.x <- apply(reference.gains, 2, function(x) 
+        summary(lm(x ~ benchmark.gains[, 2]))$r.squared)
     }
     x1 <- 0
   } else if (x.metric == "pearson") {
     plot.title <- paste(plot.title, "Pearson Cor.", sep = "")
     x.label <- paste("Pearson cor. w/ ", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 1]))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains[, 1]))
     }
   } else if (x.metric == "pearson") {
     plot.title <- paste(plot.title, "Pearson Cor.", sep = "")
     x.label <- paste("Pearson cor. w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 2]))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains[, 2]))
     }
   } else if (x.metric == "spearman") {
     plot.title <- paste(plot.title, "Spearman Cor.", sep = "")
     x.label <- paste("Spearman cor. w/ ", benchmark.tickers[1], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 1], method = "spearman"))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains[, 1], method = "spearman"))
     }
   } else if (x.metric == "spearman") {
     plot.title <- paste(plot.title, "Spearman Cor.", sep = "")
     x.label <- paste("Spearman cor. w/ ", benchmark.tickers[2], sep = "")
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) cor(x, benchmark.gains[, 2], method = "spearman"))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        cor(x, benchmark.gains[, 2], method = "spearman"))
     }
   } else if (x.metric == "auto.pearson") {
     plot.title <- paste(plot.title, "Autocorrelation", sep = "")
     x.label <- "Pearson autocorrelation"
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1]))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        cor(x[-length(x)], x[-1]))
     }
   } else if (x.metric == "auto.spearman") {
     plot.title <- paste(plot.title, "Autocorrelation", sep = "")
     x.label <- "Spearman autocorrelation"
     if (!is.null(reference.tickers)) {
-      reference.x <- apply(reference.gains, 2, function(x) cor(x[-length(x)], x[-1], method = "spearman"))
+      reference.x <- apply(reference.gains, 2, function(x) 
+        cor(x[-length(x)], x[-1], method = "spearman"))
     }
   } else if (x.metric == "allocation") {
     plot.title <- paste(plot.title, "Allocation", sep = "")
@@ -2626,7 +2890,7 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
                                list2 = points.list)
   text.list <- list.override(list1 = list(cex = 0.7),
                              list2 = text.list)
-
+  
   # Figure out positioning of ticker labels for 100% allocation to each fund
   if (is.null(tickerlabel.offsets)) {
 
@@ -2634,7 +2898,8 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
     y.offset.mag <- (y2 - y1) / 40
     for (ii in 1: ncol(tickers)) {
 
-      # Put label for ticker with higher y-value above its data point, and label for other ticker below its data point
+      # Put label for ticker with higher y-value above its data point, and 
+      # label for other ticker below its data point
       fund1.xy <- portfolio.xy[[ii]][[num.curves]][1, 1: 2]
       fund2.xy <- portfolio.xy[[ii]][[1]][num.points, 1: 2]
       fund3.xy <- portfolio.xy[[ii]][[1]][1, 1: 2]
@@ -2655,12 +2920,15 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
     }
 
   } else if (length(tickerlabel.offsets) == 3) {
-    tickerlabel.offsets <- cbind(rep(tickerlabel.offsets[1], n.sets * 3), rep(tickerlabel.offsets[2], n.sets * 3))
+    tickerlabel.offsets <- cbind(rep(tickerlabel.offsets[1], n.sets * 3), 
+                                 rep(tickerlabel.offsets[2], n.sets * 3))
   }
   if (is.null(reflabel.offsets) & !is.null(reference.tickers)) {
-    reflabel.offsets <- cbind(rep(0, length(reference.tickers)), rep((y2 - y1) / 40, length(reference.tickers)))
+    reflabel.offsets <- cbind(rep(0, length(reference.tickers)), 
+                              rep((y2 - y1) / 40, length(reference.tickers)))
   } else if (length(tickerlabel.offsets) == 2) {
-    tickerlabel.offsets <- cbind(rep(tickerlabel.offsets[1], n.sets * 3), rep(tickerlabel.offsets[2], n.sets * 3))
+    tickerlabel.offsets <- cbind(rep(tickerlabel.offsets[1], n.sets * 3), 
+                                 rep(tickerlabel.offsets[2], n.sets * 3))
   }
 
   # If pdf.list is not NULL, call pdf
@@ -2709,14 +2977,18 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
   }
 
   # Add horizontal/vertical lines if useful for requested metrics
-  if (y.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "beta", "beta2", "pearson", "pearson2",
-                      "spearman", "spearman2", "auto.pearson", "auto.spearman", "growth", "cagr")) {
+  if (y.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2",
+                      "beta", "beta2", "pearson", "pearson2", "spearman", 
+                      "spearman2", "auto.pearson", "auto.spearman", "growth", 
+                      "cagr")) {
     abline(h = 0, lty = 2)
   } else if (y.metric %in% c("r.squared", "r.squared2")) {
     abline(h = 1, lty = 2)
   }
-  if (x.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "beta", "beta2", "pearson", "pearson2",
-                      "spearman", "spearman2", "auto.pearson", "auto.spearman", "growth", "cagr")) {
+  if (x.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", 
+                      "beta", "beta2", "pearson", "pearson2", "spearman", 
+                      "spearman2", "auto.pearson", "auto.spearman", "growth", 
+                      "cagr")) {
     abline(v = 0, lty = 2)
   } else if (x.metric %in% c("r.squared", "r.squared2")) {
     abline(v = 1, lty = 2)
@@ -2734,11 +3006,14 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
 
     # Add colored curves and data points
     lapply(portfolio.xy[[ii]], function(x) {
-      do.call(points, c(list(x = x[, 1], y = x[, 2], type = "l", col = colors[ii]), points.list))
-      do.call(points, c(list(x = x[locs.points, 1], y = x[locs.points, 2], col = colors[ii]), points.list))
+      do.call(points, c(list(x = x[, 1], y = x[, 2], type = "l", 
+                             col = colors[ii]), points.list))
+      do.call(points, c(list(x = x[locs.points, 1], y = x[locs.points, 2], 
+                             col = colors[ii]), points.list))
     })
 
-    # Figure out (x, y) coordinates for 100% fund 1, 100% fund 2, and 100% fund 3
+    # Figure out (x, y) coordinates for 100% fund 1, 100% fund 2, and 100% fund 
+    # 3
     fund1.xy <- portfolio.xy[[ii]][[num.curves]][1, 1: 2]
     fund2.xy <- portfolio.xy[[ii]][[1]][num.points, 1: 2]
     fund3.xy <- portfolio.xy[[ii]][[1]][1, 1: 2]
@@ -2750,19 +3025,26 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
 
     # Add text labels if not already on plot
     if (ii == 1 | ! tickers[1, ii] %in% tickers[, 1: (ii - 1)]) {
-      do.call(text, c(list(x = fund1.xy[1] + tickerlabel.offsets[(ii * 3 - 2), 1],
-                           y = fund1.xy[2] + tickerlabel.offsets[(ii * 3 - 2), 2],
-                           label = paste("100% ", tickers[1, ii], sep = "")), text.list))
+      do.call(text, c(list(x = fund1.xy[1] + 
+                             tickerlabel.offsets[(ii * 3 - 2), 1],
+                           y = fund1.xy[2] + 
+                             tickerlabel.offsets[(ii * 3 - 2), 2],
+                           label = paste("100% ", tickers[1, ii], sep = "")), 
+                      text.list))
     }
     if (ii == 1 | ! tickers[2, ii] %in% tickers[, 1: (ii - 1)]) {
-      do.call(text, c(list(x = fund2.xy[1] + tickerlabel.offsets[(ii * 3 - 1), 1],
-                           y = fund2.xy[2] + tickerlabel.offsets[(ii * 3 - 1), 2],
-                           label = paste("100% ", tickers[2, ii], sep = "")), text.list))
+      do.call(text, c(list(x = fund2.xy[1] + 
+                             tickerlabel.offsets[(ii * 3 - 1), 1],
+                           y = fund2.xy[2] + 
+                             tickerlabel.offsets[(ii * 3 - 1), 2],
+                           label = paste("100% ", tickers[2, ii], sep = "")), 
+                      text.list))
     }
     if (ii == 1 | ! tickers[3, ii] %in% tickers[, 1: (ii - 1)]) {
       do.call(text, c(list(x = fund3.xy[1] + tickerlabel.offsets[(ii * 3), 1],
                            y = fund3.xy[2] + tickerlabel.offsets[ii * 3, 2],
-                           label = paste("100% ", tickers[3, ii], sep = "")), text.list))
+                           label = paste("100% ", tickers[3, ii], sep = "")), 
+                      text.list))
     }
     
   }
@@ -2775,7 +3057,8 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
       
       if (x.metric != "allocation" & y.metric != "allocation") {
         
-        do.call(points, c(list(x = reference.x[ii], y = reference.y[ii], type = "p", col = "black"), points.list))
+        do.call(points, c(list(x = reference.x[ii], y = reference.y[ii], 
+                               type = "p", col = "black"), points.list))
         if (! reference.tickers[ii] %in% tickers) {
           do.call(text, c(list(x = reference.x[ii] + reflabel.offsets[ii, 1],
                                y = reference.y[ii] + reflabel.offsets[ii, 2],
@@ -2815,7 +3098,8 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL, .
   # Return portfolio.xy, mean for each fund, and correlation matrix
   means <- apply(gains, 2, mean)
   corr.matrix <- cor(gains)
-  return.list <- list(portfolio.xy = portfolio.xy, means = means, corr.matrix = corr.matrix)
+  return.list <- list(portfolio.xy = portfolio.xy, means = means, 
+                      corr.matrix = corr.matrix)
   return(return.list)
 
 }
@@ -2845,7 +3129,8 @@ growth.graph <- function(tickers = NULL, ...,
 
   }
 
-  # Set tickers to column names of prices matrix; if NULL, use Fund 1, Fund 2, ...
+  # Set tickers to column names of prices matrix; if NULL, use Fund 1, Fund 2, 
+  # ...
   tickers <- colnames(prices)
   if (is.null(tickers)) {
     tickers <- paste("Fund", 1: ncol(prices))
@@ -2879,12 +3164,17 @@ growth.graph <- function(tickers = NULL, ...,
   }
 
   # Figure out features of graph, based on user inputs where available
-  plot.list <- list.override(list1 = list(x = dates, y = prices[, 1], type = "n",
-                                          main = paste("Growth of $", initial, sep = ""), cex.main = 1.25,
+  plot.list <- list.override(list1 = list(x = dates, y = prices[, 1], 
+                                          type = "n", 
+                                          main = paste("Growth of $", initial, 
+                                                       sep = ""), 
+                                          cex.main = 1.25,
                                           xlab = "Date", ylab = "Balance ($)",
-                                          xlim = range(dates), ylim = c(0, max(prices) * 1.05)),
+                                          xlim = range(dates), 
+                                          ylim = c(0, max(prices) * 1.05)),
                              list2 = plot.list)
-  legend.list <- list.override(list1 = list(x = "topleft", col = colors, lty = lty, legend = tickers),
+  legend.list <- list.override(list1 = list(x = "topleft", col = colors, 
+                                            lty = lty, legend = tickers),
                                list2 = legend.list)
   grid.list <- list.override(list1 = list(nx = 0, ny = NULL),
                              list2 = grid.list)
@@ -2937,7 +3227,8 @@ growth.graph <- function(tickers = NULL, ...,
 
   # Add lines for each fund
   for (ii in 1: ncol(prices)) {
-    do.call(points, c(list(x = dates, y = prices[, ii], type = "l", col = colors[ii], lty = lty[ii]), points.list))
+    do.call(points, c(list(x = dates, y = prices[, ii], type = "l", 
+                           col = colors[ii], lty = lty[ii]), points.list))
   }
   
   # Add grid lines
@@ -2963,7 +3254,8 @@ growth.graph <- function(tickers = NULL, ...,
 
 
 gains.graph <- function(tickers = NULL, ...,
-                        gains = NULL, prices = NULL,
+                        gains = NULL, 
+                        prices = NULL,
                         orders = 1,
                         add.plot = FALSE,
                         colors = NULL,
@@ -2989,21 +3281,27 @@ gains.graph <- function(tickers = NULL, ...,
 
   } else if (is.null(gains)) {
 
-    stop("You must specify one of the following inputs: tickers, gains, or prices")
+    stop("You must specify one of the following inputs: tickers, gains, or 
+         prices")
 
   }
 
-  # Set tickers to column names of gains matrix; if NULL, use Fund 1, Fund 2, ...
+  # Set tickers to column names of gains matrix; if NULL, use Fund 1, Fund 2, 
+  # ...
   tickers <- colnames(gains)
   if (is.null(tickers)) {
     tickers <- paste("Fund", 1: ncol(gains))
   }
 
-  # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
+  # Figure out how many units are in a year, for CAGR and axis labels. If 
+  # unknown, assume daily.
   if (hasArg(time.scale)) {
-    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+    units.year <- ifelse(time.scale == "daily", 252, 
+                         ifelse(time.scale == "monthly", 12, 
+                                1))
   } else {
-    min.diffdates <- min(diff(as.Date(rownames(gains)[1: min(10, nrow(gains))])))
+    min.diffdates <- min(diff(as.Date(rownames(gains)
+                                      [1: min(10, nrow(gains))])))
     if (! is.null(min.diffdates)) {
       if (min.diffdates == 1) {
         time.scale <- "daily"
@@ -3040,10 +3338,18 @@ gains.graph <- function(tickers = NULL, ...,
   # Figure out features of graph, based on user inputs where available
   time.scale.cap <- capitalize(time.scale)
   plot.list <- list.override(list1 = list(x = 0, y = 0, type = "n",
-                                          main = paste("Scatterplot of", time.scale.cap, "Gains"),
+                                          main = paste("Scatterplot of", 
+                                                       time.scale.cap, "Gains"),
                                           cex.main = 1.25,
-                                          xlab = paste(time.scale.cap, "gains for", tickers[1], "(%)"),
-                                          ylab = ifelse(n.tickers == 2, paste(time.scale.cap, "gains for", tickers[2]), paste(time.scale.cap, "gains (%)")),
+                                          xlab = paste(time.scale.cap, 
+                                                       "gains for", tickers[1], 
+                                                       "(%)"),
+                                          ylab = ifelse(n.tickers == 2, 
+                                                        paste(time.scale.cap, 
+                                                              "gains for", 
+                                                              tickers[2]), 
+                                                        paste(time.scale.cap, 
+                                                              "gains (%)")),
                                           xlim = range(gains[, 1]) * 1.05,
                                           ylim = range(gains[, -1]) * 1.05),
                              list2 = plot.list)
@@ -3110,36 +3416,55 @@ gains.graph <- function(tickers = NULL, ...,
   lm.fits <- list()
   legend.entries <- list()
   for (ii in 1: (n.tickers - 1)) {
-    do.call(points, c(list(x = gains[, 1], y = gains[, ii + 1], col = colors[ii]), points.list))
+    do.call(points, c(list(x = gains[, 1], y = gains[, ii + 1], 
+                           col = colors[ii]), 
+                      points.list))
     if (orders[ii] == 1) {
       fit <- lm(gains[, (ii + 1)] ~ gains[, 1])
       legend.entries[[ii]] <- bquote(.(tickers[ii + 1]): Y ==
                                      .(paste(sprintf("%.3f", fit$coef[1]),
-                                             ifelse(fit$coef[2] > 0, " + ", " - "), sprintf("%.3f", abs(fit$coef[2])), "X", sep = "")) ~
-                                       .("(") * R^2 == .(paste(sprintf("%.2f", summary(fit)$r.squared), ")", sep = "")))
+                                             ifelse(fit$coef[2] > 0, 
+                                                    " + ", " - "), 
+                                             sprintf("%.3f", abs(fit$coef[2])), 
+                                             "X", sep = "")) ~
+                                       .("(") * R^2 == .(paste(sprintf("%.2f", 
+                                                                       summary(fit)$r.squared), 
+                                                               ")", sep = "")))
 
     } else {
       fit <- lm(gains[, (ii + 1)] ~ poly(gains[, 1], orders[ii], raw = TRUE))
       if (orders[ii] == 2) {
         legend.entries[[ii]] <- bquote(.(tickers[ii + 1]): Y ==
                                        .(paste(sprintf("%.3f", fit$coef[1]),
-                                               ifelse(fit$coef[2] > 0, " + ", " - "), sprintf("%.3f", abs(fit$coef[2])), "X",
-                                               ifelse(fit$coef[3] > 0, " + ", " - "), sprintf("%.3f", abs(fit$coef[3])), sep = "")) * X^2 ~
-                                         .("(") * R^2 == .(paste(sprintf("%.2f", summary(fit)$r.squared), ")", sep = "")))
+                                               ifelse(fit$coef[2] > 0, 
+                                                      " + ", " - "), 
+                                               sprintf("%.3f", 
+                                                       abs(fit$coef[2])), "X",
+                                               ifelse(fit$coef[3] > 0, 
+                                                      " + ", " - "), 
+                                               sprintf("%.3f", 
+                                                       abs(fit$coef[3])), 
+                                               sep = "")) * X^2 ~
+                                         .("(") * R^2 == .(paste(sprintf("%.2f", 
+                                                                         summary(fit)$r.squared), 
+                                                                 ")", sep = "")))
       } else {
         legend.entries[[ii]] <- tickers[ii + 1]
       }
     }
     xy <- cbind(gains[, 1], predict(fit))
     xy <- xy[order(xy[, 1]), ]
-    do.call(points, c(list(x = xy[, 1], y = xy[, 2], type = "l", col = colors[ii]),
+    do.call(points, c(list(x = xy[, 1], y = xy[, 2], type = "l", 
+                           col = colors[ii]),
                       points.list))
     lm.fits[[ii]] <- fit
   }
 
   # Add legend
-  legend.list <- list.override(list1 = list(x = "topleft", lty = 1, col = colors, cex = 0.7,
-                                            legend = sapply(legend.entries, as.expression)),
+  legend.list <- list.override(list1 = list(x = "topleft", lty = 1, 
+                                            col = colors, cex = 0.7,
+                                            legend = sapply(legend.entries, 
+                                                            as.expression)),
                                list2 = legend.list)
   do.call(legend, legend.list)
 
@@ -3156,7 +3481,8 @@ gains.graph <- function(tickers = NULL, ...,
 
 
 onemetric.graph <- function(tickers = NULL, ...,
-                            gains = NULL, prices = NULL,
+                            gains = NULL, 
+                            prices = NULL,
                             y.metric = "cagr",
                             add.plot = FALSE,
                             sort.tickers = TRUE,
@@ -3182,11 +3508,13 @@ onemetric.graph <- function(tickers = NULL, ...,
 
   } else if (is.null(gains)) {
 
-    stop("You must specify one of the following inputs: tickers, gains, or prices")
+    stop("You must specify one of the following inputs: tickers, gains, or 
+         prices")
 
   }
 
-  # If y.metric requires a benchmark, split gains matrix into ticker gains and benchmark gains
+  # If y.metric requires a benchmark, split gains matrix into ticker gains and 
+  # benchmark gains
   if (y.metric %in% c("alpha", "beta", "r.squared", "pearson", "spearman")) {
     benchmark.gains <- gains[, 1, drop = F]
     benchmark.ticker <- colnames(benchmark.gains)
@@ -3196,17 +3524,21 @@ onemetric.graph <- function(tickers = NULL, ...,
     gains <- gains[, -1, drop = F]
   }
 
-  # Set tickers to column names of gains matrix; if NULL, use Fund 1, Fund 2, ...
+  # Set tickers to column names of gains matrix; if NULL, use Fund 1, Fund 2, 
+  # ...
   tickers <- colnames(gains)
   if (is.null(tickers)) {
     tickers <- paste("Fund", 1: ncol(gains))
   }
   
-  # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
+  # Figure out how many units are in a year, for CAGR and axis labels. If 
+  # unknown, assume daily.
   if (hasArg(time.scale)) {
-    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+    units.year <- ifelse(time.scale == "daily", 252, 
+                         ifelse(time.scale == "monthly", 12, 1))
   } else {
-    min.diffdates <- min(diff(as.Date(rownames(gains)[1: min(10, nrow(gains))])))
+    min.diffdates <- min(diff(as.Date(rownames(gains)
+                                      [1: min(10, nrow(gains))])))
     if (! is.null(min.diffdates)) {
       if (min.diffdates == 1) {
         time.scale <- "daily"
@@ -3238,7 +3570,8 @@ onemetric.graph <- function(tickers = NULL, ...,
     plot.title <- "Total Growth"
     y.label <- "Growth (%)"
   } else if (y.metric == "cagr") {
-    y <- apply(gains, 2, function(x) gains.rate(gains = x, units.rate = units.year)) * 100
+    y <- apply(gains, 2, function(x) 
+      gains.rate(gains = x, units.rate = units.year)) * 100
     plot.title <- "Compound Annualized Growth Rate"
     y.label <- "CAGR (%)"
   } else if (y.metric == "mdd") {
@@ -3270,17 +3603,21 @@ onemetric.graph <- function(tickers = NULL, ...,
     plot.title <- paste("Pearson cor. w/ ", benchmark.ticker, sep = "")
     y.label <- "Pearson correlation"
   } else if (y.metric == "spearman") {
-    y <- apply(gains, 2, function(x) cor(x, benchmark.gains, method = "spearman"))
+    y <- apply(gains, 2, function(x) 
+      cor(x, benchmark.gains, method = "spearman"))
     plot.title <- paste("Spearman cor. w/ ", benchmark.ticker, sep = "")
     y.label <- "Spearman correlation"
   } else if (y.metric == "auto.pearson") {
     y <- apply(gains, 2, function(x) cor(x[-length(x)], x[-1]))
     plot.title <- "Autocorrelation"
-    y.label <- paste("Pearson cor. for adjacent ", time.scale, " gains", sep = "")
+    y.label <- paste("Pearson cor. for adjacent ", time.scale, " gains", 
+                     sep = "")
   } else if (y.metric == "auto.spearman") {
-    y <- apply(gains, 2, function(x) cor(x[-length(x)], x[-1], method = "spearman"))
+    y <- apply(gains, 2, function(x) 
+      cor(x[-length(x)], x[-1], method = "spearman"))
     plot.title <- "Autocorrelation"
-    y.label <- paste("Spearman cor. for adjacent ", time.scale, " gains", sep = "")
+    y.label <- paste("Spearman cor. for adjacent ", time.scale, " gains", 
+                     sep = "")
   }
 
   # Sort tickers by y.metric, if requested
@@ -3301,7 +3638,8 @@ onemetric.graph <- function(tickers = NULL, ...,
   points.list <- list.override(list1 = list(x = 1: length(tickers), y = y,
                                             cex = 1, pch = 16),
                                list2 = points.list)
-  axis.list <- list.override(list1 = list(side = 1, at = 1: length(tickers), labels = tickers),
+  axis.list <- list.override(list1 = list(side = 1, at = 1: length(tickers), 
+                                          labels = tickers),
                              list2 = axis.list)
 
   # If pdf.list is not NULL, call pdf
@@ -3351,7 +3689,8 @@ onemetric.graph <- function(tickers = NULL, ...,
 
   # Add horizontal/vertical lines if useful for requested metrics
   if (y.metric %in% c("mean", "sharpe", "sortino", "alpha", "beta", "pearson",
-                      "spearman", "auto.pearson", "auto.spearman", "growth", "cagr")) {
+                      "spearman", "auto.pearson", "auto.spearman", "growth", 
+                      "cagr")) {
     abline(h = 0, lty = 2)
   } else if (y.metric == "r.squared") {
     abline(h = 1, lty = 2)
@@ -3378,8 +3717,10 @@ onemetric.graph <- function(tickers = NULL, ...,
 
 
 twometrics.graph <- function(tickers = NULL, ...,
-                             gains = NULL, prices = NULL,
-                             x.metric = "mdd", y.metric = "cagr",
+                             gains = NULL, 
+                             prices = NULL,
+                             x.metric = "mdd", 
+                             y.metric = "cagr",
                              tickerlabel.offsets = NULL,
                              add.plot = FALSE,
                              colors = NULL,
@@ -3405,11 +3746,13 @@ twometrics.graph <- function(tickers = NULL, ...,
 
   } else if (is.null(gains)) {
 
-    stop("You must specify one of the following inputs: tickers, gains, or prices")
+    stop("You must specify one of the following inputs: tickers, gains, or 
+         prices")
 
   }
 
-  # If x.metric or y.metric requires one or two benchmarks, split gains matrix into ticker gains and benchmark gains
+  # If x.metric or y.metric requires one or two benchmarks, split gains matrix 
+  # into ticker gains and benchmark gains
   if (x.metric %in% c("alpha", "beta", "r.squared", "pearson", "spearman") |
       y.metric %in% c("alpha", "beta", "r.squared", "pearson", "spearman")) {
     benchmark.gains <- gains[, 1, drop = F]
@@ -3419,8 +3762,10 @@ twometrics.graph <- function(tickers = NULL, ...,
     }
     gains <- gains[, -1, drop = F]
   }
-  if (x.metric %in% c("alpha2", "beta2", "r.squared2", "pearson2", "spearman2") |
-      y.metric %in% c("alpha2", "beta2", "r.squared2", "pearson2", "spearman2")) {
+  if (x.metric %in% 
+      c("alpha2", "beta2", "r.squared2", "pearson2", "spearman2") |
+      y.metric %in% 
+      c("alpha2", "beta2", "r.squared2", "pearson2", "spearman2")) {
     benchmark2.gains <- gains[, 1, drop = F]
     benchmark2.ticker <- colnames(benchmark2.gains)
     if (is.null(benchmark2.ticker)) {
@@ -3429,17 +3774,22 @@ twometrics.graph <- function(tickers = NULL, ...,
     gains <- gains[, -1, drop = F]
   }
 
-  # Set tickers to column names of gains matrix; if NULL, use Fund 1, Fund 2, ...
+  # Set tickers to column names of gains matrix; if NULL, use Fund 1, Fund 2, 
+  # ...
   tickers <- colnames(gains)
   if (is.null(tickers)) {
     tickers <- paste("Fund", 1: ncol(gains))
   }
   
-  # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
+  # Figure out how many units are in a year, for CAGR and axis labels. If 
+  # unknown, assume daily.
   if (hasArg(time.scale)) {
-    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+    units.year <- ifelse(time.scale == "daily", 252, 
+                         ifelse(time.scale == "monthly", 12, 
+                                1))
   } else {
-    min.diffdates <- min(diff(as.Date(rownames(gains)[1: min(10, nrow(gains))])))
+    min.diffdates <- min(diff(as.Date(rownames(gains)
+                                      [1: min(10, nrow(gains))])))
     if (! is.null(min.diffdates)) {
       if (min.diffdates == 1) {
         time.scale <- "daily"
@@ -3461,11 +3811,13 @@ twometrics.graph <- function(tickers = NULL, ...,
   x1 <- x2 <- y1 <- y2 <- NULL
   if (y.metric == "mean") {
     y <- apply(gains, 2, mean) * 100
-    plot.title <- paste("Mean of ", capitalize(time.scale), " Gains vs. ", sep = "")
+    plot.title <- paste("Mean of ", capitalize(time.scale), " Gains vs. ", 
+                        sep = "")
     y.label <- "Mean (%)"
   } else if (y.metric == "sd") {
     y <- apply(gains, 2, sd) * 100
-    plot.title <- paste("SD of ", capitalize(time.scale), " Gains vs. ", sep = "")
+    plot.title <- paste("SD of ", capitalize(time.scale), " Gains vs. ", 
+                        sep = "")
     y.label <- "Standard deviation (%)"
     y1 <- 0
   } else if (y.metric == "growth") {
@@ -3473,7 +3825,8 @@ twometrics.graph <- function(tickers = NULL, ...,
     plot.title <- "Total Growth vs. "
     y.label <- "Growth (%)"
   } else if (y.metric == "cagr") {
-    y <- apply(gains, 2, function(x) gains.rate(gains = x, units.rate = units.year)) * 100
+    y <- apply(gains, 2, function(x) 
+      gains.rate(gains = x, units.rate = units.year)) * 100
     plot.title <- "CAGR vs. "
     y.label <- "CAGR (%)"
   } else if (y.metric == "mdd") {
@@ -3511,7 +3864,8 @@ twometrics.graph <- function(tickers = NULL, ...,
     y.label <- paste("R-squared w/ ", benchmark.ticker, sep = "")
     y1 <- 0
   } else if (y.metric == "r.squared2") {
-    y <- apply(gains, 2, function(x) summary(lm(x ~ benchmark2.gains))$r.squared)
+    y <- apply(gains, 2, function(x) 
+      summary(lm(x ~ benchmark2.gains))$r.squared)
     plot.title <- "R-squared vs. "
     y.label <- paste("R-squared w/ ", benchmark2.ticker, sep = "")
     y1 <- 0
@@ -3528,13 +3882,15 @@ twometrics.graph <- function(tickers = NULL, ...,
     y1 <- -1.05
     y2 <- 1.05
   } else if (y.metric == "spearman") {
-    y <- apply(gains, 2, function(x) cor(x, benchmark.gains, method = "spearman"))
+    y <- apply(gains, 2, function(x) 
+      cor(x, benchmark.gains, method = "spearman"))
     plot.title <- "Spearman Cor. vs. "
     y.label <- paste("Spearman cor. w/ ", benchmark.ticker, sep = "")
     y1 <- -1.05
     y2 <- 1.05
   } else if (y.metric == "spearman2") {
-    y <- apply(gains, 2, function(x) cor(x, benchmark2.gains, method = "spearman"))
+    y <- apply(gains, 2, function(x) 
+      cor(x, benchmark2.gains, method = "spearman"))
     plot.title <- "Spearman Cor. vs. "
     y.label <- paste("Spearman cor. w/ ", benchmark2.ticker, sep = "")
     y1 <- -1.05
@@ -3544,18 +3900,21 @@ twometrics.graph <- function(tickers = NULL, ...,
     plot.title <- "Autocorrelation vs. "
     y.label <- "Pearson autocorrelation"
   } else if (y.metric == "auto.spearman") {
-    y <- apply(gains, 2, function(x) cor(x[-length(x)], x[-1], method = "spearman"))
+    y <- apply(gains, 2, function(x) 
+      cor(x[-length(x)], x[-1], method = "spearman"))
     plot.title <- "Autocorrelation vs. "
     y.label <- "Spearman autocorrelation"
   }
 
   if (x.metric == "mean") {
     x <- apply(gains, 2, mean) * 100
-    plot.title <- paste(plot.title, "Mean of ", capitalize(time.scale), " Gains", sep = "")
+    plot.title <- paste(plot.title, "Mean of ", capitalize(time.scale), 
+                        " Gains", sep = "")
     x.label <- "Mean (%)"
   } else if (x.metric == "sd") {
     x <- apply(gains, 2, sd) * 100
-    plot.title <- paste(plot.title, "SD of ", capitalize(time.scale), " Gains", sep = "")
+    plot.title <- paste(plot.title, "SD of ", capitalize(time.scale), 
+                        " Gains", sep = "")
     x.label <- "Standard deviation (%)"
     x1 <- 0
   } else if (x.metric == "growth") {
@@ -3563,8 +3922,11 @@ twometrics.graph <- function(tickers = NULL, ...,
     plot.title <- paste(plot.title, "Total Growth", sep = "")
     x.label <- "CAGR (%)"
   } else if (x.metric == "cagr") {
-    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
-    x <- apply(gains, 2, function(x) gains.rate(gains = x, units.rate = units.year) * 100)
+    units.year <- ifelse(time.scale == "daily", 252, 
+                         ifelse(time.scale == "monthly", 12, 
+                                1))
+    x <- apply(gains, 2, function(x) 
+      gains.rate(gains = x, units.rate = units.year) * 100)
     plot.title <- paste(plot.title, "CAGR", sep = "")
     x.label <- "CAGR (%)"
   } else if (x.metric == "mdd") {
@@ -3602,7 +3964,8 @@ twometrics.graph <- function(tickers = NULL, ...,
     x.label <- paste("R-squared w/ ", benchmark.ticker, sep = "")
     x1 <- 0
   } else if (x.metric == "r.squared2") {
-    x <- apply(gains, 2, function(x) summary(lm(x ~ benchmark2.gains))$r.squared)
+    x <- apply(gains, 2, function(x) 
+      summary(lm(x ~ benchmark2.gains))$r.squared)
     plot.title <- paste(plot.title, "R-squared", sep = "")
     x.label <- paste("R-squared w/ ", benchmark2.ticker, sep = "")
     x1 <- 0
@@ -3619,13 +3982,15 @@ twometrics.graph <- function(tickers = NULL, ...,
     x1 <- -1.05
     x2 <- 1.05
   } else if (x.metric == "spearman") {
-    x <- apply(gains, 2, function(x) cor(x, benchmark.gains, method = "spearman"))
+    x <- apply(gains, 2, function(x) 
+      cor(x, benchmark.gains, method = "spearman"))
     plot.title <- paste(plot.title, "Spearman Cor.", sep = "")
     x.label <- paste("Spearman cor. w/ ", benchmark.ticker, sep = "")
     x1 <- -1.05
     x2 <- 1.05
   } else if (x.metric == "spearman2") {
-    x <- apply(gains, 2, function(x) cor(x, benchmark2.gains, method = "spearman"))
+    x <- apply(gains, 2, function(x) 
+      cor(x, benchmark2.gains, method = "spearman"))
     plot.title <- paste(plot.title, "Spearman Cor.", sep = "")
     x.label <- paste("Spearman cor. w/ ", benchmark2.ticker, sep = "")
     x1 <- -1.05
@@ -3635,7 +4000,8 @@ twometrics.graph <- function(tickers = NULL, ...,
     plot.title <- paste(plot.title, "Autocorrelation", sep = "")
     x.label <- "Pearson autocorrelation"
   } else if (x.metric == "auto.spearman") {
-    x <- apply(gains, 2, function(x) cor(x[-length(x)], x[-1], method = "spearman"))
+    x <- apply(gains, 2, function(x) 
+      cor(x[-length(x)], x[-1], method = "spearman"))
     plot.title <- paste(plot.title, "Autocorrelation", sep = "")
     x.label <- "Spearman autocorrelation"
   }
@@ -3689,29 +4055,37 @@ twometrics.graph <- function(tickers = NULL, ...,
   if (is.null(tickerlabel.offsets)) {
     tickerlabel.offsets.dat <- data.frame(ticker = tickers,
                                           x.offset = rep(0, n.funds),
-                                          y.offset = rep((y2 - y1) / 40, n.funds),
+                                          y.offset = rep((y2 - y1) / 40, 
+                                                         n.funds),
                                           stringsAsFactors = FALSE)
-  } else if (is.vector(tickerlabel.offsets) & length(tickerlabel.offsets) == 2) {
+  } else if (is.vector(tickerlabel.offsets) & 
+             length(tickerlabel.offsets) == 2) {
     tickerlabel.offsets.dat <- data.frame(ticker = tickers,
-                                    x.offset = rep(tickerlabel.offsets[1], n.funds),
-                                    y.offset = rep(tickerlabel.offsets[2], n.funds),
+                                    x.offset = rep(tickerlabel.offsets[1], 
+                                                   n.funds),
+                                    y.offset = rep(tickerlabel.offsets[2], 
+                                                   n.funds),
                                     stringsAsFactors = FALSE)
   } else if (is.matrix(tickerlabel.offsets)) {
     tickerlabel.offsets.dat <- data.frame(ticker = tickers,
                                           x.offset = tickerlabel.offsets[, 1],
                                           y.offset = tickerlabel.offsets[, 2],
                                           stringsAsFactors = FALSE)
-  } else if (is.data.frame(tickerlabel.offsets) & nrow(tickerlabel.offsets) < n.funds) {
+  } else if (is.data.frame(tickerlabel.offsets) & 
+             nrow(tickerlabel.offsets) < n.funds) {
     tickerlabel.offsets.dat <- data.frame(ticker = tickers,
                                           x.offset = rep(0, n.funds),
-                                          y.offset = rep((y2 - y1) / 40, n.funds),
+                                          y.offset = rep((y2 - y1) / 40, 
+                                                         n.funds),
                                           stringsAsFactors = FALSE)
     for (ii in 1: nrow(tickerlabel.offsets)) {
       loc <- which(tickerlabel.offsets.dat[, 1] == tickerlabel.offsets[ii, 1])
-      tickerlabel.offsets.dat[loc, 2: 3] <- tickerlabel.offsets.dat[loc, 2: 3] + tickerlabel.offsets[ii, 2: 3]
+      tickerlabel.offsets.dat[loc, 2: 3] <- tickerlabel.offsets.dat[loc, 2: 3] + 
+        tickerlabel.offsets[ii, 2: 3]
     }
   }
-  text.list <- list.override(list1 = list(x = x + tickerlabel.offsets.dat[, 2], y = y + tickerlabel.offsets.dat[, 3],
+  text.list <- list.override(list1 = list(x = x + tickerlabel.offsets.dat[, 2], 
+                                          y = y + tickerlabel.offsets.dat[, 3],
                                           labels = tickers,
                                           col = colors, cex = 0.7),
                              list2 = text.list)
@@ -3762,14 +4136,18 @@ twometrics.graph <- function(tickers = NULL, ...,
   }
 
   # Add horizontal/vertical lines if useful for requested metrics
-  if (y.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "beta", "beta2", "pearson", "pearson2",
-                      "spearman", "spearman2", "auto.pearson", "auto.spearman", "growth", "cagr")) {
+  if (y.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", 
+                      "beta", "beta2", "pearson", "pearson2", "spearman", 
+                      "spearman2", "auto.pearson", "auto.spearman", "growth", 
+                      "cagr")) {
     abline(h = 0, lty = 2)
   } else if (y.metric %in% c("r.squared", "r.squared2")) {
     abline(h = 1, lty = 2)
   }
-  if (x.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", "beta", "beta2", "pearson", "pearson2",
-                      "spearman", "spearman2", "auto.pearson", "auto.spearman", "growth", "cagr")) {
+  if (x.metric %in% c("mean", "sd", "sharpe", "sortino", "alpha", "alpha2", 
+                      "beta", "beta2", "pearson", "pearson2", "spearman", 
+                      "spearman2", "auto.pearson", "auto.spearman", "growth", 
+                      "cagr")) {
     abline(v = 0, lty = 2)
   } else if (x.metric %in% c("r.squared", "r.squared2")) {
     abline(v = 1, lty = 2)
@@ -4214,7 +4592,8 @@ twometrics.graph <- function(tickers = NULL, ...,
 # 
 
 onemetric.overtime.graph <- function(tickers = NULL, ...,
-                                     gains = NULL, prices = NULL,
+                                     gains = NULL, 
+                                     prices = NULL,
                                      y.metric = "cagr",
                                      window.units = 50,
                                      add.plot = FALSE,
@@ -4241,11 +4620,13 @@ onemetric.overtime.graph <- function(tickers = NULL, ...,
 
   } else if (is.null(gains)) {
 
-    stop("You must specify one of the following inputs: tickers, gains, or prices")
+    stop("You must specify one of the following inputs: tickers, gains, or 
+         prices")
 
   }
 
-  # If y.metric requires a benchmark, split gains matrix into ticker gains and benchmark gains
+  # If y.metric requires a benchmark, split gains matrix into ticker gains and 
+  # benchmark gains
   if (y.metric %in% c("alpha", "beta", "r.squared", "pearson", "spearman")) {
     benchmark.gains <- gains[, 1, drop = F]
     benchmark.ticker <- colnames(benchmark.gains)
@@ -4255,7 +4636,8 @@ onemetric.overtime.graph <- function(tickers = NULL, ...,
     gains <- gains[, -1, drop = F]
   }
 
-  # Set tickers to column names of gains matrix; if NULL, use Fund 1, Fund 2, ...
+  # Set tickers to column names of gains matrix; if NULL, use Fund 1, Fund 2, 
+  # ...
   tickers <- colnames(gains)
   if (is.null(tickers)) {
     tickers <- paste("Fund", 1: ncol(gains))
@@ -4272,11 +4654,15 @@ onemetric.overtime.graph <- function(tickers = NULL, ...,
     dates <- dates[-1]
   }
   
-  # Figure out how many units are in a year, for CAGR and axis labels. If unknown, assume daily.
+  # Figure out how many units are in a year, for CAGR and axis labels. If 
+  # unknown, assume daily.
   if (hasArg(time.scale)) {
-    units.year <- ifelse(time.scale == "daily", 252, ifelse(time.scale == "monthly", 12, 1))
+    units.year <- ifelse(time.scale == "daily", 252, 
+                         ifelse(time.scale == "monthly", 12, 
+                                1))
   } else {
-    min.diffdates <- min(diff(as.Date(rownames(gains)[1: min(10, nrow(gains))])))
+    min.diffdates <- min(diff(as.Date(rownames(gains)
+                                      [1: min(10, nrow(gains))])))
     if (! is.null(min.diffdates)) {
       if (min.diffdates == 1) {
         time.scale <- "daily"
@@ -4309,12 +4695,15 @@ onemetric.overtime.graph <- function(tickers = NULL, ...,
     y1 <- 0
   } else if (y.metric == "growth") {
     y <- rollapply(gains, width = window.units,
-                   FUN = function(x) gains.rate(gains = x) * 100, by.column = TRUE)
+                   FUN = function(x) 
+                     gains.rate(gains = x) * 100, by.column = TRUE)
     plot.title <- "Total Growth"
     y.label <- "Growth (%)"
   } else if (y.metric == "cagr") {
     y <- rollapply(gains, width = window.units,
-                   FUN = function(x) gains.rate(gains = x, units.rate = units.year) * 100, by.column = TRUE)
+                   FUN = function(x) 
+                     gains.rate(gains = x, units.rate = units.year) * 100, 
+                   by.column = TRUE)
     plot.title <- "Compound Annualized Growth Rate"
     y.label <- "CAGR (%)"
   } else if (y.metric == "mdd") {
@@ -4334,66 +4723,82 @@ onemetric.overtime.graph <- function(tickers = NULL, ...,
     plot.title <- "Sortino Ratio"
     y.label <- "Sortino ratio"
   } else if (y.metric == "alpha") {
-    y <- matrix(NA, ncol = length(tickers), nrow = nrow(gains) - window.units + 1)
+    y <- matrix(NA, ncol = length(tickers), 
+                nrow = nrow(gains) - window.units + 1)
     for (ii in (window.units: nrow(gains))) {
       locs <- (ii - window.units + 1): ii
       for (jj in 1: ncol(gains)) {
-        y[(ii - window.units + 1), jj] <- lm(gains[locs, jj] ~ benchmark.gains[locs])$coef[1] * 100
+        y[(ii - window.units + 1), jj] <- 
+          lm(gains[locs, jj] ~ benchmark.gains[locs])$coef[1] * 100
       }
     }
     plot.title <- paste("Alpha w/ ", benchmark.ticker, sep = "")
     y.label <- "Alpha (%)"
   } else if (y.metric == "beta") {
-    y <- matrix(NA, ncol = length(tickers), nrow = nrow(gains) - window.units + 1)
+    y <- matrix(NA, ncol = length(tickers), 
+                nrow = nrow(gains) - window.units + 1)
     for (ii in (window.units: nrow(gains))) {
       locs <- (ii - window.units + 1): ii
       for (jj in 1: ncol(gains)) {
-        y[(ii - window.units + 1), jj] <- lm(gains[locs, jj] ~ benchmark.gains[locs])$coef[2]
+        y[(ii - window.units + 1), jj] <- 
+          lm(gains[locs, jj] ~ benchmark.gains[locs])$coef[2]
       }
     }
     plot.title <- paste("Beta w/ ", benchmark.ticker, sep = "")
     y.label <- "Beta"
   } else if (y.metric == "r.squared") {
-    y <- matrix(NA, ncol = length(tickers), nrow = nrow(gains) - window.units + 1)
+    y <- matrix(NA, ncol = length(tickers), 
+                nrow = nrow(gains) - window.units + 1)
     for (ii in (window.units: nrow(gains))) {
       locs <- (ii - window.units + 1): ii
       for (jj in 1: ncol(gains)) {
-        y[(ii - window.units + 1), jj] <- summary(lm(gains[locs, jj] ~ benchmark.gains[locs]))$r.squared
+        y[(ii - window.units + 1), jj] <- 
+          summary(lm(gains[locs, jj] ~ benchmark.gains[locs]))$r.squared
       }
     }
     plot.title <- paste("R-squared w/ ", benchmark.ticker, sep = "")
     y.label <- "R-squared"
     y1 <- 0
   } else if (y.metric == "pearson") {
-    y <- matrix(NA, ncol = length(tickers), nrow = nrow(gains) - window.units + 1)
+    y <- matrix(NA, ncol = length(tickers), 
+                nrow = nrow(gains) - window.units + 1)
     for (ii in (window.units: nrow(gains))) {
       locs <- (ii - window.units + 1): ii
       for (jj in 1: ncol(gains)) {
-        y[(ii - window.units + 1), jj] <- cor(gains[locs, jj], benchmark.gains[locs])
+        y[(ii - window.units + 1), jj] <- cor(gains[locs, jj], 
+                                              benchmark.gains[locs])
       }
     }
     plot.title <- paste("Pearson Cor. w/ ", benchmark.ticker, sep = "")
     y.label <- "Pearson correlation"
   } else if (y.metric == "spearman") {
-    y <- matrix(NA, ncol = length(tickers), nrow = nrow(gains) - window.units + 1)
+    y <- matrix(NA, ncol = length(tickers), 
+                nrow = nrow(gains) - window.units + 1)
     for (ii in (window.units: nrow(gains))) {
       locs <- (ii - window.units + 1): ii
       for (jj in 1: ncol(gains)) {
-        y[(ii - window.units + 1), jj] <- cor(gains[locs, jj], benchmark.gains[locs], method = "spearman")
+        y[(ii - window.units + 1), jj] <- cor(gains[locs, jj], 
+                                              benchmark.gains[locs], 
+                                              method = "spearman")
       }
     }
     plot.title <- paste("Spearman Cor. w/ ", benchmark.ticker, sep = "")
     y.label <- "Spearman correlation"
   } else if (y.metric == "auto.pearson") {
     y <- rollapply(gains, width = window.units + 1,
-                   FUN = function(x) cor(x[-length(x)], x[-1]), by.column = TRUE)
+                   FUN = function(x) 
+                     cor(x[-length(x)], x[-1]), by.column = TRUE)
     plot.title <- "Autocorrelation"
-    y.label <- paste("Pearson cor. for adjacent ", time.scale, " gains", sep = "")
+    y.label <- paste("Pearson cor. for adjacent ", time.scale, " gains", 
+                     sep = "")
   } else if (y.metric == "auto.spearman") {
     y <- rollapply(gains, width = window.units + 1,
-                   FUN = function(x) cor(x[-length(x)], x[-1], method = "spearman"), by.column = TRUE)
+                   FUN = function(x) 
+                     cor(x[-length(x)], x[-1], method = "spearman"), 
+                   by.column = TRUE)
     plot.title <- "Autocorrelation"
-    y.label <- paste("Spearman cor. for adjacent ", time.scale, " gains", sep = "")
+    y.label <- paste("Spearman cor. for adjacent ", time.scale, " gains", 
+                     sep = "")
   }
 
   # If NULL, set appropriate values for ylim range
@@ -4430,7 +4835,8 @@ onemetric.overtime.graph <- function(tickers = NULL, ...,
                              list2 = plot.list)
   points.list <- list.override(list1 = list(pch = 16),
                                list2 = points.list)
-  legend.list <- list.override(list1 = list(x = "topleft", lty = 1, col = colors, legend = tickers),
+  legend.list <- list.override(list1 = list(x = "topleft", lty = 1, 
+                                            col = colors, legend = tickers),
                                list2 = legend.list)
 
   # If pdf.list is not NULL, call pdf
@@ -4479,8 +4885,9 @@ onemetric.overtime.graph <- function(tickers = NULL, ...,
   }
 
   # Add horizontal/vertical lines if useful for requested metrics
-  if (y.metric %in% c("mean", "sd", "growth", "cagr", "sharpe", "sortino", "alpha", "beta", "pearson",
-                      "spearman", "auto.pearson", "auto.spearman")) {
+  if (y.metric %in% c("mean", "sd", "growth", "cagr", "sharpe", "sortino", 
+                      "alpha", "beta", "pearson", "spearman", "auto.pearson", 
+                      "auto.spearman")) {
     abline(h = 0, lty = 2)
   } else if (y.metric == "r.squared") {
     abline(h = 1, lty = 2)
@@ -4490,7 +4897,8 @@ onemetric.overtime.graph <- function(tickers = NULL, ...,
   for (ii in 1: n.funds) {
 
     # Add colored curves and data points
-    do.call(points, c(list(x = dates, y = y[, ii], type = "l", col = colors[ii]), points.list))
+    do.call(points, c(list(x = dates, y = y[, ii], type = "l", 
+                           col = colors[ii]), points.list))
 
   }
 
@@ -4545,11 +4953,17 @@ onemetric.overtime.graph <- function(tickers = NULL, ...,
 # rebalance as long as one of them is within tolerance of target beta.
 
 # Now, can specify from and prefrom.days to get correct intervals. 
-targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL, ..., 
-                                benchmark.ticker = NULL, reference.tickers = NULL,
-                                tickers.gains = NULL, benchmark.gains = NULL, reference.gains = NULL,
-                                target.beta = 0, tol = 0.15,
-                                window.units = 50, failure.method = c("cash", "closer"),
+targetbeta.twofunds <- function(tickers = NULL, 
+                                intercepts = NULL, slopes = NULL, ..., 
+                                benchmark.ticker = NULL, 
+                                reference.tickers = NULL,
+                                tickers.gains = NULL, 
+                                benchmark.gains = NULL, 
+                                reference.gains = NULL,
+                                target.beta = 0, 
+                                tol = 0.15,
+                                window.units = 50, 
+                                failure.method = c("cash", "closer"),
                                 maxall.tol = tol - 0.05,
                                 initial = 10000) {
 
@@ -4564,14 +4978,16 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
       slopes <- rep(1, length(tickers))
     }
 
-    # Create vector of "extra" tickers comprised of benchmark and reference tickers
+    # Create vector of "extra" tickers comprised of benchmark and reference 
+    # tickers
     extra.tickers <- unique(c(benchmark.ticker, reference.tickers))
 
     # Calculate gains matrix
     tickers.vec <- c(as.vector(tickers), extra.tickers)
     intercepts.vec <- c(intercepts, rep(0, length(extra.tickers)))
     slopes.vec <- c(slopes, rep(1, length(extra.tickers)))
-    gains <- load.gains(tickers = tickers.vec, intercepts = intercepts.vec, slopes = slopes.vec, ...)
+    gains <- load.gains(tickers = tickers.vec, intercepts = intercepts.vec, 
+                        slopes = slopes.vec, ...)
 
     # Update ticker names to show intercept/slope
     tickers <- colnames(gains)[1: length(tickers)]
@@ -4594,7 +5010,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
       tickers <- paste("FUND", 1: ncol(tickers.gains), sep = "")
     }
 
-    # Convert reference.gains to matrix if necessary, and figure out reference.tickers
+    # Convert reference.gains to matrix if necessary, and figure out 
+    # reference.tickers
     if (is.vector(reference.gains)) {
       reference.gains <- matrix(reference.gains, ncol = 1)
       reference.tickers <- "REF"
@@ -4629,12 +5046,15 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
   if (col1.benchmark) {
     fund1.betas <- rep(1, length(fund1.gains) - window.units + 1)
   } else {
-    fund1.betas <- rollapply(cbind(benchmark.gains, fund1.gains), width = window.units, by.column = FALSE,
-                                  FUN = function(x) lm(x[, 2] ~ x[, 1])$coef[2])
+    fund1.betas <- rollapply(cbind(benchmark.gains, fund1.gains), 
+                             width = window.units, by.column = FALSE,
+                             FUN = function(x) lm(x[, 2] ~ x[, 1])$coef[2])
   }
-  fund2.betas <- rollapply(cbind(benchmark.gains, fund2.gains), width = window.units, by.column = FALSE,
+  fund2.betas <- rollapply(cbind(benchmark.gains, fund2.gains), 
+                           width = window.units, by.column = FALSE,
                            FUN = function(x) lm(x[, 2] ~ x[, 1])$coef[2])
-  fund.betas <- matrix(c(fund1.betas, fund2.betas), ncol = 2, dimnames = list(NULL, colnames(tickers.gains)))
+  fund.betas <- matrix(c(fund1.betas, fund2.betas), ncol = 2, 
+                       dimnames = list(NULL, colnames(tickers.gains)))
 
   # Initialize results.list list
   results.list <- list()
@@ -4645,7 +5065,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # Calculate initial betas and initial target allocation to fund 1
     fund1.beta <- fund.betas[1, 1]
     fund2.beta <- fund.betas[1, 2]
-    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                       3)
 
     # Distribute initial balance to fund 1, fund 2, and cash
     if (inside(fund1.all, c(0, 1))) {
@@ -4662,8 +5083,10 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     port.bal <- initial
 
     # Initialize matrix for fund balances
-    fund.balances <- matrix(NA, ncol = 4, nrow = nrow(tickers.gains) - window.units + 1,
-                            dimnames = list(dates, c(colnames(tickers.gains), "CASH", "PORT")))
+    fund.balances <- matrix(NA, ncol = 4, 
+                            nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, c(colnames(tickers.gains), 
+                                                     "CASH", "PORT")))
     fund.balances[1, ] <- c(fund1.bal, fund2.bal, cash.bal, port.bal)
 
     # Initialize vector for effective betas
@@ -4691,16 +5114,19 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
       fund2.beta <- fund.betas[loop.index, 2]
 
       # Calculate target allocation for fund 1
-      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                         3)
 
       # Calculate effective beta
-      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / port.bal
+      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / 
+        port.bal
       effective.betas[loop.index] <- effective.beta
 
       # Rebalance
       if (cash.bal > 0) {
         
-        # (1) If target beta can be achieved with fund 1 / fund 2, execute that trade.
+        # (1) If target beta can be achieved with fund 1 / fund 2, execute that 
+        # trade.
         # (2) Otherwise, continue to hold 100% cash.
         
         if (inside(fund1.all, c(0, 1))) {
@@ -4722,8 +5148,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
         
       } else {
         
-        # If effective beta is outside acceptable range, execute rebalancing trade if
-        # target beta is achievable, otherwise switch to 100% cash.
+        # If effective beta is outside acceptable range, execute rebalancing 
+        # trade if target beta is achievable, otherwise switch to 100% cash.
         
         if (! inside(effective.beta, beta.range)) {
           
@@ -4758,8 +5184,11 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # If reference funds provided, add to fund.balances matrix
     if (!is.null(reference.gains)) {
 
-      fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x)
-        balances(ratios = x[(window.units + 1): length(x)] + 1, initial = initial)))
+      fund.balances <- cbind(fund.balances, 
+                             apply(reference.gains, 2, function(x)
+                               balances(ratios = x[(window.units + 1): 
+                                                     length(x)] + 1, 
+                                        initial = initial)))
 
     }
 
@@ -4777,7 +5206,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # Calculate initial betas and initial target allocation to fund 1
     fund1.beta <- fund.betas[1, 1]
     fund2.beta <- fund.betas[1, 2]
-    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                       3)
 
     # Distribute initial balance to fund 1 and fund 2
     if (! inside(fund1.all, c(0, 1))) {
@@ -4789,8 +5219,10 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     port.bal <- initial
 
     # Initialize matrix for fund balances
-    fund.balances <- matrix(NA, ncol = 3, nrow = nrow(tickers.gains) - window.units + 1,
-                            dimnames = list(dates, c(colnames(tickers.gains), "PORT")))
+    fund.balances <- matrix(NA, ncol = 3, 
+                            nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, c(colnames(tickers.gains), 
+                                                     "PORT")))
     fund.balances[1, ] <- c(fund1.bal, fund2.bal, port.bal)
 
     # Initialize vector for effective betas
@@ -4818,16 +5250,19 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
       fund2.beta <- fund.betas[loop.index, 2]
 
       # Calculate target allocation for fund 1
-      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                         3)
 
       # Calculate effective beta
-      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / port.bal
+      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / 
+        port.bal
       effective.betas[loop.index] <- effective.beta
 
       # Rebalance
       if (fund1.bal == port.bal) {
         
-        # (1) If target beta can be achieved with fund 1 / fund 2, execute that trade.
+        # (1) If target beta can be achieved with fund 1 / fund 2, execute that 
+        # trade.
         # (2) Otherwise, continue to hold 100% fund 1.
         
         if (inside(fund1.all, c(0, 1))) {
@@ -4848,8 +5283,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
         
       } else {
         
-        # If effective beta is outside acceptable range, execute rebalancing trade if
-        # target beta is achievable, otherwise switch to 100% fund 1.
+        # If effective beta is outside acceptable range, execute rebalancing 
+        # trade if target beta is achievable, otherwise switch to 100% fund 1.
         
         if (! inside(effective.beta, beta.range)) {
           
@@ -4879,8 +5314,11 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # If reference funds provided, add to fund.balances matrix
     if (!is.null(reference.gains)) {
 
-      fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x)
-        balances(ratios = x[(window.units + 1): length(x)] + 1, initial = initial)))
+      fund.balances <- cbind(fund.balances, 
+                             apply(reference.gains, 2, function(x)
+                               balances(ratios = x[(window.units + 1): 
+                                                     length(x)] + 1, 
+                                        initial = initial)))
 
     }
 
@@ -4898,7 +5336,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # Calculate initial betas and initial target allocation to fund 1
     fund1.beta <- fund.betas[1, 1]
     fund2.beta <- fund.betas[1, 2]
-    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                       3)
 
     # Distribute initial balance to fund 1 and fund 2
     if (! inside(fund1.all, c(0, 1))) {
@@ -4910,8 +5349,10 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     port.bal <- initial
 
     # Initialize matrix for fund balances
-    fund.balances <- matrix(NA, ncol = 3, nrow = nrow(tickers.gains) - window.units + 1,
-                            dimnames = list(dates, c(colnames(tickers.gains), "PORT")))
+    fund.balances <- matrix(NA, ncol = 3, 
+                            nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, c(colnames(tickers.gains), 
+                                                     "PORT")))
     fund.balances[1, ] <- c(fund1.bal, fund2.bal, port.bal)
 
     # Initialize vector for effective betas
@@ -4939,16 +5380,19 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
       fund2.beta <- fund.betas[loop.index, 2]
 
       # Calculate target allocations for fund 1
-      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                         3)
 
       # Calculate effective beta
-      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / port.bal
+      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / 
+        port.bal
       effective.betas[loop.index] <- effective.beta
 
       # Rebalance
       if (fund2.bal == port.bal) {
         
-        # (1) If target beta can be achieved with fund 1 / fund 2, execute that trade.
+        # (1) If target beta can be achieved with fund 1 / fund 2, execute that 
+        # trade.
         # (2) Otherwise, continue to hold 100% fund 2.
         
         if (inside(fund1.all, c(0, 1))) {
@@ -4969,8 +5413,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
         
       } else {
         
-        # If effective beta is outside acceptable range, execute rebalancing trade if
-        # target beta is achievable, otherwise switch to 100% fund 2.
+        # If effective beta is outside acceptable range, execute rebalancing 
+        # trade if target beta is achievable, otherwise switch to 100% fund 2.
         
         if (! inside(effective.beta, beta.range)) {
           
@@ -5000,8 +5444,11 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # If reference funds provided, add to fund.balances matrix
     if (!is.null(reference.gains)) {
 
-      fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x)
-        balances(ratios = x[(window.units + 1): length(x)] + 1, initial = initial)))
+      fund.balances <- cbind(fund.balances, 
+                             apply(reference.gains, 2, function(x)
+                               balances(ratios = x[(window.units + 1): 
+                                                     length(x)] + 1, 
+                                        initial = initial)))
 
     }
 
@@ -5022,7 +5469,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # Calculate initial betas and initial target allocation to fund 1
     fund1.beta <- fund.betas[1, 1]
     fund2.beta <- fund.betas[1, 2]
-    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                       3)
     
     # Distribute initial balance to fund 1 and fund 2
     if (! inside(fund1.all, c(0, 1))) {
@@ -5031,7 +5479,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
       } else {
         fund1.alls <- seq(0, 1, 0.001)
         port.betas <- fund1.alls * fund1.beta
-        fund1.all <- fund1.alls[which.max(fund1.alls[inside(port.betas, maxall.beta.range)])]
+        fund1.all <- fund1.alls[which.max(fund1.alls[inside(port.betas, 
+                                                            maxall.beta.range)])]
       }
       fund2.all <- 0
       cash.all <- 1 - fund1.all
@@ -5045,8 +5494,10 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     port.bal <- initial
     
     # Initialize matrix for fund balances
-    fund.balances <- matrix(NA, ncol = 4, nrow = nrow(tickers.gains) - window.units + 1,
-                            dimnames = list(dates, c(colnames(tickers.gains), "CASH", "PORT")))
+    fund.balances <- matrix(NA, ncol = 4, 
+                            nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, c(colnames(tickers.gains), 
+                                                     "CASH", "PORT")))
     fund.balances[1, ] <- c(fund1.bal, fund2.bal, cash.bal, port.bal)
     
     # Initialize vector for effective betas
@@ -5074,17 +5525,21 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
       fund2.beta <- fund.betas[loop.index, 2]
       
       # Calculate target allocation for fund 1
-      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                         3)
       
       # Calculate effective beta
-      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / port.bal
+      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / 
+        port.bal
       effective.betas[loop.index] <- effective.beta
       
       # Rebalance
       if (cash.bal > 0 | fund1.bal == port.bal) {
         
-        # (1) If target beta can be achieved with fund 1 / fund 2, execute that trade.
-        # (2) Otherwise, if effective beta is outside acceptable range, rebalance fund 1 / cash
+        # (1) If target beta can be achieved with fund 1 / fund 2, execute that 
+        # trade.
+        # (2) Otherwise, if effective beta is outside acceptable range, 
+        # rebalance fund 1 / cash
         
         if (inside(fund1.all, c(0, 1))) {
           
@@ -5105,7 +5560,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
             } else {
               fund1.alls <- seq(0, 1, 0.001)
               port.betas <- fund1.alls * fund1.beta
-              fund1.all <- fund1.alls[which.max(fund1.alls[inside(port.betas, maxall.beta.range)])]
+              fund1.all <- fund1.alls[which.max(fund1.alls[inside(port.betas, 
+                                                                  maxall.beta.range)])]
             }
             fund2.all <- 0
             cash.all <- 1 - fund1.all
@@ -5119,8 +5575,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
         
       } else {
         
-        # If effective beta is outside acceptable range, execute rebalancing trade if
-        # target beta is achievable, otherwise switch to fund 1 / cash.
+        # If effective beta is outside acceptable range, execute rebalancing 
+        # trade if target beta is achievable, otherwise switch to fund 1 / cash.
         
         if (! inside(effective.beta, beta.range)) {
           
@@ -5141,7 +5597,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
             } else {
               fund1.alls <- seq(0, 1, 0.001)
               port.betas <- fund1.alls * fund1.beta
-              fund1.all <- fund1.alls[which.max(fund1.alls[inside(port.betas, maxall.beta.range)])]
+              fund1.all <- fund1.alls[which.max(fund1.alls[inside(port.betas, 
+                                                                  maxall.beta.range)])]
             }
             fund2.all <- 0
             cash.all <- 1 - fund1.all
@@ -5160,8 +5617,11 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # If reference funds provided, add to fund.balances matrix
     if (!is.null(reference.gains)) {
       
-      fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x)
-        balances(ratios = x[(window.units + 1): length(x)] + 1, initial = initial)))
+      fund.balances <- cbind(fund.balances, 
+                             apply(reference.gains, 2, function(x)
+                               balances(ratios = x[(window.units + 1): 
+                                                     length(x)] + 1, 
+                                        initial = initial)))
       
     }
     
@@ -5182,7 +5642,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # Calculate initial betas and initial target allocation to fund 1
     fund1.beta <- fund.betas[1, 1]
     fund2.beta <- fund.betas[1, 2]
-    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                       3)
     
     # Distribute initial balance to fund 1 and fund 2
     if (! inside(fund1.all, c(0, 1))) {
@@ -5191,7 +5652,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
       } else {
         fund2.alls <- seq(0, 1, 0.001)
         port.betas <- fund2.alls * fund2.beta
-        fund2.all <- fund2.alls[which.max(fund2.alls[inside(port.betas, maxall.beta.range)])]
+        fund2.all <- fund2.alls[which.max(fund2.alls[inside(port.betas, 
+                                                            maxall.beta.range)])]
       }
       fund1.all <- 0
       cash.all <- 1 - fund2.all
@@ -5205,8 +5667,10 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     port.bal <- initial
     
     # Initialize matrix for fund balances
-    fund.balances <- matrix(NA, ncol = 4, nrow = nrow(tickers.gains) - window.units + 1,
-                            dimnames = list(dates, c(colnames(tickers.gains), "CASH", "PORT")))
+    fund.balances <- matrix(NA, ncol = 4, 
+                            nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, c(colnames(tickers.gains), 
+                                                     "CASH", "PORT")))
     fund.balances[1, ] <- c(fund1.bal, fund2.bal, cash.bal, port.bal)
     
     # Initialize vector for effective betas
@@ -5234,17 +5698,21 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
       fund2.beta <- fund.betas[loop.index, 2]
       
       # Calculate target allocation for fund 1
-      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                         3)
       
       # Calculate effective beta
-      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / port.bal
+      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / 
+        port.bal
       effective.betas[loop.index] <- effective.beta
       
       # Rebalance
       if (cash.bal > 0 | fund2.bal == port.bal) {
         
-        # (1) If target beta can be achieved with fund 1 / fund 2, execute that trade.
-        # (2) Otherwise, if effective beta is outside acceptable range, rebalance fund 2 / cash
+        # (1) If target beta can be achieved with fund 1 / fund 2, execute that 
+        # trade.
+        # (2) Otherwise, if effective beta is outside acceptable range, 
+        # rebalance fund 2 / cash
         
         if (inside(fund1.all, c(0, 1))) {
           
@@ -5265,7 +5733,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
             } else {
               fund2.alls <- seq(0, 1, 0.001)
               port.betas <- fund2.alls * fund2.beta
-              fund2.all <- fund2.alls[which.max(fund2.alls[inside(port.betas, maxall.beta.range)])]
+              fund2.all <- fund2.alls[which.max(fund2.alls[inside(port.betas, 
+                                                                  maxall.beta.range)])]
             }
             fund1.all <- 0
             cash.all <- 1 - fund2.all
@@ -5279,8 +5748,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
         
       } else {
         
-        # If effective beta is outside acceptable range, execute rebalancing trade if
-        # target beta is achievable, otherwise switch to fund 2 / cash.
+        # If effective beta is outside acceptable range, execute rebalancing 
+        # trade if target beta is achievable, otherwise switch to fund 2 / cash.
         
         if (! inside(effective.beta, beta.range)) {
           
@@ -5301,7 +5770,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
             } else {
               fund2.alls <- seq(0, 1, 0.001)
               port.betas <- fund2.alls * fund2.beta
-              fund2.all <- fund2.alls[which.max(fund2.alls[inside(port.betas, maxall.beta.range)])]
+              fund2.all <- fund2.alls[which.max(fund2.alls[inside(port.betas, 
+                                                                  maxall.beta.range)])]
             }
             fund1.all <- 0
             cash.all <- 1 - fund2.all
@@ -5320,8 +5790,11 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # If reference funds provided, add to fund.balances matrix
     if (!is.null(reference.gains)) {
       
-      fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x)
-        balances(ratios = x[(window.units + 1): length(x)] + 1, initial = initial)))
+      fund.balances <- cbind(fund.balances, 
+                             apply(reference.gains, 2, function(x)
+                               balances(ratios = x[(window.units + 1): 
+                                                     length(x)] + 1, 
+                                        initial = initial)))
       
     }
     
@@ -5339,13 +5812,15 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # Calculate initial betas and initial target allocation to fund 1
     fund1.beta <- fund.betas[1, 1]
     fund2.beta <- fund.betas[1, 2]
-    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                       3)
     if (inside(fund1.all, c(0, 1))) {
       fund2.all <- 1 - fund1.all
       inverse1.all <- 0
       cash.all <- 0
     } else {
-      inverse1.all <- round((fund2.beta - target.beta) / (fund1.beta + fund2.beta), 3)
+      inverse1.all <- round((fund2.beta - target.beta) / 
+                              (fund1.beta + fund2.beta), 3)
       if (inside(inverse1.all, c(0, 1))) {
         fund1.all <- 0
         fund2.all <- 1 - inverse1.all
@@ -5366,12 +5841,19 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     port.bal <- initial
 
     # Initialize matrix for fund balances
-    fund.balances <- matrix(NA, ncol = 5, nrow = nrow(tickers.gains) - window.units + 1,
-                            dimnames = list(dates, c(colnames(tickers.gains), paste("INVERSE", colnames(tickers.gains)[1]), "CASH", "PORT")))
-    fund.balances[1, ] <- c(fund1.bal, fund2.bal, inverse1.bal, cash.bal, port.bal)
+    fund.balances <- matrix(NA, ncol = 5, 
+                            nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, 
+                                            c(colnames(tickers.gains), 
+                                              paste("INVERSE", 
+                                                    colnames(tickers.gains)[1]), 
+                                              "CASH", "PORT")))
+    fund.balances[1, ] <- c(fund1.bal, fund2.bal, inverse1.bal, cash.bal, 
+                            port.bal)
 
     # Initialize vector for effective betas
-    effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta - inverse1.all * fund1.beta
+    effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta - 
+      inverse1.all * fund1.beta
     effective.betas <- rep(NA, nrow(tickers.gains) - window.units + 1)
     names(effective.betas) <- dates
     effective.betas[1] <- effective.beta
@@ -5389,24 +5871,29 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
       fund2.bal <- fund2.bal * (1 + fund2.gains[ii])
       inverse1.bal <- inverse1.bal * (1 - fund1.gains[ii])
       port.bal <- fund1.bal + fund2.bal + inverse1.bal + cash.bal
-      fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, inverse1.bal, cash.bal, port.bal)
+      fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, inverse1.bal, 
+                                       cash.bal, port.bal)
       
       # Get fund 1 and fund 2 betas for time period of interest
       fund1.beta <- fund.betas[loop.index, 1]
       fund2.beta <- fund.betas[loop.index, 2]
       
       # Calculate target allocation for fund 1
-      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                         3)
       
       # Calculate effective beta
-      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal - fund1.beta * inverse1.bal) / port.bal
+      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal - 
+                           fund1.beta * inverse1.bal) / port.bal
       effective.betas[loop.index] <- effective.beta
       
       # Rebalance
       if (cash.bal > 0) {
         
-        # (1) If target beta can be achieved with fund 1 / fund 2, execute that trade.
-        # (2) Otherwise, if target beta can be achieved with inverse fund 1 / fund 2, execute that trade.
+        # (1) If target beta can be achieved with fund 1 / fund 2, execute that 
+        # trade.
+        # (2) Otherwise, if target beta can be achieved with inverse fund 1 / 
+        # fund 2, execute that trade.
         # (3) Otherwise, continue to hold 100% cash.
         
         if (inside(fund1.all, c(0, 1))) {
@@ -5422,7 +5909,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
           
         } else {
           
-          inverse1.all <- round((fund2.beta - target.beta) / (fund1.beta + fund2.beta), 3)
+          inverse1.all <- round((fund2.beta - target.beta) / 
+                                  (fund1.beta + fund2.beta), 3)
           
           if (inside(inverse1.all, c(0, 1))) {
             
@@ -5452,9 +5940,11 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
         
       } else if (inverse1.bal > 0) {
         
-        # (1) If target beta can be achieved with fund 1 / fund 2, execute that trade.
-        # (2) Otherwise, if effective beta is outside acceptable range, execute trade to rebalance
-        # inverse fund 1 / fund 2 if target beta is achievable, otherwise switch to 100% cash.
+        # (1) If target beta can be achieved with fund 1 / fund 2, execute that 
+        # trade.
+        # (2) Otherwise, if effective beta is outside acceptable range, execute 
+        # trade to rebalance inverse fund 1 / fund 2 if target beta is 
+        # achievable, otherwise switch to 100% cash.
         
         if (inside(fund1.all, c(0, 1))) {
           
@@ -5471,7 +5961,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
           
           if (! inside(effective.beta, beta.range)) {
             
-            inverse1.all <- round((fund2.beta - target.beta) / (fund1.beta + fund2.beta), 3)
+            inverse1.all <- round((fund2.beta - target.beta) / 
+                                    (fund1.beta + fund2.beta), 3)
             
             if (inside(inverse1.all, c(0, 1))) {
               
@@ -5504,9 +5995,10 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
         
       } else {
         
-        # (1) If effective beta is outside acceptable range, execute trade to rebalance 
-        # fund 1 / fund 2. 
-        # (2) If target beta is not achievable, execute inverse fund 1 / fund 2 trade.
+        # (1) If effective beta is outside acceptable range, execute trade to 
+        # rebalance fund 1 / fund 2. 
+        # (2) If target beta is not achievable, execute inverse fund 1 / fund 2 
+        # trade.
         # (3) If target beta is still not achievable, switch to 100% cash.
         
         if (! inside(effective.beta, beta.range)) {
@@ -5524,7 +6016,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
             
           } else {
             
-            inverse1.all <- round((fund2.beta - target.beta) / (fund1.beta + fund2.beta), 3)
+            inverse1.all <- round((fund2.beta - target.beta) / 
+                                    (fund1.beta + fund2.beta), 3)
             
             if (inside(inverse1.all, c(0, 1))) {
               
@@ -5561,8 +6054,11 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # If reference funds provided, add to fund.balances matrix
     if (!is.null(reference.gains)) {
       
-      fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x)
-        balances(ratios = x[(window.units + 1): length(x)] + 1, initial = initial)))
+      fund.balances <- cbind(fund.balances, 
+                             apply(reference.gains, 2, function(x)
+                               balances(ratios = x[(window.units + 1): 
+                                                     length(x)] + 1, 
+                                        initial = initial)))
       
     }
     
@@ -5580,13 +6076,15 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # Calculate initial betas and initial target allocation to fund 1
     fund1.beta <- fund.betas[1, 1]
     fund2.beta <- fund.betas[1, 2]
-    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                       3)
     if (inside(fund1.all, c(0, 1))) {
       fund2.all <- 1 - fund1.all
       inverse2.all <- 0
       cash.all <- 0
     } else {
-      inverse2.all <- round((fund1.beta - target.beta) / (fund1.beta + fund2.beta), 3)
+      inverse2.all <- round((fund1.beta - target.beta) / 
+                              (fund1.beta + fund2.beta), 3)
       if (inside(inverse2.all, c(0, 1))) {
         fund1.all <- 1 - inverse2.all
         fund2.all <- 0
@@ -5607,12 +6105,19 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     port.bal <- initial
     
     # Initialize matrix for fund balances
-    fund.balances <- matrix(NA, ncol = 5, nrow = nrow(tickers.gains) - window.units + 1,
-                            dimnames = list(dates, c(colnames(tickers.gains), paste("INVERSE", colnames(tickers.gains)[2]), "CASH", "PORT")))
-    fund.balances[1, ] <- c(fund1.bal, fund2.bal, inverse2.bal, cash.bal, port.bal)
+    fund.balances <- matrix(NA, ncol = 5, 
+                            nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, 
+                                            c(colnames(tickers.gains), 
+                                              paste("INVERSE", 
+                                                    colnames(tickers.gains)[2]), 
+                                              "CASH", "PORT")))
+    fund.balances[1, ] <- c(fund1.bal, fund2.bal, inverse2.bal, cash.bal, 
+                            port.bal)
     
     # Initialize vector for effective betas
-    effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta - inverse2.all * fund1.beta
+    effective.beta <- fund1.all * fund1.beta + fund2.all * fund2.beta - 
+      inverse2.all * fund1.beta
     effective.betas <- rep(NA, nrow(tickers.gains) - window.units + 1)
     names(effective.betas) <- dates
     effective.betas[1] <- effective.beta
@@ -5630,24 +6135,29 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
       fund2.bal <- fund2.bal * (1 + fund2.gains[ii])
       inverse2.bal <- inverse2.bal * (1 - fund2.gains[ii])
       port.bal <- fund1.bal + fund2.bal + inverse2.bal + cash.bal
-      fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, inverse2.bal, cash.bal, port.bal)
+      fund.balances[loop.index, ] <- c(fund1.bal, fund2.bal, inverse2.bal, 
+                                       cash.bal, port.bal)
       
       # Get fund 1 and fund 2 betas for time period of interest
       fund1.beta <- fund.betas[loop.index, 1]
       fund2.beta <- fund.betas[loop.index, 2]
       
       # Calculate target allocation for fund 1
-      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                         3)
       
       # Calculate effective beta
-      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal - fund2.beta * inverse2.bal) / port.bal
+      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal - 
+                           fund2.beta * inverse2.bal) / port.bal
       effective.betas[loop.index] <- effective.beta
       
       # Rebalance
       if (cash.bal > 0) {
         
-        # (1) If target beta can be achieved with fund 1 / fund 2, execute that trade.
-        # (2) Otherwise, if target beta can be achieved with fund 1 / inverse fund 2, execute that trade.
+        # (1) If target beta can be achieved with fund 1 / fund 2, execute that 
+        # trade.
+        # (2) Otherwise, if target beta can be achieved with fund 1 / inverse 
+        # fund 2, execute that trade.
         # (3) Otherwise, continue to hold 100% cash.
         
         if (inside(fund1.all, c(0, 1))) {
@@ -5663,7 +6173,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
           
         } else {
           
-          inverse2.all <- round((fund1.beta - target.beta) / (fund1.beta + fund2.beta), 3)
+          inverse2.all <- round((fund1.beta - target.beta) / 
+                                  (fund1.beta + fund2.beta), 3)
           
           if (inside(inverse2.all, c(0, 1))) {
             
@@ -5693,9 +6204,11 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
         
       } else if (inverse2.bal > 0) {
         
-        # (1) If target beta can be achieved with fund 1 / fund 2, execute that trade.
-        # (2) Otherwise, if effective beta is outside acceptable range, execute trade to rebalance
-        # fund 1 / inverse fund 2 if target beta is achievable, otherwise switch to 100% cash.
+        # (1) If target beta can be achieved with fund 1 / fund 2, execute that 
+        # trade.
+        # (2) Otherwise, if effective beta is outside acceptable range, execute 
+        # trade to rebalance fund 1 / inverse fund 2 if target beta is 
+        # achievable, otherwise switch to 100% cash.
         
         if (inside(fund1.all, c(0, 1))) {
           
@@ -5712,7 +6225,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
           
           if (! inside(effective.beta, beta.range)) {
             
-            inverse2.all <- round((fund1.beta - target.beta) / (fund1.beta + fund2.beta), 3)
+            inverse2.all <- round((fund1.beta - target.beta) / 
+                                    (fund1.beta + fund2.beta), 3)
             
             if (inside(inverse2.all, c(0, 1))) {
               
@@ -5745,9 +6259,10 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
         
       } else {
         
-        # (1) If effective beta is outside acceptable range, execute trade to rebalance 
-        # fund 1 / fund 2. 
-        # (2) If target beta is not achievable, execute fund 1 / inverse fund 2 trade.
+        # (1) If effective beta is outside acceptable range, execute trade to 
+        # rebalance fund 1 / fund 2. 
+        # (2) If target beta is not achievable, execute fund 1 / inverse fund 2 
+        # trade.
         # (3) If target beta is still not achievable, switch to 100% cash.
         
         if (! inside(effective.beta, beta.range)) {
@@ -5765,7 +6280,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
             
           } else {
             
-            inverse2.all <- round((fund1.beta - target.beta) / (fund1.beta + fund2.beta), 3)
+            inverse2.all <- round((fund1.beta - target.beta) / 
+                                    (fund1.beta + fund2.beta), 3)
             
             if (inside(inverse2.all, c(0, 1))) {
               
@@ -5802,8 +6318,11 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # If reference funds provided, add to fund.balances matrix
     if (!is.null(reference.gains)) {
       
-      fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x)
-        balances(ratios = x[(window.units + 1): length(x)] + 1, initial = initial)))
+      fund.balances <- cbind(fund.balances, 
+                             apply(reference.gains, 2, function(x)
+                               balances(ratios = x[(window.units + 1): 
+                                                     length(x)] + 1, 
+                                        initial = initial)))
       
     }
     
@@ -5821,13 +6340,15 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # Calculate initial betas and initial target allocation to fund 1
     fund1.beta <- fund.betas[1, 1]
     fund2.beta <- fund.betas[1, 2]
-    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+    fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                       3)
     
     # Distribute initial balance to fund 1 and fund 2
     if (inside(fund1.all, c(0, 1))) {
       fund2.all <- 1 - fund1.all
     } else {
-      fund1.all <- ifelse(which.min(abs(c(fund1.beta, fund2.beta) - target.beta)) == 1, 1, 0)
+      fund1.all <- ifelse(which.min(abs(c(fund1.beta, fund2.beta) - 
+                                          target.beta)) == 1, 1, 0)
       fund2.all <- 1 - fund1.all
     }
     fund1.bal <- initial * fund1.all
@@ -5835,8 +6356,10 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     port.bal <- initial
     
     # Initialize matrix for fund balances
-    fund.balances <- matrix(NA, ncol = 3, nrow = nrow(tickers.gains) - window.units + 1,
-                            dimnames = list(dates, c(colnames(tickers.gains), "PORT")))
+    fund.balances <- matrix(NA, ncol = 3, 
+                            nrow = nrow(tickers.gains) - window.units + 1,
+                            dimnames = list(dates, 
+                                            c(colnames(tickers.gains), "PORT")))
     fund.balances[1, ] <- c(fund1.bal, fund2.bal, port.bal)
     
     # Initialize vector for effective betas
@@ -5864,17 +6387,21 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
       fund2.beta <- fund.betas[loop.index, 2]
       
       # Calculate target allocation for fund 1
-      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 3)
+      fund1.all <- round((target.beta - fund2.beta) / (fund1.beta - fund2.beta), 
+                         3)
       
       # Calculate effective beta
-      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / port.bal
+      effective.beta <- (fund1.beta * fund1.bal + fund2.beta * fund2.bal) / 
+        port.bal
       effective.betas[loop.index] <- effective.beta
       
       # Rebalance
       if (fund1.bal == port.bal) {
         
-        # (1) If target beta can be achieved with fund 1 / fund 2, execute that trade.
-        # (2) Otherwise, if fund 1 still has beta closer to target, stick with 100% fund 1.
+        # (1) If target beta can be achieved with fund 1 / fund 2, execute that 
+        # trade.
+        # (2) Otherwise, if fund 1 still has beta closer to target, stick with 
+        # 100% fund 1.
         # (3) Otherwise, switch to 100% fund 2.
         
         if (inside(fund1.all, c(0, 1))) {
@@ -5907,8 +6434,10 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
         
       } else if (fund2.bal == port.bal) {
         
-        # (1) If target beta can be achieved with fund 1 / fund 2, execute that trade.
-        # (2) Otherwise, if fund 2 still has beta closer to target, stick with 100% fund 2.
+        # (1) If target beta can be achieved with fund 1 / fund 2, execute that 
+        # trade.
+        # (2) Otherwise, if fund 2 still has beta closer to target, stick with 
+        # 100% fund 2.
         # (3) Otherwise, switch to 100% fund 1.
         
         if (inside(fund1.all, c(0, 1))) {
@@ -5941,9 +6470,9 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
         
       } else {
         
-        # If effective beta is outside acceptable range, execute rebalancing trade if
-        # target beta is achievable, otherwise switch to 100% whichever fund has beta 
-        # closer to target.
+        # If effective beta is outside acceptable range, execute rebalancing 
+        # trade if target beta is achievable, otherwise switch to 100% whichever 
+        # fund has beta closer to target.
         
         if (! inside(effective.beta, beta.range)) {
           
@@ -5958,7 +6487,8 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
           } else {
             
             trades <- trades + 1
-            fund1.all <- ifelse(which.min(abs(c(fund1.beta, fund2.beta) - target.beta)) == 1, 1, 0)
+            fund1.all <- ifelse(which.min(abs(c(fund1.beta, fund2.beta) - 
+                                                target.beta)) == 1, 1, 0)
             fund2.all <- 1 - fund1.all
             fund1.bal <- port.bal * fund1.all
             fund2.bal <- port.bal * fund2.all
@@ -5974,8 +6504,11 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
     # If reference funds provided, add to fund.balances matrix
     if (!is.null(reference.gains)) {
       
-      fund.balances <- cbind(fund.balances, apply(reference.gains, 2, function(x)
-        balances(ratios = x[(window.units + 1): length(x)] + 1, initial = initial)))
+      fund.balances <- cbind(fund.balances, 
+                             apply(reference.gains, 2, function(x)
+                               balances(ratios = x[(window.units + 1): 
+                                                     length(x)] + 1, 
+                                        initial = initial)))
       
     }
     
@@ -5996,16 +6529,21 @@ targetbeta.twofunds <- function(tickers = NULL, intercepts = NULL, slopes = NULL
 }
   
 
-# Contango-based XIV/VXX strategy. Hold XIV when contango > c1, hold VXX when contango < c2
+# Contango-based XIV/VXX strategy. Hold XIV when contango > c1, hold VXX when 
+# contango < c2
 contango.simple <- function(contango, 
-                            xiv.gains = NULL, vxx.gains = NULL, 
-                            xiv.cutpoint = 0, vxx.cutpoint = -Inf,
+                            xiv.gains = NULL, 
+                            vxx.gains = NULL, 
+                            xiv.cutpoint = 0, 
+                            vxx.cutpoint = -Inf,
                             initial = 10000) {
   
-  # Initialize data frame to record holding, gain, and portfolio balance for each day
+  # Initialize data frame to record holding, gain, and portfolio balance for 
+  # each day
   results <- data.frame()
   
-  # Create vector of fund held each day, and vector of portfolio gain for each day
+  # Create vector of fund held each day, and vector of portfolio gain for each 
+  # day
   holdings <- rep("cash", length(contango))
   port.gains <- rep(0, length(contango))
   locs.xiv <- which(contango > xiv.cutpoint)
@@ -6065,7 +6603,8 @@ contango.hedged <- function(contango,
                             xiv.beta = NULL, vxx.beta = NULL,
                             initial = 10000) {
   
-  # If betas specified, calculate allocations for zero-beta XIV/SPXU and VXX/UPRO
+  # If betas specified, calculate allocations for zero-beta XIV/SPXU and 
+  # VXX/UPRO
   if (! is.null(xiv.beta)) {
     xiv.allocation <- 3 / (xiv.beta + 3)
   }
@@ -6075,16 +6614,20 @@ contango.hedged <- function(contango,
   
   # Calculate weighted XIV/SPXU gains and weighted VXX/UPRO gains
   if (! is.null(xiv.spxu.gains)) {
-    xiv.spxu.weighted <- xiv.spxu.gains %*% c(xiv.allocation, 1 - xiv.allocation)
+    xiv.spxu.weighted <- xiv.spxu.gains %*% c(xiv.allocation, 1 - 
+                                                xiv.allocation)
   }
   if (! is.null(vxx.upro.gains)) {
-    vxx.upro.weighted <- vxx.upro.gains %*% c(vxx.allocation, 1 - vxx.allocation)
+    vxx.upro.weighted <- vxx.upro.gains %*% c(vxx.allocation, 1 - 
+                                                vxx.allocation)
   }
   
-  # Initialize data frame to record holding, gain, and portfolio balance for each day
+  # Initialize data frame to record holding, gain, and portfolio balance for 
+  # each day
   results <- data.frame()
   
-  # Create vector of fund held each day, and vector of portfolio gain for each day
+  # Create vector of fund held each day, and vector of portfolio gain for each 
+  # day
   holdings <- rep("cash", length(contango))
   port.gains <- rep(0, length(contango))
   locs.xiv.spxu <- which(contango > xiv.spxu.cutpoint)

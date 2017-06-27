@@ -8,8 +8,10 @@ Create plot showing one performance metric vs. another for several investments.
 }
 \usage{
 twometrics.graph(tickers = NULL, ...,
-                 gains = NULL, prices = NULL,
-                 x.metric = "mdd", y.metric = "cagr", 
+                 gains = NULL, 
+                 prices = NULL,
+                 x.metric = "mdd", 
+                 y.metric = "cagr", 
                  tickerlabel.offsets = NULL,
                  add.plot = FALSE, 
                  colors = NULL,
