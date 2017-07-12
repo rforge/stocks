@@ -4,7 +4,8 @@
 Return Non-Positive Elements of a Numeric Vector
 }
 \description{
-Simply returns the non-positive elements of some input vector \code{x}. Defined as \code{x[which(x <= 0)]}.
+Simply returns the non-positive elements of some input vector \code{x}. Defined
+as \code{x[which(x <= 0)]}.
 }
 \usage{
 nonpos(x)
@@ -18,7 +19,8 @@ Numeric vector.
 Numeric vector.
 }
 \references{
-Acknowledgment: This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE-0940903.
+Acknowledgment: This material is based upon work supported by the National
+Science Foundation Graduate Research Fellowship under Grant No. DGE-0940903.
 }
 \author{
 Dane R. Van Domelen

@@ -6,14 +6,18 @@
 Fast Functions for Stock Market Analysis
 }
 \description{
-Functions for analyzing stocks or other investments. Main features are loading and aligning historical data for ticker symbols, calculating performance metrics for individual funds or portfolios (e.g. compound annualized growth rate, maximum drawdown, Sharpe/Sortino ratio), and creating graphs. C++ code is used where possible to improve processing speed.
+Functions for analyzing stocks or other investments. Main features are loading
+and aligning historical data for ticker symbols, calculating performance metrics
+for individual funds or portfolios (e.g. compound annualized growth rate,
+maximum drawdown, Sharpe/Sortino ratio), and creating graphs. C++ code is used
+where possible to improve processing speed.
 }
 \details{
 \tabular{ll}{
 Package: \tab stocks\cr
 Type: \tab Package\cr
 Version: \tab 1.1.2\cr
-Date: \tab 2017-06-26\cr
+Date: \tab 2017-07-12\cr
 License: \tab GPL-2\cr
 }
 The following functions are included:
@@ -59,9 +63,11 @@ Dane R. Van Domelen
 Maintainer: Dane R. Van Domelen <vandomed@gmail.com>
 }
 \references{
-1. Jeffrey A. Ryan (2016). quantmod: Quantitative Financial Modelling Framework. R package version 0.4-6, \url{https://cran.r-project.org/package=quantmod}.
+1. Jeffrey A. Ryan (2016). quantmod: Quantitative Financial Modelling Framework.
+R package version 0.4-6, \url{https://cran.r-project.org/package=quantmod}.
 
-Acknowledgment: This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE-0940903.
+Acknowledgment: This material is based upon work supported by the National
+Science Foundation Graduate Research Fellowship under Grant No. DGE-0940903.
 }
 \keyword{ package }
 \examples{
@@ -80,7 +86,7 @@ Acknowledgment: This material is based upon work supported by the National Scien
 # Plot CAGR vs. MDD for VFINX/VBLTX and VFINX/VWEHX portfolios
 #graph2 <- twofunds.graph(tickers = matrix(c("VFINX", "VBLTX", "VFINX", "VWEHX"), 2),
 #                         x.metric = "mdd", y.metric = "cagr")
-                         
+
 # Plot mean vs. SD of monthly gains for VWEHX/VFINX/VBLTX portfolio
 #graph3 <- threefunds.graph(tickers = c("VWEHX", "VFINX", "VBLTX"))
 }
