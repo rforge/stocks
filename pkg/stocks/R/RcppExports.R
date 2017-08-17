@@ -220,7 +220,7 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL, ...,
   #     prices[[ii]] <- prices.fund[-locs.na, ]
   #   }
   # }
-
+  #
   # # Adjust for dividends - added after Yahoo! Finance change / quantmod patch. Not 100% confident in it.
   # for (ii in 1: length(prices)) {
   #
@@ -1982,6 +1982,9 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   }
 
   # Return portfolio.xy, mean for each fund and correlation matrix
+  if (! exists("gains")) {
+    gains <- cbind(tickers.gains, benchmark.gains, reference.gains)
+  }
   means <- apply(gains, 2, mean)
   corr.matrix <- cor(gains)
   return.list <- list(portfolio.xy = portfolio.xy, means = means,
@@ -3100,6 +3103,9 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   }
 
   # Return portfolio.xy, mean for each fund, and correlation matrix
+  if (! exists("gains")) {
+    gains <- cbind(tickers.gains, benchmark.gains, reference.gains)
+  }
   means <- apply(gains, 2, mean)
   corr.matrix <- cor(gains)
   return.list <- list(portfolio.xy = portfolio.xy, means = means,
