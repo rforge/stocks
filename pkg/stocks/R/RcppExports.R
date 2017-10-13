@@ -939,6 +939,8 @@ metrics <- function(tickers = NULL, ...,
   # Figure out how many units are in a year, for CAGR and axis labels. If
   # unknown, assume daily.
   if (hasArg(time.scale)) {
+    extra.args <- list(...)
+    time.scale <- extra.args$time.scale
     units.year <- ifelse(time.scale == "daily", 252,
                          ifelse(time.scale == "monthly", 12,
                                 1))
@@ -1159,6 +1161,8 @@ twofunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   # Figure out how many units are in a year, for CAGR and axis labels. If
   # unknown, assume daily.
   if (hasArg(time.scale)) {
+    extra.args <- list(...)
+    time.scale <- extra.args$time.scale
     units.year <- ifelse(time.scale == "daily", 252,
                          ifelse(time.scale == "monthly", 12,
                                 1))
@@ -2115,6 +2119,8 @@ threefunds.graph <- function(tickers = NULL, intercepts = NULL, slopes = NULL,
   # Figure out how many units are in a year, for CAGR and axis labels. If
   # unknown, assume daily.
   if (hasArg(time.scale)) {
+    extra.args <- list(...)
+    time.scale <- extra.args$time.scale
     units.year <- ifelse(time.scale == "daily", 252,
                          ifelse(time.scale == "monthly", 12,
                                 1))
@@ -3306,6 +3312,8 @@ gains.graph <- function(tickers = NULL, ...,
   # Figure out how many units are in a year, for CAGR and axis labels. If
   # unknown, assume daily.
   if (hasArg(time.scale)) {
+    extra.args <- list(...)
+    time.scale <- extra.args$time.scale
     units.year <- ifelse(time.scale == "daily", 252,
                          ifelse(time.scale == "monthly", 12,
                                 1))
@@ -3540,6 +3548,8 @@ onemetric.graph <- function(tickers = NULL, ...,
   # Figure out how many units are in a year, for CAGR and axis labels. If
   # unknown, assume daily.
   if (hasArg(time.scale)) {
+    extra.args <- list(...)
+    time.scale <- extra.args$time.scale
     units.year <- ifelse(time.scale == "daily", 252,
                          ifelse(time.scale == "monthly", 12, 1))
   } else {
@@ -3790,6 +3800,8 @@ twometrics.graph <- function(tickers = NULL, ...,
   # Figure out how many units are in a year, for CAGR and axis labels. If
   # unknown, assume daily.
   if (hasArg(time.scale)) {
+    extra.args <- list(...)
+    time.scale <- extra.args$time.scale
     units.year <- ifelse(time.scale == "daily", 252,
                          ifelse(time.scale == "monthly", 12,
                                 1))
@@ -4663,6 +4675,8 @@ onemetric.overtime.graph <- function(tickers = NULL, ...,
   # Figure out how many units are in a year, for CAGR and axis labels. If
   # unknown, assume daily.
   if (hasArg(time.scale)) {
+    extra.args <- list(...)
+    time.scale <- extra.args$time.scale
     units.year <- ifelse(time.scale == "daily", 252,
                          ifelse(time.scale == "monthly", 12,
                                 1))

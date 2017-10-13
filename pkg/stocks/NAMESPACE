@@ -1,4 +1,4 @@
-useDynLib(stocks)
+useDynLib(stocks, .registration = TRUE)
 exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp, "evalCpp")
 importFrom("graphics", "abline", "grid", "legend", "lines", "plot", "points",
@@ -15,3 +15,4 @@ import(rbenchmark)
 import(quantmod)
 import(lubridate)
 import(RColorBrewer)
+import(curl)
