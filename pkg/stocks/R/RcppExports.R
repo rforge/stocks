@@ -166,7 +166,8 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL, ...,
                        from = "1950-01-01", to = Sys.Date(),
                        time.scale = "daily",
                        preto.days = NULL, prefrom.days = NULL,
-                       earliest.subset = FALSE) {
+                       earliest.subset = FALSE,
+                       latest.subset = FALSE) {
 
   # Adjust from date if preto.days or prefrom.days are specified
   from.initial <- from <- as.Date(from)
@@ -301,15 +302,23 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL, ...,
     # Align end dates
     end.dates <- as.Date(unlist(lapply(prices, function(x)
       rownames(x[nrow(x), , drop = F]))))
-    if (length(unique(end.dates)) > 1) {
-      earliest.enddate <- min(end.dates)
-      for (ii in 1: length(tickers)) {
-        if (end.dates[ii] != earliest.enddate) {
-          prices.fund <- prices[[ii]]
-          dates.fund <- as.Date(rownames(prices.fund))
-          loc.end <- which(dates.fund == earliest.enddate)
-          prices.fund <- prices.fund[1: loc.end, ]
-          prices[[ii]] <- prices.fund
+    if (latest.subset) {
+      latest.enddate <- max(end.dates)
+      locs.latest <- which(end.dates == latest.enddate)
+      tickers <- tickers[locs.latest]
+      end.dates <- end.dates[locs.latest]
+      prices <- prices[locs.latest]
+    } else {
+      if (length(unique(end.dates)) > 1) {
+        earliest.enddate <- min(end.dates)
+        for (ii in 1: length(tickers)) {
+          if (end.dates[ii] != earliest.enddate) {
+            prices.fund <- prices[[ii]]
+            dates.fund <- as.Date(rownames(prices.fund))
+            loc.end <- which(dates.fund == earliest.enddate)
+            prices.fund <- prices.fund[1: loc.end, ]
+            prices[[ii]] <- prices.fund
+          }
         }
       }
     }
@@ -430,7 +439,7 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL, ...,
                         time.scale = "daily",
                         preto.days = NULL, prefrom.days = NULL,
                         initial = NULL,
-                        earliest.subset = FALSE) {
+                        earliest.subset = FALSE, latest.subset = FALSE) {
 
   # Adjust from date if preto.days or prefrom.days are specified
   from.initial <- from <- as.Date(from)
@@ -566,15 +575,23 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL, ...,
     # Align end dates
     end.dates <- as.Date(unlist(lapply(prices, function(x)
       rownames(x[nrow(x), , drop = F]))))
-    if (length(unique(end.dates)) > 1) {
-      earliest.enddate <- min(end.dates)
-      for (ii in 1: length(tickers)) {
-        if (end.dates[ii] != earliest.enddate) {
-          prices.fund <- prices[[ii]]
-          dates.fund <- as.Date(rownames(prices.fund))
-          loc.end <- which(dates.fund == earliest.enddate)
-          prices.fund <- prices.fund[1: loc.end, ]
-          prices[[ii]] <- prices.fund
+    if (latest.subset) {
+      latest.enddate <- max(end.dates)
+      locs.latest <- which(end.dates == latest.enddate)
+      tickers <- tickers[locs.latest]
+      end.dates <- end.dates[locs.latest]
+      prices <- prices[locs.latest]
+    } else {
+      if (length(unique(end.dates)) > 1) {
+        earliest.enddate <- min(end.dates)
+        for (ii in 1: length(tickers)) {
+          if (end.dates[ii] != earliest.enddate) {
+            prices.fund <- prices[[ii]]
+            dates.fund <- as.Date(rownames(prices.fund))
+            loc.end <- which(dates.fund == earliest.enddate)
+            prices.fund <- prices.fund[1: loc.end, ]
+            prices[[ii]] <- prices.fund
+          }
         }
       }
     }
@@ -3765,6 +3782,11 @@ twometrics.graph <- function(tickers = NULL, ...,
     stop("You must specify one of the following inputs: tickers, gains, or
          prices")
 
+  }
+
+  # Convert gains to matrix if not already
+  if (! is.matrix(gains)) {
+    gains <- as.matrix(gains)
   }
 
   # If x.metric or y.metric requires one or two benchmarks, split gains matrix

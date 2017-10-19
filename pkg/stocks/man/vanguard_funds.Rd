@@ -1,15 +1,15 @@
-\name{vanguard.funds}
-\alias{vanguard.funds}
+\name{vanguard_funds}
+\alias{vanguard_funds}
 \docType{data}
 \title{
-Vanguard Mutual Funds and Inception Dates as of April 2, 2017
+Vanguard Mutual Funds and Inception Dates as of Oct. 18, 2017
 }
 \description{
 Data frame where first column is ticker symbol and second column is inception
 date.
 }
 \format{
-  A 119-row data frame with 2 variables: \code{ticker} (character string) and
+  A 120-row data frame with 2 variables: \code{ticker} (character string) and
   \code{start.date} (date).
 }
 \source{

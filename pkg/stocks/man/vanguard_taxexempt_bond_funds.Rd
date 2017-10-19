@@ -1,8 +1,8 @@
-\name{vanguard.taxexempt.bond.funds}
-\alias{vanguard.taxexempt.bond.funds}
+\name{vanguard_taxexempt_bond_funds}
+\alias{vanguard_taxexempt_bond_funds}
 \docType{data}
 \title{
-Vanguard Tax-exempt Bond Mutual Funds and Inception Dates as of April 2, 2017
+Vanguard Tax-exempt Bond Mutual Funds and Inception Dates as of Oct. 18, 2017
 }
 \description{
 Data frame where first column is ticker symbol and second column is inception

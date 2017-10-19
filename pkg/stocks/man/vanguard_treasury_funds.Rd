@@ -1,8 +1,8 @@
-\name{vanguard.treasury.funds}
-\alias{vanguard.treasury.funds}
+\name{vanguard_treasury_funds}
+\alias{vanguard_treasury_funds}
 \docType{data}
 \title{
-Vanguard Treasury/Agency Bond Mutual Funds and Inception Dates as of April 2,
+Vanguard Treasury/Agency Bond Mutual Funds and Inception Dates as of Oct. 18,
 2017
 }
 \description{

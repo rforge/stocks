@@ -1,8 +1,8 @@
-\name{vanguard.treasury.etfs}
-\alias{vanguard.treasury.etfs}
+\name{vanguard_treasury_etfs}
+\alias{vanguard_treasury_etfs}
 \docType{data}
 \title{
-Vanguard Treasury/Agency Bond ETFs as of April 2, 2017
+Vanguard Treasury/Agency Bond ETFs as of Oct. 18, 2017
 }
 \description{
 Data frame where first column is ticker symbol and second column is inception

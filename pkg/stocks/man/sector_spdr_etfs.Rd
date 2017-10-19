@@ -1,8 +1,8 @@
-\name{sector.spdr.etfs}
-\alias{sector.spdr.etfs}
+\name{sector_spdr_etfs}
+\alias{sector_spdr_etfs}
 \docType{data}
 \title{
-Sector SPDR ETFs and Inception Dates as of April 7, 2017
+Sector SPDR ETFs and Inception Dates as of Oct. 18, 2017
 }
 \description{
 Data frame where first column is ticker symbol and second column is inception

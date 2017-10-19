@@ -13,7 +13,7 @@ load.prices(tickers, intercepts = NULL, slopes = NULL, ...,
             time.scale = "daily",
             preto.days = NULL, prefrom.days = NULL,
             initial = NULL,
-            earliest.subset = FALSE)
+            earliest.subset = FALSE, latest.subset = FALSE)
 }
 \arguments{
   \item{tickers}{
@@ -70,6 +70,11 @@ compare.
 If \code{TRUE}, only the subset of tickers with data going back to \code{from}
 (or the earliest) are included; if \code{FALSE}, all tickers are included, and
 data covering their mutual lifetimes is returned.
+}
+  \item{latest.subset}{
+If \code{TRUE}, only the subset of tickers with data going all the way to
+\code{to} (or the latest) are included; if \code{FALSE}, all tickers are
+included, and data covering their mutual lifetimes is returned.
 }
 }
 \details{

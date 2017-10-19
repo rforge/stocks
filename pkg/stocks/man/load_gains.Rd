@@ -12,7 +12,7 @@ load.gains(tickers, intercepts = NULL, slopes = NULL, ...,
            from = "1950-01-01", to = Sys.Date(),
            time.scale = "daily",
            preto.days = NULL, prefrom.days = NULL,
-           earliest.subset = FALSE)
+           earliest.subset = FALSE, latest.subset = FALSE)
 }
 \arguments{
   \item{tickers}{
@@ -64,6 +64,11 @@ trailing beta.
 If \code{TRUE}, only the subset of tickers with data going back to \code{from}
 (or the earliest) are included; if \code{FALSE}, all tickers are included, and
 data covering their mutual lifetimes is returned.
+}
+  \item{latest.subset}{
+If \code{TRUE}, only the subset of tickers with data going all the way to
+\code{to} (or the latest) are included; if \code{FALSE}, all tickers are
+included, and data covering their mutual lifetimes is returned.
 }
 }
 \details{

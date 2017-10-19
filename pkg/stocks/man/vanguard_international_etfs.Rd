@@ -1,8 +1,8 @@
-\name{vanguard.international.etfs}
-\alias{vanguard.international.etfs}
+\name{vanguard_international_etfs}
+\alias{vanguard_international_etfs}
 \docType{data}
 \title{
-Vanguard International ETFs and Inception Dates as of April 2, 2017
+Vanguard International ETFs and Inception Dates as of Oct. 18, 2017
 }
 \description{
 Data frame where first column is ticker symbol and second column is inception

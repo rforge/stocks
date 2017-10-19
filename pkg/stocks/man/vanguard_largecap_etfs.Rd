@@ -1,8 +1,8 @@
-\name{vanguard.largecap.etfs}
-\alias{vanguard.largecap.etfs}
+\name{vanguard_largecap_etfs}
+\alias{vanguard_largecap_etfs}
 \docType{data}
 \title{
-Vanguard Large-cap Stock ETFs and Inception Dates as of April 2, 2017
+Vanguard Large-cap Stock ETFs and Inception Dates as of Oct. 18, 2017
 }
 \description{
 Data frame where first column is ticker symbol and second column is inception

@@ -1,8 +1,8 @@
-\name{vanguard.international.funds}
-\alias{vanguard.international.funds}
+\name{vanguard_international_funds}
+\alias{vanguard_international_funds}
 \docType{data}
 \title{
-List of Vanguard International Mutual Funds and Inception Dates as of April 2,
+List of Vanguard International Mutual Funds and Inception Dates as of Oct. 18,
 2017
 }
 \description{

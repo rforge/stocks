@@ -1,8 +1,8 @@
-\name{largest.etfs}
-\alias{largest.etfs}
+\name{largest_etfs_10_18_17}
+\alias{largest_etfs_10_18_17}
 \docType{data}
 \title{
-Largest 100 Market Cap ETFs and Inception Dates as of April 9, 2017
+Largest 100 Market Cap ETFs and Inception Dates as of Oct. 18, 2017
 }
 \description{
 Data frame where first column is ticker symbol and second column is inception

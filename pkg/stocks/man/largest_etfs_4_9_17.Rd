@@ -1,19 +1,19 @@
-\name{vanguard_sector_funds}
-\alias{vanguard_sector_funds}
+\name{largest_etfs_4_9_17}
+\alias{largest_etfs_4_9_17}
 \docType{data}
 \title{
-Vanguard Sector Mutual Funds and Inception Dates as of Oct. 18, 2017
+Largest 100 Market Cap ETFs and Inception Dates as of April 9, 2017
 }
 \description{
 Data frame where first column is ticker symbol and second column is inception
 date.
 }
 \format{
-  A 4-row data frame with 2 variables: \code{ticker} (character string) and
+  A 100-row data frame with 2 variables: \code{ticker} (character string) and
   \code{start.date} (date).
 }
 \source{
-\url{https://investor.vanguard.com/mutual-funds/list#/mutual-funds/asset-class/month-end-returns}
+\url{http://etfdb.com/compare/market-cap/}
 }
 \references{
 Acknowledgment: This material is based upon work supported by the National

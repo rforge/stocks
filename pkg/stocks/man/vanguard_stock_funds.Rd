@@ -1,8 +1,8 @@
-\name{vanguard.stock.funds}
-\alias{vanguard.stock.funds}
+\name{vanguard_stock_funds}
+\alias{vanguard_stock_funds}
 \docType{data}
 \title{
-Vanguard Stock Mutual Funds and Inception Dates as of April 2, 2017
+Vanguard Stock Mutual Funds and Inception Dates as of Oct. 18, 2017
 }
 \description{
 Data frame where first column is ticker symbol and second column is inception

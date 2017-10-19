@@ -1,8 +1,8 @@
-\name{vanguard.largecap.funds}
-\alias{vanguard.largecap.funds}
+\name{vanguard_largecap_funds}
+\alias{vanguard_largecap_funds}
 \docType{data}
 \title{
-Vanguard Large-cap Stock Mutual Funds and Inception Dates as of April 2, 2017
+Vanguard Large-cap Stock Mutual Funds and Inception Dates as of Oct. 18, 2017
 }
 \description{
 Data frame where first column is ticker symbol and second column is inception

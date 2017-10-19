@@ -1,8 +1,8 @@
-\name{vanguard.targetrisk.funds}
-\alias{vanguard.targetrisk.funds}
+\name{vanguard_targetrisk_funds}
+\alias{vanguard_targetrisk_funds}
 \docType{data}
 \title{
-Vanguard Target Risk Mutual Funds and Inception Dates as of April 2, 2017
+Vanguard Target Risk Mutual Funds and Inception Dates as of Oct. 18, 2017
 }
 \description{
 Data frame where first column is ticker symbol and second column is inception

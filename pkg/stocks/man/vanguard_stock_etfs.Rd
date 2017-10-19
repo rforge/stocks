@@ -1,8 +1,8 @@
-\name{vanguard.stock.etfs}
-\alias{vanguard.stock.etfs}
+\name{vanguard_stock_etfs}
+\alias{vanguard_stock_etfs}
 \docType{data}
 \title{
-Vanguard Stock ETFs and Inception Dates as of April 2, 2017
+Vanguard Stock ETFs and Inception Dates as of Oct. 18, 2017
 }
 \description{
 Data frame where first column is ticker symbol and second column is inception

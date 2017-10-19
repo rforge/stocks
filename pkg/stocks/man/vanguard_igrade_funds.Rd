@@ -1,8 +1,8 @@
-\name{vanguard.igrade.funds}
-\alias{vanguard.igrade.funds}
+\name{vanguard_igrade_funds}
+\alias{vanguard_igrade_funds}
 \docType{data}
 \title{
-Vanguard Investment-grade Bond Mutual Funds and Inception Dates as of April 2,
+Vanguard Investment-grade Bond Mutual Funds and Inception Dates as of Oct. 18,
 2017
 }
 \description{
