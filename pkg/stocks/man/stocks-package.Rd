@@ -57,6 +57,14 @@ The following functions are included:
 \code{\link{contango.simple}}
 \code{\link{contango.hedged}}
 }
+\note{
+Many of the functions download data from Yahoo! Finance. In the first half of
+2017, there were some issues with the adjusted closing prices listed on Yahoo!
+Finance. As of Oct. 19, 2017, I believe these issues have been resolved. But if
+you see really strange results for a particular analysis, you might want to take
+a closer look and cross-reference with some other sources to verify it's not due
+to bad data.
+}
 \author{
 Dane R. Van Domelen
 

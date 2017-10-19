@@ -188,6 +188,7 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL, ...,
     if (class(prices.fund)[1] == "try-error") {
       prices[[ii]] <- NULL
     } else {
+      prices.fund <- as.matrix(prices.fund)
       locs.remove <- which(prices.fund[, 4] %in% c(0, NA))
       if (length(locs.remove) > 0) {
         prices.fund <- prices.fund[-locs.remove, , drop = F]
@@ -460,6 +461,7 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL, ...,
     if (class(prices.fund)[1] == "try-error") {
       prices[[ii]] <- NULL
     } else {
+      prices.fund <- as.matrix(prices.fund)
       locs.remove <- which(prices.fund[, 4] %in% c(0, NA))
       if (length(locs.remove) > 0) {
         prices.fund <- prices.fund[-locs.remove, , drop = F]
