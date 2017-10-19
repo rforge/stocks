@@ -192,10 +192,10 @@ load.gains <- function(tickers, intercepts = NULL, slopes = NULL, ...,
       if (length(locs.remove) > 0) {
         prices.fund <- prices.fund[-locs.remove, , drop = F]
       }
-      prices.fund <- as.matrix(adjustOHLC(x = prices.fund,
-                                          symbol.name = tickers[ii],
-                                          ...))
-      prices.fund[, 6] <- prices.fund[, 4]
+      # prices.fund <- as.matrix(adjustOHLC(x = prices.fund,
+      #                                     symbol.name = tickers[ii],
+      #                                     ...))
+      # prices.fund[, 6] <- prices.fund[, 4]
       prices[[ii]] <- prices.fund
       if (! earliest.subset) {
         from <- max(as.Date(from),
@@ -464,9 +464,9 @@ load.prices <- function(tickers, intercepts = NULL, slopes = NULL, ...,
       if (length(locs.remove) > 0) {
         prices.fund <- prices.fund[-locs.remove, , drop = F]
       }
-      prices.fund <- as.matrix(adjustOHLC(x = prices.fund,
-                                          symbol.name = tickers[ii], ...))
-      prices.fund[, 6] <- prices.fund[, 4]
+      # prices.fund <- as.matrix(adjustOHLC(x = prices.fund,
+      #                                     symbol.name = tickers[ii], ...))
+      # prices.fund[, 6] <- prices.fund[, 4]
       prices[[ii]] <- prices.fund
       if (! earliest.subset) {
         from <- max(as.Date(from),
