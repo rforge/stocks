@@ -3,7 +3,7 @@
 \alias{stocks}
 \docType{package}
 \title{
-Fast Functions for Stock Market Analysis
+Stock Market Analysis
 }
 \description{
 Functions for analyzing stocks or other investments. Main features are loading
@@ -17,44 +17,45 @@ where possible to improve processing speed.
 Package: \tab stocks\cr
 Type: \tab Package\cr
 Version: \tab 1.1.2\cr
-Date: \tab 2017-10-19\cr
+Date: \tab 2017-10-20\cr
 License: \tab GPL-2\cr
 }
 The following functions are included:
 
-\code{\link{diffs}}\cr
-\code{\link{pdiffs}}\cr
-\code{\link{pchanges}}\cr
-\code{\link{ratios}}\cr
-\code{\link{pos}}\cr
-\code{\link{neg}}\cr
-\code{\link{nonpos}}\cr
-\code{\link{nonneg}}\cr
-\code{\link{convert.rate}}\cr
-\code{\link{daily.yearly}}\cr
-\code{\link{yearly.daily}}\cr
-\code{\link{balances}}\cr
-\code{\link{final.balance}}\cr
-\code{\link{ticker.dates}}\cr
-\code{\link{load.gains}}\cr
-\code{\link{load.prices}}\cr
-\code{\link{prices.rate}}\cr
-\code{\link{gains.rate}}\cr
-\code{\link{mdd}}\cr
-\code{\link{sharpe.ratio}}\cr
-\code{\link{sortino.ratio}}\cr
-\code{\link{rrr}}\cr
-\code{\link{metrics}}\cr
-\code{\link{beta.trailing50}}\cr
-\code{\link{twofunds.graph}}\cr
-\code{\link{threefunds.graph}}\cr
-\code{\link{growth.graph}}\cr
-\code{\link{gains.graph}}\cr
-\code{\link{onemetric.graph}}\cr
-\code{\link{twometrics.graph}}\cr
-\code{\link{onemetric.overtime.graph}}
-\code{\link{targetbeta.twofunds}}
-\code{\link{contango.simple}}
+\code{\link{diffs}} \cr
+\code{\link{pdiffs}} \cr
+\code{\link{pchanges}} \cr
+\code{\link{ratios}} \cr
+\code{\link{pos}} \cr
+\code{\link{neg}} \cr
+\code{\link{nonpos}} \cr
+\code{\link{nonneg}} \cr
+\code{\link{convert.rate}} \cr
+\code{\link{daily.yearly}} \cr
+\code{\link{yearly.daily}} \cr
+\code{\link{balances}} \cr
+\code{\link{final.balance}} \cr
+\code{\link{ticker.dates}} \cr
+\code{\link{load.gains}} \cr
+\code{\link{load.prices}} \cr
+\code{\link{prices.rate}} \cr
+\code{\link{gains.rate}} \cr
+\code{\link{mdd}} \cr
+\code{\link{sharpe.ratio}} \cr
+\code{\link{sortino.ratio}} \cr
+\code{\link{rrr}} \cr
+\code{\link{metrics}} \cr
+\code{\link{beta.trailing50}} \cr
+\code{\link{twofunds.graph}} \cr
+\code{\link{threefunds.graph}} \cr
+\code{\link{growth.graph}} \cr
+\code{\link{gains.graph}} \cr
+\code{\link{onemetric.graph}} \cr
+\code{\link{twometrics.graph}} \cr
+\code{\link{onemetric.overtime.graph}} \cr
+\code{\link{targetbeta.twofunds}} \cr
+\code{\link{targetall.nfunds}} \cr
+\code{\link{contango.simple}} \cr
 \code{\link{contango.hedged}}
 }
 \note{
