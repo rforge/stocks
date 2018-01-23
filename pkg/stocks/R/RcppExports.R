@@ -26,7 +26,7 @@ list.override <- function(list1, list2) {
 
 
 diffs <- function(x, lag = 1) {
-  .Call('stocks_diffs_c', x, lag)
+  .Call('stocks_diffs_c', PACKAGE = 'stocks', x, lag)
 }
 
 
@@ -39,9 +39,9 @@ pdiffs <- function(x, lag = 1, percent = FALSE) {
 
   # Call pdiffs_c with multiplier depending on percent input
   if (percent) {
-    .Call('stocks_pdiffs_c', x, lag, 100)
+    .Call('stocks_pdiffs_c', PACKAGE = 'stocks', x, lag, 100)
   } else {
-    .Call('stocks_pdiffs_c', x, lag, 1)
+    .Call('stocks_pdiffs_c', PACKAGE = 'stocks', x, lag, 1)
   }
 
 }
@@ -56,16 +56,16 @@ pchanges <- function(x, lag = 1, percent = FALSE) {
 
   # Call pchanges_c with multiplier depending on percent input
   if (percent) {
-    .Call('stocks_pchanges_c', x, lag, 100)
+    .Call('stocks_pchanges_c', PACKAGE = 'stocks', x, lag, 100)
   } else {
-    .Call('stocks_pchanges_c', x, lag, 1)
+    .Call('stocks_pchanges_c', PACKAGE = 'stocks', x, lag, 1)
   }
 
 }
 
 
 ratios <- function(x) {
-  .Call('stocks_ratios_c', x)
+  .Call('stocks_ratios_c', PACKAGE = 'stocks', x)
 }
 
 
@@ -806,10 +806,10 @@ mdd <- function(prices = NULL,
       prices <- prices[!is.na(prices)]
     }
     if (indices) {
-      mdd.out <- .Call('stocks_mdd_p_c2', prices)
+      mdd.out <- .Call('stocks_mdd_p_c2', PACKAGE = 'stocks', prices)
       names(mdd.out) <- c("mdd", "start.index", "end.index")
     } else {
-      mdd.out <- .Call('stocks_mdd_p_c1', prices)
+      mdd.out <- .Call('stocks_mdd_p_c1', PACKAGE = 'stocks', prices)
     }
   } else {
     if (!is.null(prices)) {
@@ -821,10 +821,10 @@ mdd <- function(prices = NULL,
       lows <- lows[!is.na(lows)]
     }
     if (indices) {
-      mdd.out <- .Call('stocks_mdd_hl_c2', highs, lows)
+      mdd.out <- .Call('stocks_mdd_hl_c2', PACKAGE = 'stocks', highs, lows)
       names(mdd.out) <- c("mdd", "start.index", "end.index")
     } else {
-      mdd.out <- .Call('stocks_mdd_hl_c1', highs, lows)
+      mdd.out <- .Call('stocks_mdd_hl_c1', PACKAGE = 'stocks', highs, lows)
     }
   }
 
