@@ -1,4 +1,4 @@
-useDynLib(stocks, .registration = TRUE)
+#useDynLib(stocks, .registration = TRUE)
 #exportPattern("^[[:alpha:]]+")
 export(diffs, pdiffs, pchanges, ratios, pos, neg, nonpos, nonneg, convert.rate,
        daily.yearly, yearly.daily, balances, final.balance, ticker.dates,
@@ -6,7 +6,8 @@ export(diffs, pdiffs, pchanges, ratios, pos, neg, nonpos, nonneg, convert.rate,
        sortino.ratio, rrr, metrics, beta.trailing50, twofunds.graph,
        threefunds.graph, growth.graph, gains.graph, onemetric.graph,
        twometrics.graph, onemetric.overtime.graph, targetbeta.twofunds,
-       targetall.nfunds, contango.simple, contango.hedged)
+       targetall.nfunds, contango.simple, contango.hedged,
+       list.override)
 importFrom(Rcpp, "evalCpp")
 importFrom("graphics", "abline", "grid", "legend", "lines", "plot", "points",
            "text", "axis")
