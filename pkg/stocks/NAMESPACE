@@ -1,10 +1,17 @@
 useDynLib(stocks, .registration = TRUE)
-exportPattern("^[[:alpha:]]+")
+#exportPattern("^[[:alpha:]]+")
+export(diffs, pdiffs, pchanges, ratios, pos, neg, nonpos, nonneg, convert.rate,
+       daily.yearly, yearly.daily, balances, final.balance, ticker.dates,
+       load.gains, load.prices, prices.rate, gains.rate, mdd, sharpe.ratio,
+       sortino.ratio, rrr, metrics, beta.trailing50, twofunds.graph,
+       threefunds.graph, growth.graph, gains.graph, onemetric.graph,
+       twometrics.graph, onemetric.overtime.graph, targetbeta.twofunds,
+       targetall.nfunds, contango.simple, contango.hedged)
 importFrom(Rcpp, "evalCpp")
 importFrom("graphics", "abline", "grid", "legend", "lines", "plot", "points",
            "text", "axis")
 importFrom("grDevices", "pdf", "bmp", "jpeg", "png", "tiff", "dev.off")
-importFrom("stats", "sd", "anova", "complete.cases", "cov", "lm", "nlminb", 
+importFrom("stats", "sd", "anova", "complete.cases", "cov", "lm", "nlminb",
            "pnorm", "predict", "var", "vcov", "cor")
 importFrom("methods", "hasArg")
 importFrom("grDevices", "colorRampPalette")
