@@ -1,4 +1,4 @@
-#useDynLib(stocks, .registration = TRUE)
+useDynLib(stocks, .registration = TRUE)
 #exportPattern("^[[:alpha:]]+")
 export(diffs, pdiffs, pchanges, ratios, pos, neg, nonpos, nonneg, convert.rate,
        daily.yearly, yearly.daily, balances, final.balance, ticker.dates,
