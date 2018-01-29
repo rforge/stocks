@@ -1,4 +1,4 @@
-useDynLib(stocks, .Registration = TRUE)
+useDynLib(stocks)
 exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp, "evalCpp")
 importFrom("graphics", "abline", "grid", "legend", "lines", "plot", "points",
