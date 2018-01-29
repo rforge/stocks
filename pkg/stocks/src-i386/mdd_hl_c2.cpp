@@ -4,12 +4,12 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 NumericVector mdd_hl_c2(NumericVector highs, NumericVector lows) {
   int n = highs.size();
-  int pos1;
-  int pos2;
+  int pos1 = 0;
+  int pos2 = 0;
   int whichmax = 0;
   double maximum = highs(0);
   double mdd = 1;
-  double dd;
+  double dd = 0;
   double currenthigh;
   double currentlow;
   for (int a = 1; a < n; ++a) {

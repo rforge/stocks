@@ -6,7 +6,7 @@ double mdd_hl_c1(NumericVector highs, NumericVector lows) {
   int n = highs.size();
   double maximum = highs(0);
   double mdd = 1;
-  double dd;
+  double dd = 0;
   double currenthigh;
   double currentlow;
   for (int a = 1; a < n; ++a) {
