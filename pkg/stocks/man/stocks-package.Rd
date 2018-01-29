@@ -17,7 +17,7 @@ where possible to improve processing speed.
 Package: \tab stocks\cr
 Type: \tab Package\cr
 Version: \tab 1.1.2\cr
-Date: \tab 2018-01-23\cr
+Date: \tab 2018-01-29\cr
 License: \tab GPL-2\cr
 }
 The following functions are included:

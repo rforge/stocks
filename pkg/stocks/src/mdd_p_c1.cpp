@@ -6,7 +6,7 @@ double mdd_p_c1(NumericVector x) {
   int n = x.size();
   double maximum = x(0);
   double mdd = 1;
-  double dd;
+  double dd = 0;
   double current;
   for (int a = 1; a < n; ++a) {
     current = x(a);
